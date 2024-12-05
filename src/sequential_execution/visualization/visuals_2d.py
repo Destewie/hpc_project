@@ -4,8 +4,8 @@ import matplotlib
 matplotlib.use("TkAgg")  # Usa il backend TkAgg per evitare problemi con Qt/xcb
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
+from benchmark_functions import spherical_function, rastrigin_function
 
-# Funzione per validare la struttura JSON
 def validate_json(data):
     required_keys = ["fitness_function", "epochs"]
     for key in required_keys:
@@ -23,19 +23,14 @@ def validate_json(data):
     if len(data["fitness_function"]["spawn_bounds"]) != 2:
         raise ValueError("'spawn_bounds' must contain exactly 2 values.")
 
-# Funzione per leggere e validare il file JSON
 def read_json(filepath):
     with open(filepath, 'r') as file:
         data = json.load(file)
     validate_json(data)
     return data
 
-# Funzione per calcolare la funzione sferica
-def spherical_function(x, y):
-    return x**2 + y**2
-
-# Funzione per creare l'animazione
 def create_animation(data):
+    function = spherical_function
     spawn_bounds = data["fitness_function"]["spawn_bounds"]
     positions = [[(fish["x"], fish["y"]) for fish in epoch] for epoch in data["epochs"]]
 
@@ -43,16 +38,16 @@ def create_animation(data):
     fig, ax = plt.subplots()
     ax.set_xlim(spawn_bounds[0], spawn_bounds[1])
     ax.set_ylim(spawn_bounds[0], spawn_bounds[1])
-    ax.set_title("Fish School Optimization - Spherical Function")
+    ax.set_title("Fish School Optimization - 2D Function")
 
-    # Genera la griglia per la funzione
+    # Crea la griglia per la funzione
     x = np.linspace(spawn_bounds[0], spawn_bounds[1], 100)
     y = np.linspace(spawn_bounds[0], spawn_bounds[1], 100)
     X, Y = np.meshgrid(x, y)
-    Z = spherical_function(X, Y)
+    Z = function(X, Y)
 
-    # Aggiungi i contorni della funzione (senza mappa di colore)
-    ax.contour(X, Y, Z, levels=20, cmap="viridis", alpha=0.7)
+    # Disegna la funzione
+    ax.contour(X, Y, Z, 20, cmap='viridis')
 
     # Aggiungi i punti
     scat = ax.scatter([], [], color='red', zorder=5)
@@ -64,10 +59,10 @@ def create_animation(data):
         ax.set_ylim(spawn_bounds[0], spawn_bounds[1])
         ax.set_title(f"Epoch {frame}")
 
-        # Ridisegna i contorni della funzione
-        ax.contour(X, Y, Z, levels=20, cmap="viridis", alpha=0.7)
+        # Ridisegna la funzione
+        ax.contour(X, Y, Z, 20, cmap='viridis')
 
-        # Disegna i punti
+        # Disegna i punti (i pesci)
         x_data, y_data = zip(*current_positions)
         scat = ax.scatter(x_data, y_data, color='red', zorder=5)
         return scat,
