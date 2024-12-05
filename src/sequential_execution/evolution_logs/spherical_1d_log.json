@@ -1,0 +1,35 @@
+{
+  "fitness_function": {
+    "type": "spherical",
+    "formula": "3 * x^2",
+    "n_dimensions": 1,
+    "spawn_bounds": [-5, 5]
+  },
+  "epochs": [
+    [
+      { "x": 1.2, "fitness": 3.14 },
+      { "x": -2.3, "fitness": 16.29 },
+      { "x": 0.5, "fitness": 0.75 }
+    ],
+    [
+      { "x": 0.3, "fitness": 0.27 },
+      { "x": -1.0, "fitness": 3.0 },
+      { "x": -0.5, "fitness": 0.75 }
+    ],
+    [
+      { "x": -3.0, "fitness": 27.0 },
+      { "x": 1.0, "fitness": 3.0 },
+      { "x": -0.1, "fitness": 0.03 }
+    ],
+    [
+      { "x": 0.7, "fitness": 1.47 },
+      { "x": -1.5, "fitness": 6.75 },
+      { "x": 2.0, "fitness": 12.0 }
+    ],
+    [
+      { "x": 4.0, "fitness": 48.0 },
+      { "x": -0.8, "fitness": 1.92 },
+      { "x": -2.0, "fitness": 12.0 }
+    ]
+  ]
+}
