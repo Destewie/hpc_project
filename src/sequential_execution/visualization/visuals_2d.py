@@ -30,7 +30,8 @@ def read_json(filepath):
     return data
 
 def create_animation(data):
-    function = spherical_function
+    # function = spherical_function
+    function = rastrigin_function
     spawn_bounds = data["fitness_function"]["spawn_bounds"]
     positions = [[(fish["x"], fish["y"]) for fish in epoch] for epoch in data["epochs"]]
 
@@ -74,7 +75,8 @@ def create_animation(data):
 if __name__ == "__main__":
     try:
         # Percorso del file JSON
-        filepath = "../evolution_logs/spherical_2d_log.json"
+        # filepath = "../evolution_logs/spherical_2d_log.json"
+        filepath = "../evolution_logs/rastrigin_2d_log.json"
         data = read_json(filepath)
         create_animation(data)
     except Exception as e:

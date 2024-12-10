@@ -7,21 +7,18 @@ from matplotlib.animation import FuncAnimation
 from benchmark_functions import spherical_function, rastrigin_function
 
 def validate_json(data):
-    required_keys = ["fitness_function", "epochs"]
-    for key in required_keys:
-        if key not in data:
-            raise ValueError(f"Missing key: '{key}' in JSON.")
+    if not isinstance(data, list):
+        raise ValueError("JSON data must be a list of epochs.")
 
-    fitness_function_keys = ["type", "formula", "n_dimensions", "spawn_bounds"]
-    for key in fitness_function_keys:
-        if key not in data["fitness_function"]:
-            raise ValueError(f"Missing key: '{key}' in 'fitness_function' section.")
+    for epoch in data:
+        if not isinstance(epoch, list):
+            raise ValueError("Each epoch must be a list of fish objects.")
 
-    if not isinstance(data["fitness_function"]["n_dimensions"], int) or data["fitness_function"]["n_dimensions"] != 1:
-        raise ValueError("'n_dimensions' must be 1 for this visualization.")
-
-    if len(data["fitness_function"]["spawn_bounds"]) != 2:
-        raise ValueError("'spawn_bounds' must contain exactly 2 values.")
+        for fish in epoch:
+            if "x" not in fish or "weight" not in fish:
+                raise ValueError("Each fish object must have 'x' and 'weight' keys.")
+            if not isinstance(fish["x"], list) or len(fish["x"]) != 1:
+                raise ValueError("'x' must be a list with a single value.")
 
 def read_json(filepath):
     with open(filepath, 'r') as file:
@@ -31,8 +28,14 @@ def read_json(filepath):
 
 def create_animation(data):
     function = spherical_function
-    spawn_bounds = data["fitness_function"]["spawn_bounds"]
-    positions = [[fish["x"] for fish in epoch] for epoch in data["epochs"]]
+    # function = rastrigin_function
+
+    # Determina i limiti di spawn dai dati
+    all_positions = [fish["x"][0] for epoch in data for fish in epoch]
+    spawn_bounds = [min(all_positions), max(all_positions)]
+
+    # Estrarre le posizioni per ogni epoca
+    positions = [[fish["x"][0] for fish in epoch] for epoch in data]
 
     # Configurazione del grafico
     fig, ax = plt.subplots()
@@ -45,7 +48,7 @@ def create_animation(data):
     y = function(x)
 
     # Disegna la funzione
-    ax.plot(x, y, label="y = 3x^2", color='blue')
+    ax.plot(x, y, label="Fitness Function", color='blue')
 
     # Aggiungi i punti
     scat = ax.scatter([], [], color='red', zorder=5)
@@ -58,7 +61,7 @@ def create_animation(data):
         ax.set_title(f"Epoch {frame}")
 
         # Ridisegna la funzione
-        ax.plot(x, y, label="y = 3x^2", color='blue')
+        ax.plot(x, y, label="Fitness Function", color='blue')
 
         # Disegna i punti (i pesci)
         y_data = function(np.array(current_positions))  # Calcola i valori di y per i punti
