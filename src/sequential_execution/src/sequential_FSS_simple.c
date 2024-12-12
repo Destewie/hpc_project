@@ -3,9 +3,9 @@
 #include <math.h>
 #include <time.h>
 
-#define DIM 1
+#define DIM 2
 #define N_FISHES 3
-#define MAX_ITER 50
+#define MAX_ITER 10
 #define BOUNDS_MIN -10.0   // Minimum bound of the search space
 #define BOUNDS_MAX 10.0    // Maximum bound of the search space
 #define BOUNDS_MIN_W 0.1   // Minimum bound of the search space
@@ -18,6 +18,13 @@ typedef struct{
     double fitness;
 }Fish;
 
+void print_fish(Fish fish){
+    printf("Fish: ");
+    for(int i=0; i<DIM; i++){
+        printf("%f ", fish.position[i]);
+    }
+    printf("weight: %f fitness: %f\n", fish.weight, fish.fitness);
+}
 
 double rosenbrok(double *x) {
     double sum = 0.0;
@@ -35,6 +42,16 @@ double sphere(double *x) {
         sum += x[i] * x[i];
     }
     return sum;
+}
+
+double objective_function(char* function, double *x) {
+    if (function == "rosenbrok") {
+        return rosenbrok(x);
+    } else if (function == "sphere") {
+        return sphere(x);
+    } else {
+        return 0.0;
+    }
 }
 
 void write_fish_to_json(Fish *fishes,FILE *file, int last) {
@@ -65,6 +82,8 @@ int main() {
         return 1;
     }
 
+    char* function = "sphere";
+    int multiplicator = -1; // 1 in case of maximization, -1 in case of minimization
     float individual_step = 0.5;
     float volitive_step = 0.2;
     srand(time(NULL));  // Seed for random number generation
@@ -79,8 +98,8 @@ int main() {
             fishes[i].position[j] = (double)(BOUNDS_MIN + (BOUNDS_MAX - BOUNDS_MIN) * rand() / (RAND_MAX + 1.0));
         }
         fishes[i].weight = W_SCALE/2;
-        fishes[i].fitness = sphere(fishes[i].position);
-        printf("Fish %d: %f %f %f\n", i, fishes[i].position[0], fishes[i].weight, fishes[i].fitness);
+        fishes[i].fitness = objective_function(function, fishes[i].position);
+        print_fish(fishes[i]);
     }
     write_fish_to_json(fishes, file, 0);
 
@@ -97,16 +116,15 @@ int main() {
             double new_pos[DIM];
             new_pos[0]= fishes[i].position[0] + individual_step*cos(angle);
 
-            float new_fitness = sphere(new_pos);
-            total_fitness += fishes[i].fitness - new_fitness;
+            float new_fitness = objective_function(function, new_pos);
             //ci interessano solo i movimenti "buoni" -> che si avvicinano al nostro goal
-            if (new_fitness<fishes[i].fitness){
+            if ((new_fitness-fishes[i].fitness)*multiplicator>0){
                 fishes[i].position[0] = new_pos[0];
-                weighted_total_fitness += individual_step*cos(angle)* ( fishes[i].fitness - new_fitness);
-                total_fitness += fishes[i].fitness - new_fitness;
+                weighted_total_fitness += fabs(individual_step*cos(angle))* (new_fitness - fishes[i].fitness)*multiplicator;
+                total_fitness += (new_fitness - fishes[i].fitness)*multiplicator;
             }
-            if (max_imp< fabs(fishes[i].fitness - new_fitness)){
-                max_imp = fabs(fishes[i].fitness - new_fitness);
+            if (max_imp< fabs((new_fitness - fishes[i].fitness)*multiplicator)){
+                max_imp = fabs((new_fitness - fishes[i].fitness)*multiplicator);
             }
 
         }
@@ -120,8 +138,8 @@ int main() {
         printf("Max imp %f\n", max_imp);
         // Update fish
         for(int i=0; i<N_FISHES; i++){
-            float new_fitness = sphere(fishes[i].position);
-            fishes[i].weight += (fishes[i].fitness-new_fitness)/max_imp; // qua potrebbe dare nan nel caso in cui max_imp->0
+            float new_fitness = objective_function(function, fishes[i].position);
+            fishes[i].weight += (new_fitness - fishes[i].fitness)*multiplicator/max_imp; // qua potrebbe dare nan nel caso in cui max_imp->0
             if (fishes[i].weight<1.0){
                 printf("INFO weight<1");
                 fishes[i].weight = 1.0;
@@ -136,14 +154,14 @@ int main() {
     printf("Final positions of the fishes\n");
     int index_best = 0;
     for (int i = 0; i < N_FISHES; i++) {
-        printf("Fish %d: %f %f %f\n", i, fishes[i].position[0], fishes[i].weight, fishes[i].fitness);
+        print_fish(fishes[i]);
         if(fishes[i].fitness<fishes[index_best].fitness){
             index_best = i;
         }
     }
 
-
-    printf("Best fish: {%d} %f %f %f\n", index_best, fishes[index_best].position[0], fishes[index_best].weight, fishes[index_best].fitness);
+    printf("Best fish-> ");
+    print_fish(fishes[index_best]);
     fprintf(file, "\n]");
     fclose(file);
 
