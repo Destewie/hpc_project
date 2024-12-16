@@ -2,10 +2,11 @@
 #include <stdlib.h>
 #include <math.h>
 #include <time.h>
+#include <string.h> // Include for strcmp
 
-#define DIM 2
+#define DIM 1
 #define N_FISHES 3
-#define MAX_ITER 10
+#define MAX_ITER 15
 #define BOUNDS_MIN -10.0   // Minimum bound of the search space
 #define BOUNDS_MAX 10.0    // Maximum bound of the search space
 #define BOUNDS_MIN_W 0.1   // Minimum bound of the search space
@@ -45,9 +46,9 @@ double sphere(double *x) {
 }
 
 double objective_function(char* function, double *x) {
-    if (function == "rosenbrok") {
+    if (strcmp(function, "rosenbrok") == 0) {
         return rosenbrok(x);
-    } else if (function == "sphere") {
+    } else if (strcmp(function, "sphere") == 0) {
         return sphere(x);
     } else {
         return 0.0;
@@ -75,8 +76,17 @@ void write_fish_to_json(Fish *fishes,FILE *file, int last) {
     }
 }
 
+// Clamp positions to within bounds
+double clamp(double value, double min, double max) {
+    if (value < min) return min;
+    if (value > max) return max;
+    return value;
+}
+
 int main() {
-    FILE *file = fopen("../evolution_logs/spherical_1d_log.json", "w");
+    char filename[50];
+    sprintf(filename, "../evolution_logs/spherical_%dd_log.json", DIM);
+    FILE *file = fopen(filename, "w");
     if (file == NULL) {
         perror("Error opening file");
         return 1;
@@ -131,15 +141,18 @@ int main() {
         printf("Total fitness %f %f\n", total_fitness, weighted_total_fitness);
 
         // Collective movement
-        for(int i=0; i<N_FISHES; i++){
-                fishes[i].position[0] += weighted_total_fitness/total_fitness;
+        // Update fish positions with bounds check
+        for (int i = 0; i < N_FISHES; i++) {
+            fishes[i].position[0] = clamp(fishes[i].position[0] + weighted_total_fitness / (total_fitness > 0.0 ? total_fitness : 1.0), BOUNDS_MIN, BOUNDS_MAX);
         }
 
         printf("Max imp %f\n", max_imp);
         // Update fish
         for(int i=0; i<N_FISHES; i++){
             float new_fitness = objective_function(function, fishes[i].position);
-            fishes[i].weight += (new_fitness - fishes[i].fitness)*multiplicator/max_imp; // qua potrebbe dare nan nel caso in cui max_imp->0
+            if (max_imp > 0.0) { // Avoid division by zero
+                fishes[i].weight += (new_fitness - fishes[i].fitness) * multiplicator / max_imp;
+            }
             if (fishes[i].weight<1.0){
                 printf("INFO weight<1");
                 fishes[i].weight = 1.0;

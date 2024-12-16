@@ -34,8 +34,9 @@ def create_animation(data):
     all_positions = [fish["x"][0] for epoch in data for fish in epoch]
     spawn_bounds = [min(all_positions), max(all_positions)]
 
-    # Estrarre le posizioni per ogni epoca
+    # Estrarre le posizioni e i pesi per ogni epoca
     positions = [[fish["x"][0] for fish in epoch] for epoch in data]
+    weights = [[fish["weight"] for fish in epoch] for epoch in data]
 
     # Configurazione del grafico
     fig, ax = plt.subplots()
@@ -55,6 +56,11 @@ def create_animation(data):
 
     def update(frame):
         current_positions = positions[frame]
+        current_weights = weights[frame]
+
+        # Normalizza i pesi per avere dimensioni proporzionate
+        normalized_weights = np.array(current_weights) * 20
+
         ax.clear()
         ax.set_xlim(spawn_bounds[0], spawn_bounds[1])
         ax.set_ylim(0, function(spawn_bounds[1]))  # Imposta i limiti in y in base alla funzione
@@ -65,7 +71,7 @@ def create_animation(data):
 
         # Disegna i punti (i pesci)
         y_data = function(np.array(current_positions))  # Calcola i valori di y per i punti
-        scat = ax.scatter(current_positions, y_data, color='red', zorder=5)
+        scat = ax.scatter(current_positions, y_data, s=normalized_weights, color='red', zorder=5)
         return scat,
 
     ani = FuncAnimation(fig, update, frames=len(positions), interval=500)
