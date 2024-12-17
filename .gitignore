@@ -1,3 +1,6 @@
+# Our generated logs
+*.json
+
 # Prerequisites
 *.d
 
