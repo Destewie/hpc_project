@@ -1,7 +1,10 @@
 import numpy as np
 
-def spherical_function(x, y=0):
+def min_spherical_function(x, y=0):
     return x**2 + y**2
+
+def max_spherical_function(x, y=0):
+    return -(x**2 + y**2)
 
 def rastrigin_function(*args):
     if len(args) == 1:
