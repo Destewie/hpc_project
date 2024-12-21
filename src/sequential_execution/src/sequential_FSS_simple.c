@@ -4,7 +4,7 @@
 #include <time.h>
 #include <string.h> // Include for strcmp
 
-#define DIMENSIONS 1
+#define DIMENSIONS 2
 #define N_FISHES 10
 #define MAX_ITER 100
 #define BOUNDS_MIN -10.0   // Minimum bound of the search space
