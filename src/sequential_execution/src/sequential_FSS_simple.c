@@ -4,7 +4,7 @@
 #include <time.h>
 #include <string.h> // Include for strcmp
 
-#define DIMENSIONS 2
+#define DIMENSIONS 1
 #define N_FISHES 10
 #define MAX_ITER 100
 #define BOUNDS_MIN -10.0   // Minimum bound of the search space
@@ -12,8 +12,8 @@
 #define BOUNDS_MIN_W 0.1   // Minimum bound of the search space
 #define BOUNDS_MAX_W 10.0    // Maximum bound of the search space
 #define W_SCALE 10.0
-#define FUNCTION "min_sphere"   //TODO: Capire se, al posto di fare un controllo su una stringa, possiamo passare alle funzioni direttamente un puntatore ad una funzione (in modo comodo, se no lasciamo perdere)
-#define MULTIPLIER -1   // 1 in case of maximization, -1 in case of minimization
+#define FUNCTION "min_rastrigin"   //TODO: Capire se, al posto di fare un controllo su una stringa, possiamo passare alle funzioni direttamente un puntatore ad una funzione (in modo comodo, se no lasciamo perdere)
+#define MULTIPLIER 1   // 1 in case of maximization, -1 in case of minimization
 #define A 10.0
 
 typedef struct {
@@ -147,7 +147,7 @@ void initFish(Fish *fish) {
     fish->fitness = objective_function(fish->position)*MULTIPLIER;        // Fitness iniziale //TODO: capire qual è il valore migliore di inizializzazione
     fish->new_fitness = fish->fitness;     // Fitness iniziale //TODO: capire qual è il valore migliore di inizializzazione
 
-    fish->max_individual_step = 0.5; //TODO: capire qual è il valore migliore di inizializzazione
+    fish->max_individual_step = 0.7; //TODO: capire qual è il valore migliore di inizializzazione
 }
 
 // Funzione per inizializzare un array di pesci

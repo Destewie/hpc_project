@@ -14,3 +14,4 @@ Io e Annina che facciamo muovere i pesci eheh
 ## CRITICITÀ
 - [ ] Gestione dell'aggiornamento del peso -> divisione per il max_improvement: abbiamo visto che si comporta meglio senza quella divisione. Spesso infatti sono valori piccoli e quando quel valore è 0 non dividiamo per nulla.
 - [ ] Collective movement -> siamo sicur3 che stia funzionando correttamente? controlliamo i paper
+- [ ] Capiamo perché dobbiamo multiplicator con la rosenbrock va messo ad 1 e non a -1 nonostante noi vogliamo minimizzarla (quando invece guardiamo la min_sphere mettiamo -1 per minimizzare (crediamo))
