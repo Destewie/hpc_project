@@ -1,6 +1,9 @@
 # Our generated logs
 *.json
 
+# Everything under the FishSchoolSearch directory
+FishSchoolSearch/
+
 # Prerequisites
 *.d
 

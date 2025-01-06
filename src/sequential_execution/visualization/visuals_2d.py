@@ -38,6 +38,10 @@ def create_animation(data):
     positions = [[(fish["x"][0], fish["x"][1]) for fish in epoch] for epoch in data]
     weights = [[fish["weight"] for fish in epoch] for epoch in data]
 
+    # Trova i limiti dei pesi globali
+    all_weights = [weight for epoch in weights for weight in epoch]
+    min_weight, max_weight = min(all_weights), max(all_weights)
+
     # Configurazione del grafico
     fig, ax = plt.subplots()
     ax.set_xlim(spawn_bounds[0], spawn_bounds[1])
@@ -61,7 +65,10 @@ def create_animation(data):
         current_weights = weights[frame]
 
         # Normalizza i pesi per avere dimensioni proporzionate
-        normalized_weights = np.array(current_weights) * 20
+        normalized_weights = [
+            5 + 60 * (w - min_weight) / (max_weight - min_weight)  # Imposta una dimensione minima di 10
+            for w in current_weights
+        ]
 
         ax.clear()
         ax.set_xlim(spawn_bounds[0], spawn_bounds[1])
@@ -79,11 +86,12 @@ def create_animation(data):
     ani = FuncAnimation(fig, update, frames=len(positions), interval=500)
     plt.show()
 
+
 # Main Execution
 if __name__ == "__main__":
     try:
         # Percorso del file JSON
-        # filepath = "../evolution_logs/min_rastrigin_2d_log.json"
+        # filepath = "../evolution_logs/min_sphere_2d_log.json"
         filepath = "../evolution_logs/min_rastrigin_2d_log.json"
         data = read_json(filepath)
         create_animation(data)
