@@ -5,28 +5,30 @@
 #include <string.h> // Include for strcmp
 
 #define DIMENSIONS 2
-#define N_FISHES 40
-#define MAX_ITER 100
+#define N_FISHES 30
+#define MAX_ITER 25
 #define BOUNDS_MIN -20.0   // Minimum bound of the search space
 #define BOUNDS_MAX -1.0    // Maximum bound of the search space
 #define BOUNDS_MIN_W 0.1   // Minimum bound of the search space
 #define BOUNDS_MAX_W 10.0    // Maximum bound of the search space
 #define W_SCALE_MIN 1.0
 #define W_SCALE_MAX 10.0
-#define FUNCTION "min_rastrigin"   //TODO: Capire se, al posto di fare un controllo su una stringa, possiamo passare alle funzioni direttamente un puntatore ad una funzione (in modo comodo, se no lasciamo perdere)
-#define MULTIPLIER 1   // 1 in case of maximization, -1 in case of minimization
+#define FUNCTION "min_sphere"   //TODO: Capire se, al posto di fare un controllo su una stringa, possiamo passare alle funzioni direttamente un puntatore ad una funzione (in modo comodo, se no lasciamo perdere)
+#define MULTIPLIER -1   // 1 in case of maximization, -1 in case of minimization
 #define A 10.0 //Rastrigin param
 
 typedef struct {
     double position[DIMENSIONS];
     double new_position[DIMENSIONS];
     
+    double previous_cycle_weight;
     double weight;
 
     double fitness;
     double new_fitness;
 
     double max_individual_step;
+    double max_volitive_step;
 }Fish;
 
 //-------------------------------------------------------------------------------------------
@@ -64,6 +66,7 @@ double clamp(double value, double min, double max) {
 // Per resettare le variabili all'inizio di ogni epoca
 void variables_reset(float *tot_fitness, float *weighted_tot_fitness, float *max_improvement) {
     *tot_fitness = 0.0;
+
     for (int i = 0; i<DIMENSIONS; i++ ){
         weighted_tot_fitness[i] = 0.0;
     }
@@ -144,11 +147,13 @@ void initFish(Fish *fish) {
     }
 
     fish->weight = W_SCALE_MAX / 2;   // Peso iniziale
+    fish->previous_cycle_weight = fish->weight;
 
     fish->fitness = objective_function(fish->position)*MULTIPLIER;        // Fitness iniziale //TODO: capire qual è il valore migliore di inizializzazione
     fish->new_fitness = fish->fitness;
 
     fish->max_individual_step = 0.7; //TODO: capire qual è il valore migliore di inizializzazione e come aggiornarlo dinamicamente
+    fish->max_volitive_step = 0.2; //TODO: capire qual è il valore migliore di inizializzazione e come aggiornarlo dinamicamente
 }
 
 // Funzione per inizializzare un array di pesci
@@ -261,6 +266,89 @@ void updateWeightsArray(Fish *fishArray,  float *max_delta_fitness_improvement) 
     }
 }
 
+void calculateBarycenter(Fish *fishArray, float *barycenter){
+    float *numerator;
+    float *denominator;
+
+    for (int d = 0; d<DIMENSIONS; d++){
+        barycenter[d] = 0.0;
+        numerator[d] = 0.0;
+        denominator[d] = 0.0;
+    }
+
+    for (int d = 0; d<DIMENSIONS; d++){
+        for (int i = 0; i < N_FISHES; i++) {
+            numerator[d] += fishArray[i].position[d] * fishArray[i].weight;
+            denominator[d] += fishArray[i].position[d];  
+        }
+
+        if (denominator[d] != 0.0) {
+            barycenter[d] = numerator[d] / denominator[d];
+        }
+    }
+}
+
+void calculateSumWeights(Fish *fishArray, float *old_sum, float *new_sum){
+    *old_sum = 0.0;
+    *new_sum = 0.0;
+
+    for (int i = 0; i < N_FISHES; i++) {
+        *old_sum += fishArray[i].previous_cycle_weight;
+        *new_sum += fishArray[i].weight;
+    }
+}
+
+void volitivePositionUpdateArray(Fish *fishArray, int shrink, float* barycenter){
+    double rand_mult = 0.0;
+    
+    // questo codice si può ottimizare mettendo shrink -1,1
+    if (shrink==1) {
+        for (int i = 0; i < N_FISHES; i++) {
+            for (int d = 0; d < DIMENSIONS; d++) { // TODO: change max individual step with another step in order to have the possibility to tune it
+                rand_mult= (double)rand() / (double)RAND_MAX; //valore qualsiasi tra 0 e 1 
+                fishArray[i].position[d] -= fishArray[i].max_volitive_step * rand_mult * (fishArray[i].position[d] - barycenter[d]);
+            }
+        }
+    } else {
+        for (int i = 0; i < N_FISHES; i++) {
+            for (int d = 0; d < DIMENSIONS; d++){ // TODO: change max individual step with another step in order to have the possibility to tune it
+                rand_mult= (double)rand() / (double)RAND_MAX; //numero qualsiasi tra 0 e 1 
+                fishArray[i].position[d] += fishArray[i].max_volitive_step * rand_mult * (fishArray[i].position[d] - barycenter[d]);
+            }
+        }
+    }
+}
+
+void collectiveVolitiveArray(Fish *fishes) {
+    float barycenter[DIMENSIONS];
+    calculateBarycenter(fishes, barycenter);
+
+    float old_sum_weights;
+    float new_sum_weights;
+    calculateSumWeights(fishes, &old_sum_weights, &new_sum_weights);
+
+    if (old_sum_weights < new_sum_weights) {
+        //shrink = 1 -> il banco ha guadagnato peso quindi si deve avvicinare al baricentro
+        printf("MOVIMENTO YEAH -> IL BANCO SI È AVVICINATO\n");
+        volitivePositionUpdateArray(fishes, 1, barycenter);
+    } else if (old_sum_weights > new_sum_weights) {
+        //TODO: shrink = 0 -> il banco ha perso peso quindi si deve allargare in cerca di cibo
+        printf("MOVIMENTO BLEAH -> IL BANCO SI È ALLONTANATO\n");
+        volitivePositionUpdateArray(fishes, 0, barycenter);
+    }else{
+        printf("EQUAL WEIGHTS, do nothing");
+    }
+
+    for (int i = 0; i < N_FISHES; i++) {
+        print_fish(fishes[i]);
+    }
+
+    // update previous_cycle_weight
+    for (int i = 0; i < N_FISHES; i++) {
+        fishes[i].previous_cycle_weight = fishes[i].weight;
+    }
+}
+
 
 //-------------------------------------------------------------------------------------------
 //------------------------------- MAIN ------------------------------------------------------
@@ -302,12 +390,15 @@ int main() {
         updateWeightsArray(fishes, &max_improvement);
         
         for (int d = 0; d<DIMENSIONS; d++){
-            printf("wtf: %f", weighted_total_fitness[d]);
+            printf("wtf(%d): %f  ", d,  weighted_total_fitness[d]);
         }
         printf("  max improvement: %f\n", max_improvement);
 
         // COLLECTIVE MOVEMENT
         collectiveMovementArray(fishes, &total_fitness, weighted_total_fitness);
+
+        // COLLECTIVE VOLITIVE MOVEMENT
+        collectiveVolitiveArray(fishes);
 
         // SAVE ON FILE
         write_fishes_to_json(fishes, file, iter==MAX_ITER-1?1:0);

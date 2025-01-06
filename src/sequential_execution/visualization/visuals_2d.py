@@ -27,8 +27,8 @@ def read_json(filepath):
     return data
 
 def create_animation(data):
-    function = min_rastrigin_function
-    # function = min_spherical_function
+    # function = min_rastrigin_function
+    function = min_spherical_function
 
     # Determina i limiti di spawn dai dati
     all_positions = [coord for epoch in data for fish in epoch for coord in fish["x"]]
@@ -91,8 +91,8 @@ def create_animation(data):
 if __name__ == "__main__":
     try:
         # Percorso del file JSON
-        # filepath = "../evolution_logs/min_sphere_2d_log.json"
-        filepath = "../evolution_logs/min_rastrigin_2d_log.json"
+        filepath = "../evolution_logs/min_sphere_2d_log.json"
+        # filepath = "../evolution_logs/min_rastrigin_2d_log.json"
         data = read_json(filepath)
         create_animation(data)
     except Exception as e:
