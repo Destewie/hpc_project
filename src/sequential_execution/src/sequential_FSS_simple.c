@@ -6,16 +6,17 @@
 
 #define DIMENSIONS 2
 #define N_FISHES 30
-#define MAX_ITER 50
-#define BOUNDS_MIN -25.0   // Minimum bound of the search space
-#define BOUNDS_MAX 25.0    // Maximum bound of the search space
+#define MAX_ITER 100
+#define BOUNDS_MIN 10.0   // Minimum bound of the search space
+#define BOUNDS_MAX 30.0    // Maximum bound of the search space
 #define BOUNDS_MIN_W 0.1   // Minimum bound of the search space
 #define BOUNDS_MAX_W 10.0    // Maximum bound of the search space
 #define W_SCALE_MIN 1.0
 #define W_SCALE_MAX 10.0
-#define FUNCTION "min_sphere"   //TODO: Capire se, al posto di fare un controllo su una stringa, possiamo passare alle funzioni direttamente un puntatore ad una funzione (in modo comodo, se no lasciamo perdere)
+#define BREEDING_THRESHOLD 7.0 // minimus threshold of weight to breedh new fishes
+#define FUNCTION "min_ackley"   //TODO: Capire se, al posto di fare un controllo su una stringa, possiamo passare alle funzioni direttamente un puntatore ad una funzione (in modo comodo, se no lasciamo perdere)
 #define MULTIPLIER -1   // 1 in case of maximization, -1 in case of minimization
-#define A 10.0 //Rastringin param
+#define A 10.0 //rastrigin param
 
 typedef struct {
     double position[DIMENSIONS];
@@ -87,7 +88,7 @@ double rosenbrok(double *x) {
     return sum;
 }
 
-double rastringin(double *x) {
+double rastrigin(double *x) {
     double sum = A * DIMENSIONS; // Start with A * DIM
     for (int i = 0; i < DIMENSIONS; i++) {
         sum += x[i] * x[i] - A * cos(2 * M_PI * x[i]);
@@ -111,6 +112,16 @@ double max_sphere(double *x) {
     return sum;
 }
 
+double ackley(double *x){
+    double sum1 = 0.0;
+    double sum2 = 0.0;
+    for (int i = 0; i < DIMENSIONS; i++) {
+        sum1 += x[i] * x[i];
+        sum2 += cos(2 * M_PI * x[i]);
+    }
+    return -20 * exp(-0.2 * sqrt(sum1 / DIMENSIONS)) - exp(sum2 / DIMENSIONS) + 20 + M_E;
+}
+
 double objective_function(double *x) {
     if (strcmp(FUNCTION, "min_rosenbrok") == 0) {
         return rosenbrok(x);
@@ -118,9 +129,11 @@ double objective_function(double *x) {
         return min_sphere(x);
     } else if (strcmp(FUNCTION, "max_sphere") == 0) {
         return max_sphere(x);
-    } else if (strcmp(FUNCTION, "min_rastringin") == 0) {
-        return rastringin(x);
-    } else {
+    } else if (strcmp(FUNCTION, "min_rastrigin") == 0) {
+        return rastrigin(x);
+    } else if (strcmp(FUNCTION, "min_ackley") == 0) {
+        return ackley(x);
+    }else{
         return 0.0;
     }
 }
@@ -373,6 +386,39 @@ void collectiveVolitiveArray(Fish *fishes) {
     }
 }
 
+void breeding(Fish *fishes){
+    //mi salvo l'indice del pesce con weight maggiore e il secondo in ordine di weight
+    //se la weigh supera la threshold costante, allora figlio -> creo un nuovo pesce con posizione media tra i due e peso medio tra i due
+    int first_index = 0;
+    int second_index = 0;
+    int worst_index = 0;
+
+    for (int i = 0; i < N_FISHES; i++) {
+        if (fishes[i].weight > fishes[first_index].weight) {
+            second_index = first_index;
+            first_index = i;
+        } else if (fishes[i].weight > fishes[second_index].weight) {
+            second_index = i;
+        }
+
+        if (fishes[i].weight < fishes[worst_index].weight) {
+            worst_index = i;
+        }
+    } 
+
+    //sopprimo il pesce peggiore e lo rimpiazzo con il figlio dei due migliori
+    if (fishes[first_index].weight > BREEDING_THRESHOLD && fishes[second_index].weight > BREEDING_THRESHOLD) {
+        for (int d = 0; d < DIMENSIONS; d++) {
+            fishes[worst_index].position[d] = (fishes[first_index].position[d] + fishes[second_index].position[d]) / 2;
+        }
+        fishes[worst_index].weight = (fishes[first_index].weight + fishes[second_index].weight) / 2;
+        fishes[worst_index].fitness = objective_function(fishes[worst_index].position)*MULTIPLIER;
+
+        printf("NEW FISH : weight: %f, fitness: %f\n", fishes[worst_index].weight, fishes[worst_index].fitness);
+    }
+    
+}
+
 
 //-------------------------------------------------------------------------------------------
 //------------------------------- MAIN ------------------------------------------------------
@@ -423,6 +469,9 @@ int main() {
 
         // COLLECTIVE VOLITIVE MOVEMENT
         collectiveVolitiveArray(fishes);
+
+        // BREEDING
+        breeding(fishes);
 
         // SAVE ON FILE
         write_fishes_to_json(fishes, file, iter==MAX_ITER-1?1:0);
