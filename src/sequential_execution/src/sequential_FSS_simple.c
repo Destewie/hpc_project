@@ -6,7 +6,7 @@
 
 #define DIMENSIONS 2
 #define N_FISHES 30
-#define MAX_ITER 100
+#define MAX_ITER 40
 #define BOUNDS_MIN -20.0   // Minimum bound of the search space
 #define BOUNDS_MAX 10.0    // Maximum bound of the search space
 #define BOUNDS_MIN_W 0.1   // Minimum bound of the search space
@@ -14,7 +14,7 @@
 #define W_SCALE_MIN 1.0
 #define W_SCALE_MAX 10.0
 #define FUNCTION "min_rastringin"   //TODO: Capire se, al posto di fare un controllo su una stringa, possiamo passare alle funzioni direttamente un puntatore ad una funzione (in modo comodo, se no lasciamo perdere)
-#define MULTIPLIER 1   // 1 in case of maximization, -1 in case of minimization
+#define MULTIPLIER -1   // 1 in case of maximization, -1 in case of minimization
 #define A 10.0 //Rastringin param
 
 typedef struct {
@@ -112,14 +112,14 @@ double max_sphere(double *x) {
 }
 
 double objective_function(double *x) {
-    if (strcmp(FUNCTION, "rosenbrok") == 0) {
+    if (strcmp(FUNCTION, "min_rosenbrok") == 0) {
         return rosenbrok(x);
     } else if (strcmp(FUNCTION, "min_sphere") == 0) {
         return min_sphere(x);
     } else if (strcmp(FUNCTION, "max_sphere") == 0) {
         return max_sphere(x);
     } else if (strcmp(FUNCTION, "min_rastringin") == 0) {
-        return max_sphere(x);
+        return rastringin(x);
     } else {
         return 0.0;
     }
@@ -279,7 +279,6 @@ void calculateBarycenter(Fish *fishArray, float *barycenter){
     for (int d = 0; d<DIMENSIONS; d++){
         for (int i = 0; i < N_FISHES; i++) {
             numerator[d] += fishArray[i].position[d] * fishArray[i].weight;
-            // denominator[d] += fishArray[i].position[d];  
             denominator[d] += fishArray[i].weight;
         }
 
@@ -310,7 +309,7 @@ void volitivePositionUpdateArray(Fish *fishArray, int shrink, float* barycenter)
                 fishArray[i].position[d] -= fishArray[i].max_volitive_step * rand_mult * (fishArray[i].position[d] - barycenter[d]);
             }
         }
-    } else {os: -0.001811      weight: 8.751085        fitness: -0.207873
+    } else {
         for (int i = 0; i < N_FISHES; i++) {
             for (int d = 0; d < DIMENSIONS; d++){ // TODO: change max individual step with another step in order to have the possibility to tune it
                 rand_mult= (double)rand() / (double)RAND_MAX; //numero qualsiasi tra 0 e 1 
@@ -399,7 +398,7 @@ int main() {
         collectiveMovementArray(fishes, &total_fitness, weighted_total_fitness);
 
         // COLLECTIVE VOLITIVE MOVEMENT
-        collectiveVolitiveArray(fishes);
+        // collectiveVolitiveArray(fishes);
 
         // SAVE ON FILE
         write_fishes_to_json(fishes, file, iter==MAX_ITER-1?1:0);
