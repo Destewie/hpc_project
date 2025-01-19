@@ -4,7 +4,7 @@ import matplotlib
 matplotlib.use("TkAgg")  # Usa il backend TkAgg per evitare problemi con Qt/xcb
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
-from benchmark_functions import min_spherical_function, max_spherical_function, min_rastringin_function
+from benchmark_functions import min_spherical_function, max_spherical_function, min_rastrigin_function
 
 def validate_json(data):
     if not isinstance(data, list):
@@ -28,7 +28,7 @@ def read_json(filepath):
 
 def create_animation(data):
     # function = max_spherical_function
-    function = min_rastringin_function
+    function = min_rastrigin_function
 
     # Determina i limiti di spawn dai dati
     all_positions = [fish["x"][0] for epoch in data for fish in epoch]
@@ -81,7 +81,7 @@ def create_animation(data):
 if __name__ == "__main__":
     try:
         # Percorso del file JSON
-        filepath = "../evolution_logs/min_rastringin_1d_log.json"
+        filepath = "../evolution_logs/min_rastrigin_1d_log.json"
         data = read_json(filepath)
         create_animation(data)
     except Exception as e:
