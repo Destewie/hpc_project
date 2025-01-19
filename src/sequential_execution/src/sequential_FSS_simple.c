@@ -4,17 +4,17 @@
 #include <time.h>
 #include <string.h> // Include for strcmp
 
-#define DIMENSIONS 2
-#define N_FISHES 30
-#define MAX_ITER 100
-#define BOUNDS_MIN 10.0   // Minimum bound of the search space
+#define DIMENSIONS 20
+#define N_FISHES 100
+#define MAX_ITER 100000
+#define BOUNDS_MIN -30.0   // Minimum bound of the search space
 #define BOUNDS_MAX 30.0    // Maximum bound of the search space
 #define BOUNDS_MIN_W 0.1   // Minimum bound of the search space
 #define BOUNDS_MAX_W 10.0    // Maximum bound of the search space
 #define W_SCALE_MIN 1.0
 #define W_SCALE_MAX 10.0
 #define BREEDING_THRESHOLD 7.0 // minimus threshold of weight to breedh new fishes
-#define FUNCTION "min_ackley"   //TODO: Capire se, al posto di fare un controllo su una stringa, possiamo passare alle funzioni direttamente un puntatore ad una funzione (in modo comodo, se no lasciamo perdere)
+#define FUNCTION "min_sphere"   //TODO: Capire se, al posto di fare un controllo su una stringa, possiamo passare alle funzioni direttamente un puntatore ad una funzione (in modo comodo, se no lasciamo perdere)
 #define MULTIPLIER -1   // 1 in case of maximization, -1 in case of minimization
 #define A 10.0 //rastrigin param
 
@@ -146,9 +146,9 @@ double objective_function(double *x) {
 
 void print_fish(Fish fish){
     printf("Fish: ");
-    for(int i=0; i<DIMENSIONS; i++){
-        printf("pos: %f ", fish.position[i]);
-    }
+    // for(int i=0; i<DIMENSIONS; i++){
+    //     printf("pos: %f ", fish.position[i]);
+    // }
     printf("\tweight: %f \tfitness: %f\n", fish.weight, fish.fitness);
 }
 
@@ -173,7 +173,7 @@ void initFish(Fish *fish) {
 void initFishArray(Fish* fishArray) {
     for (int i = 0; i < N_FISHES; i++) {
         initFish(&fishArray[i]);  // Inizializza ciascun pesce
-        print_fish(fishArray[i]);
+        // print_fish(fishArray[i]);
     }
 }
 
@@ -275,7 +275,7 @@ void updateWeights(Fish *fish, float *max_delta_fitness_improvement) {
 void updateWeightsArray(Fish *fishArray,  float *max_delta_fitness_improvement) {
     for (int i = 0; i < N_FISHES; i++) {
         updateWeights(&fishArray[i], max_delta_fitness_improvement);  
-        print_fish(fishArray[i]);
+        // print_fish(fishArray[i]);
     }
 }
 
@@ -324,12 +324,13 @@ void volitivePositionUpdateArray(Fish *fishArray, int shrink, float* barycenter)
                 fishArray[i].position[d] -= fishArray[i].max_volitive_step * rand_mult * (fishArray[i].position[d] - barycenter[d]);
                 
                 if (fishArray[i].position[d] > 1000.0 || fishArray[i].position[d] < -1000.0) {
-                    printf("LAST STRANGE FISH: rand_mult: %f\n", rand_mult);
-                    printf("dim= %d, pesce= %d\n", d, i);
-                    printf("fishArray[%d].max_volitive_step: %f\n",i, fishArray[i].max_volitive_step);
-                    printf("fishArray[%d].position[%d] before update: %f\n",i, d, temp);
-                    printf("fishArray[%d].position[%d] after update: %f\n",i, d, fishArray[i].position[d]);
-                    printf("barycenter: %f\n", barycenter[d]);
+                    // printf("LAST STRANGE FISH: rand_mult: %f\n", rand_mult);
+                    // printf("dim= %d, pesce= %d\n", d, i);
+                    // printf("fishArray[%d].max_volitive_step: %f\n",i, fishArray[i].max_volitive_step);
+                    // printf("fishArray[%d].position[%d] before update: %f\n",i, d, temp);
+                    // printf("fishArray[%d].position[%d] after update: %f\n",i, d, fishArray[i].position[d]);
+                    // printf("barycenter: %f\n", barycenter[d]);
+                    printf("porco cane\n");
                     exit(1);
                 }
             }
@@ -343,12 +344,12 @@ void volitivePositionUpdateArray(Fish *fishArray, int shrink, float* barycenter)
                 fishArray[i].position[d] += fishArray[i].max_volitive_step * rand_mult * (fishArray[i].position[d] - barycenter[d]);
                 
                 if (fishArray[i].position[d] > 1000.0 || fishArray[i].position[d] < -1000.0) {
-                    printf("LAST STRANGE FISH: rand_mult: %f\n", rand_mult);
-                    printf("dim= %d, pesce= %d\n", d, i);
-                    printf("fishArray[%d].max_volitive_step: %f\n",i, fishArray[i].max_volitive_step);
-                    printf("fishArray[%d].position[%d] before update: %f\n",i, d, temp);
-                    printf("fishArray[%d].position[%d] after update: %f\n",i, d, fishArray[i].position[d]);
-                    printf("barycenter: %f\n", barycenter[d]);
+                    // printf("LAST STRANGE FISH: rand_mult: %f\n", rand_mult);
+                    // printf("dim= %d, pesce= %d\n", d, i);
+                    // printf("fishArray[%d].max_volitive_step: %f\n",i, fishArray[i].max_volitive_step);
+                    // printf("fishArray[%d].position[%d] before update: %f\n",i, d, temp);
+                    // printf("fishArray[%d].position[%d] after update: %f\n",i, d, fishArray[i].position[d]);
+                    // printf("barycenter: %f\n", barycenter[d]);
                     exit(1);
                 }
             }
@@ -366,19 +367,19 @@ void collectiveVolitiveArray(Fish *fishes) {
 
     if (old_sum_weights < new_sum_weights) {
         //shrink = 1 -> il banco ha guadagnato peso quindi si deve avvicinare al baricentro
-        printf("MOVIMENTO YEAH -> IL BANCO SI È AVVICINATO\n");
+        // printf("MOVIMENTO YEAH -> IL BANCO SI È AVVICINATO\n");
         volitivePositionUpdateArray(fishes, 1, barycenter);
     } else if (old_sum_weights > new_sum_weights) {
         //TODO: shrink = 0 -> il banco ha perso peso quindi si deve allargare in cerca di cibo
-        printf("MOVIMENTO BLEAH -> IL BANCO SI È ALLONTANATO\n");
+        // printf("MOVIMENTO BLEAH -> IL BANCO SI È ALLONTANATO\n");
         volitivePositionUpdateArray(fishes, 0, barycenter);
     }else{
-        printf("EQUAL WEIGHTS, do nothing");
+        // printf("EQUAL WEIGHTS, do nothing");
     }
 
-    for (int i = 0; i < N_FISHES; i++) {
-        print_fish(fishes[i]);
-    }
+    // for (int i = 0; i < N_FISHES; i++) { 
+    //     print_fish(fishes[i]);
+    // }
 
     // update previous_cycle_weight
     for (int i = 0; i < N_FISHES; i++) {
@@ -414,7 +415,7 @@ void breeding(Fish *fishes){
         fishes[worst_index].weight = (fishes[first_index].weight + fishes[second_index].weight) / 2;
         fishes[worst_index].fitness = objective_function(fishes[worst_index].position)*MULTIPLIER;
 
-        printf("NEW FISH : weight: %f, fitness: %f\n", fishes[worst_index].weight, fishes[worst_index].fitness);
+        // printf("NEW FISH : weight: %f, fitness: %f\n", fishes[worst_index].weight, fishes[worst_index].fitness);
     }
     
 }
@@ -425,16 +426,21 @@ void breeding(Fish *fishes){
 //-------------------------------------------------------------------------------------------
 
 int main() {
-    char filename[50];
-    sprintf(filename, "../evolution_logs/%s_%dd_log.json",FUNCTION, DIMENSIONS);
-    FILE *file = fopen(filename, "w");
-    if (file == NULL) {
-        perror("Error opening file");
-        return 1;
-    }
+    //create a timer
+    clock_t start, end;
+    double cpu_time_used;
+    start = clock();
+    
+    // char filename[50];
+    // sprintf(filename, "../evolution_logs/%s_%dd_log.json",FUNCTION, DIMENSIONS);
+    // FILE *file = fopen(filename, "w");
+    // if (file == NULL) {
+    //     perror("Error opening file");
+    //     return 1;
+    // }
 
     // float volitive_step = 0.2; //TODO: Per ora non implementato. Forse va messo all'interno della struct del pesce come il max_individual_step
-    
+    float best_fitness = -2000.0;
     float total_fitness = 0.0;
     float weighted_total_fitness[DIMENSIONS];
     float max_improvement = 0.0;
@@ -442,9 +448,11 @@ int main() {
 
     // INITIALIZATION
     Fish fishes[N_FISHES];
-    fprintf(file, "[\n");
+    // fprintf(file, "[\n");
     initFishArray(fishes);
-    write_fishes_to_json(fishes, file, 0);
+    // if (DIMENSIONS <= 2) {
+    //     write_fishes_to_json(fishes, file, 0);
+    // }
 
     // MAIN LOOP
     for (int iter = 0; iter < MAX_ITER; iter++) {
@@ -452,17 +460,17 @@ int main() {
         variables_reset(&total_fitness, weighted_total_fitness, &max_improvement);
 
         // INDIVIDUAL MOVEMENT
-        printf("\n-------------------------ITER %d-------------------\n", iter);
+        // printf("\n-------------------------ITER %d-------------------\n", iter);
         individualMovementArray(fishes, &total_fitness, weighted_total_fitness, &max_improvement);
-        printf("total fitness: %f   ", total_fitness);
+        // printf("total fitness: %f   ", total_fitness);
 
         // UPDATE WEIGHTS
         updateWeightsArray(fishes, &max_improvement);
         
-        for (int d = 0; d<DIMENSIONS; d++){
-            printf("wtf(%d): %f  ", d,  weighted_total_fitness[d]);
-        }
-        printf("  max improvement: %f\n", max_improvement);
+        // for (int d = 0; d<DIMENSIONS; d++){
+        //     printf("wtf(%d): %f  ", d,  weighted_total_fitness[d]);
+        // }
+        // printf("  max improvement: %f\n", max_improvement);
 
         // COLLECTIVE MOVEMENT
         collectiveMovementArray(fishes, &total_fitness, weighted_total_fitness);
@@ -474,12 +482,35 @@ int main() {
         breeding(fishes);
 
         // SAVE ON FILE
-        write_fishes_to_json(fishes, file, iter==MAX_ITER-1?1:0);
-
+        // if (DIMENSIONS <= 2) {
+        //     write_fishes_to_json(fishes, file, iter==MAX_ITER-1?1:0);
+        // }
+        for (int i = 0; i < N_FISHES; i++) {
+            // print_fish(fishes[i]);
+            if (best_fitness<fishes[i].fitness) {
+                best_fitness = fishes[i].fitness;
+            }
+        }
     }
 
-    fprintf(file, "\n]");
-    fclose(file);
+    // fprintf(file, "\n]");
+    // fclose(file);
+
+    end = clock();
+    cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
+    
+
+
+    // print all the fishes
+    for (int i = 0; i < N_FISHES; i++) {
+        print_fish(fishes[i]);
+    }
+
+    printf("Dimensions: %d\n", DIMENSIONS);
+    printf("Epochs: %d\n", MAX_ITER);
+    printf("Number of fishes: %d\n", N_FISHES);
+    printf("Execution time: %f\n", cpu_time_used);
+    printf("Best fitness: %f\n", best_fitness/DIMENSIONS);
 
     return 0;
 }
