@@ -41,5 +41,5 @@ def plot_3d_scatter(data):
 
 # Load data and plot
 if __name__ == "__main__":
-    data = load_data('performances_small.json')
+    data = load_data('performances.json')
     plot_3d_scatter(data)
