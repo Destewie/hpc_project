@@ -1,5 +1,6 @@
 # Our generated logs
 *.json
+!performances.json
 
 # Everything under the FishSchoolSearch directory
 FishSchoolSearch/
