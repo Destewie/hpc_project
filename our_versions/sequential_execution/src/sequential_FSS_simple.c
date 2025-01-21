@@ -5,7 +5,7 @@
 #include <string.h> // Include for strcmp
 
 #define N_FISHES 320
-#define DIMENSIONS 128
+#define DIMENSIONS 256
 #define MAX_ITER 100000
 #define BOUNDS_MIN -30.0   // Minimum bound of the search space
 #define BOUNDS_MAX 30.0    // Maximum bound of the search space
@@ -429,9 +429,6 @@ void breeding(Fish *fishes){
 
 int main() {
 
-    // per l'avanzamento temporale
-    int progress_step = MAX_ITER/100;
-
     //create a timer
     clock_t start, end;
     double cpu_time_used;
@@ -445,7 +442,6 @@ int main() {
     //     return 1;
     // }
 
-    // float volitive_step = 0.2; //TODO: Per ora non implementato. Forse va messo all'interno della struct del pesce come il max_individual_step
     float best_fitness = -2000.0;
     float total_fitness = 0.0;
     float weighted_total_fitness[DIMENSIONS];
@@ -462,9 +458,6 @@ int main() {
 
     // MAIN LOOP
     for (int iter = 0; iter < MAX_ITER; iter++) {
-        // if (iter % progress_step == 0) {
-        //     printf("Progress: %d%%\n", iter/progress_step);
-        // }
 
         variables_reset(&total_fitness, weighted_total_fitness, &max_improvement);
 
