@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include <time.h>
 #include <omp.h>
 #include <mpi.h>
 
@@ -100,7 +101,7 @@ double objective_function(double *x) {
 }
 
 //-------------------------------------------------------------------------------------------
-//---------------------------- FISH -----------------------------------------------
+//---------------------------- FISH ---------------------------------------------------------
 //-------------------------------------------------------------------------------------------
 
 void initFish(Fish *fish) {
@@ -120,15 +121,25 @@ void initFish(Fish *fish) {
 }
 
 // Funzione per inizializzare un array di pesci
-void initFishArray(Fish* fishArray) {
-    for (int i = 0; i < N_FISHES; i++) {
+void initFishArray(Fish* fishArray, int n_fishes) {
+    for (int i = 0; i < n_fishes; i++) {
         initFish(&fishArray[i]);  // Inizializza ciascun pesce
         // print_fish(fishArray[i]);
     }
 }
 
-void individualMovement(Fish *fish, int n) {
-// void individualMovement(Fish *fish, float *tot_delta_fitness, float *weighted_tot_delta_fitness, float *max_delta_fitness_improvement) {
+// Per resettare le variabili all'inizio di ogni epoca
+void variablesReset(float *local_tot_fitness, float *local_weighted_tot_fitness, float *local_max_improvement) {
+    *local_tot_fitness = 0.0;
+
+    #pragma omp parallel for
+    for (int i = 0; i<DIMENSIONS; i++ ){
+        local_weighted_tot_fitness[i] = 0.0;
+    }
+    *local_max_improvement = 0.0;
+}
+
+void individualMovement(Fish *fish, float *local_tot_delta_fitness, float *local_weighted_tot_delta_fitness, float *local_max_delta_fitness_improvement) {
     // Movimento casuale per ogni dimensione
     #pragma omp parallel for
     for (int d = 0; d < DIMENSIONS; d++)
@@ -142,30 +153,32 @@ void individualMovement(Fish *fish, int n) {
     // Aggiorno la fitness
     fish->new_fitness = objective_function(fish->new_position)*MULTIPLIER;
 
-
-
     // -------------- Update the collective variables
     double delta_fitness = fish->new_fitness - fish->fitness;
 
     // CI INTERESSANO SOLO I MOVIMENTI CHE VANNO AD AUMENTARE LA FITNESS DEL PESCE
-    if (delta_fitness > 0) {
-
-        *tot_delta_fitness += delta_fitness;
-
-        for (int d = 0; d < DIMENSIONS; d++)
-        {
-            // La delta_fitness farà in modo che pesci che si muovono "meglio" influenzino il movimento collettivo più degli altri
-            weighted_tot_delta_fitness[d] += (fish->new_position[d] - fish->position[d]) * delta_fitness;
-        }
-
-
-        if (fabs(delta_fitness) > *max_delta_fitness_improvement) {
-            *max_delta_fitness_improvement = delta_fitness;
-        }
+    if (delta_fitness <= 0) {
+        delta_fitness = 0.0;
     }
+
+    //TODO: da rimuovere in favore del calcolo parallelo
+    *local_tot_delta_fitness += delta_fitness;
+
+    #pragma omp parallel for
+    for (int d = 0; d < DIMENSIONS; d++)
+    {
+        // La delta_fitness farà in modo che pesci che si muovono "meglio" influenzino il movimento collettivo più degli altri
+        local_weighted_tot_delta_fitness[d] += (fish->new_position[d] - fish->position[d]) * delta_fitness;
+    }
+
+    if (fabs(delta_fitness) > *local_max_delta_fitness_improvement) {
+        *local_max_delta_fitness_improvement = delta_fitness;
+    }
+
     // -------------- Finish update the collective variables
 
     // Update fish position considering only its individual movement
+    #pragma omp parallel for
     for (int d = 0; d < DIMENSIONS; d++)
     {
         if (delta_fitness > 0) {
@@ -179,28 +192,49 @@ void individualMovement(Fish *fish, int n) {
     }
 }
 
+void individualMovementArray (Fish *fishArray, int n_fishes, float *local_tot_delta_fitness, float *global_tot_delta_fitness, float *local_weighted_tot_delta_fitness, float *global_weighted_tot_delta_fitness, float *local_max_delta_fitness_improvement, float *global_max_delta_fitness_improvement) {
+    for (int i = 0; i < n_fishes; i++) {
+        individualMovement(&fishArray[i], local_tot_delta_fitness, local_weighted_tot_delta_fitness, local_max_delta_fitness_improvement);  // Inizializza ciascun pesce
+    }
+
+    //aggiornamento parallelo
+    MPI_Allreduce(local_tot_delta_fitness, global_tot_delta_fitness, 1 , MPI_FLOAT, MPI_SUM, MPI_COMM_WORLD);
+    MPI_Allreduce(local_weighted_tot_delta_fitness, global_weighted_tot_delta_fitness, DIMENSIONS, MPI_FLOAT, MPI_SUM, MPI_COMM_WORLD);
+    MPI_Allreduce(local_max_delta_fitness_improvement, global_max_delta_fitness_improvement, 1, MPI_FLOAT, MPI_MAX, MPI_COMM_WORLD);
+}
+
+//-------------------------------------------------------------------------------------------
+//---------------------------- MAIN ---------------------------------------------------------
+//-------------------------------------------------------------------------------------------
 
 int main(int argc, char *argv[]) {
+    //variabili MPI
     MPI_Init(&argc, &argv);
     int rank, size;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &size);
 
+    //TODO: pensiamo ad un modo per implementare un timer
+
+    //variabili locali al sottogruppo di pesci
+    float local_best_fitness = -2000.0;
+    float global_best_fitness = -2000.0;
+    float local_total_fitness = 0.0;
+    float global_total_fitness = 0.0;
+    float local_weighted_total_fitness[DIMENSIONS];
+    float global_weighted_total_fitness[DIMENSIONS];
+    float local_max_improvement = 0.0;
+    float global_max_improvement = 0.0;
+    srand(time(NULL));  // Seed for random number generation
+
+    //l'effettivo sottogruppo di pesci
     int local_n = N_FISHES / size;
     Fish *local_school = malloc(local_n * sizeof(Fish));
-    init_fish(local_school, local_n);
+    initFishArray(local_school, local_n);
 
     for (int iter = 0; iter < MAX_ITER; iter++) {
-        compute_individual_movement(local_school, local_n);
-
-        double global_center[DIMENSIONS];
-        double global_mass;
-        compute_global_center(local_school, local_n, global_center, &global_mass);
-
-        int contraction = (iter % 2 == 0);
-        compute_volitive_movement(local_school, local_n, global_center, contraction);
-
-        breeding_phase(local_school, &local_n);
+        variablesReset(&local_total_fitness, local_weighted_total_fitness, &local_max_improvement);
+        individualMovementArray(local_school, local_n, &local_total_fitness, &global_total_fitness, local_weighted_total_fitness, global_weighted_total_fitness, &local_max_improvement, &global_max_improvement);
     }
 
     free(local_school);
