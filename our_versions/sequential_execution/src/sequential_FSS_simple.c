@@ -4,13 +4,15 @@
 #include <time.h>
 #include <string.h> // Include for strcmp
 
-#define DIMENSIONS 20
-#define N_FISHES 100
+#define N_FISHES 320
+#define DIMENSIONS 128
 #define MAX_ITER 100000
 #define BOUNDS_MIN -30.0   // Minimum bound of the search space
 #define BOUNDS_MAX 30.0    // Maximum bound of the search space
 #define BOUNDS_MIN_W 0.1   // Minimum bound of the search space
 #define BOUNDS_MAX_W 10.0    // Maximum bound of the search space
+#define MAX_INDIVIDUAL_STEP 1.5 // Maximum step for individual movement
+#define MAX_VOLITIVE_STEP 0.2 // Maximum step for collective movement
 #define W_SCALE_MIN 1.0
 #define W_SCALE_MAX 10.0
 #define BREEDING_THRESHOLD 7.0 // minimus threshold of weight to breedh new fishes
@@ -21,7 +23,7 @@
 typedef struct {
     double position[DIMENSIONS];
     double new_position[DIMENSIONS];
-    
+
     double previous_cycle_weight;
     double weight;
 
@@ -155,7 +157,7 @@ void print_fish(Fish fish){
 // Funzione per inizializzare un singolo pesce
 void initFish(Fish *fish) {
     for (int i = 0; i < DIMENSIONS; i++) {
-        fish->position[i] = ((double)rand() / RAND_MAX) * (BOUNDS_MAX - BOUNDS_MIN) + BOUNDS_MIN;  
+        fish->position[i] = ((double)rand() / RAND_MAX) * (BOUNDS_MAX - BOUNDS_MIN) + BOUNDS_MIN;
         fish->new_position[i] = fish->position[i];
     }
 
@@ -165,8 +167,8 @@ void initFish(Fish *fish) {
     fish->fitness = objective_function(fish->position)*MULTIPLIER;        // Fitness iniziale //TODO: capire qual è il valore migliore di inizializzazione
     fish->new_fitness = fish->fitness;
 
-    fish->max_individual_step = 1.5; //TODO: capire qual è il valore migliore di inizializzazione e come aggiornarlo dinamicamente
-    fish->max_volitive_step = 0.2; //TODO: capire qual è il valore migliore di inizializzazione e come aggiornarlo dinamicamente
+    fish->max_individual_step = MAX_INDIVIDUAL_STEP; //TODO: capire qual è il valore migliore di inizializzazione e come aggiornarlo dinamicamente
+    fish->max_volitive_step = MAX_VOLITIVE_STEP; //TODO: capire qual è il valore migliore di inizializzazione e come aggiornarlo dinamicamente
 }
 
 // Funzione per inizializzare un array di pesci
@@ -190,12 +192,12 @@ void individualMovement(Fish *fish, float *tot_delta_fitness, float *weighted_to
     }
 
     // Aggiorno la fitness
-    fish->new_fitness = objective_function(fish->new_position)*MULTIPLIER; 
-    
+    fish->new_fitness = objective_function(fish->new_position)*MULTIPLIER;
+
 
 
     // -------------- Update the collective variables
-    double delta_fitness = fish->new_fitness - fish->fitness; 
+    double delta_fitness = fish->new_fitness - fish->fitness;
 
     // CI INTERESSANO SOLO I MOVIMENTI CHE VANNO AD AUMENTARE LA FITNESS DEL PESCE
     if (delta_fitness > 0) {
@@ -269,12 +271,12 @@ void updateWeights(Fish *fish, float *max_delta_fitness_improvement) {
 
     //che qui la delta fitness sia positiva, non ci interessa...
     //a noi interessa che la delta fitness sia positiva prima di fare il movimento singolo
-    fish->fitness = fish->new_fitness; 
+    fish->fitness = fish->new_fitness;
 }
 
 void updateWeightsArray(Fish *fishArray,  float *max_delta_fitness_improvement) {
     for (int i = 0; i < N_FISHES; i++) {
-        updateWeights(&fishArray[i], max_delta_fitness_improvement);  
+        updateWeights(&fishArray[i], max_delta_fitness_improvement);
         // print_fish(fishArray[i]);
     }
 }
@@ -313,16 +315,16 @@ void calculateSumWeights(Fish *fishArray, float *old_sum, float *new_sum){
 
 void volitivePositionUpdateArray(Fish *fishArray, int shrink, float* barycenter){
     double rand_mult = 0.0;
-    
+
     // questo codice si può ottimizare mettendo shrink -1,1
     if (shrink==1) {
         for (int i = 0; i < N_FISHES; i++) {
             for (int d = 0; d < DIMENSIONS; d++) { // TODO: change max individual step with another step in order to have the possibility to tune it
                 rand_mult= fmin(((double)rand() / (double)RAND_MAX) + 0.1, 1.0); //valore qualsiasi tra 0.1 e 1
-                
+
                 double temp= fishArray[i].position[d];
                 fishArray[i].position[d] -= fishArray[i].max_volitive_step * rand_mult * (fishArray[i].position[d] - barycenter[d]);
-                
+
                 if (fishArray[i].position[d] > 1000.0 || fishArray[i].position[d] < -1000.0) {
                     // printf("LAST STRANGE FISH: rand_mult: %f\n", rand_mult);
                     // printf("dim= %d, pesce= %d\n", d, i);
@@ -339,10 +341,10 @@ void volitivePositionUpdateArray(Fish *fishArray, int shrink, float* barycenter)
         for (int i = 0; i < N_FISHES; i++) {
             for (int d = 0; d < DIMENSIONS; d++){ // TODO: change max individual step with another step in order to have the possibility to tune it
                 rand_mult= fmin(((double)rand() / (double)RAND_MAX) + 0.1, 1.0); //valore qualsiasi tra 0.1 e 1
-                
+
                 double temp= fishArray[i].position[d];
                 fishArray[i].position[d] += fishArray[i].max_volitive_step * rand_mult * (fishArray[i].position[d] - barycenter[d]);
-                
+
                 if (fishArray[i].position[d] > 1000.0 || fishArray[i].position[d] < -1000.0) {
                     // printf("LAST STRANGE FISH: rand_mult: %f\n", rand_mult);
                     // printf("dim= %d, pesce= %d\n", d, i);
@@ -377,7 +379,7 @@ void collectiveVolitiveArray(Fish *fishes) {
         // printf("EQUAL WEIGHTS, do nothing");
     }
 
-    // for (int i = 0; i < N_FISHES; i++) { 
+    // for (int i = 0; i < N_FISHES; i++) {
     //     print_fish(fishes[i]);
     // }
 
@@ -405,7 +407,7 @@ void breeding(Fish *fishes){
         if (fishes[i].weight < fishes[worst_index].weight) {
             worst_index = i;
         }
-    } 
+    }
 
     //sopprimo il pesce peggiore e lo rimpiazzo con il figlio dei due migliori
     if (fishes[first_index].weight > BREEDING_THRESHOLD && fishes[second_index].weight > BREEDING_THRESHOLD) {
@@ -417,7 +419,7 @@ void breeding(Fish *fishes){
 
         // printf("NEW FISH : weight: %f, fitness: %f\n", fishes[worst_index].weight, fishes[worst_index].fitness);
     }
-    
+
 }
 
 
@@ -426,11 +428,15 @@ void breeding(Fish *fishes){
 //-------------------------------------------------------------------------------------------
 
 int main() {
+
+    // per l'avanzamento temporale
+    int progress_step = MAX_ITER/100;
+
     //create a timer
     clock_t start, end;
     double cpu_time_used;
     start = clock();
-    
+
     // char filename[50];
     // sprintf(filename, "../evolution_logs/%s_%dd_log.json",FUNCTION, DIMENSIONS);
     // FILE *file = fopen(filename, "w");
@@ -456,7 +462,10 @@ int main() {
 
     // MAIN LOOP
     for (int iter = 0; iter < MAX_ITER; iter++) {
-        
+        // if (iter % progress_step == 0) {
+        //     printf("Progress: %d%%\n", iter/progress_step);
+        // }
+
         variables_reset(&total_fitness, weighted_total_fitness, &max_improvement);
 
         // INDIVIDUAL MOVEMENT
@@ -466,7 +475,7 @@ int main() {
 
         // UPDATE WEIGHTS
         updateWeightsArray(fishes, &max_improvement);
-        
+
         // for (int d = 0; d<DIMENSIONS; d++){
         //     printf("wtf(%d): %f  ", d,  weighted_total_fitness[d]);
         // }
@@ -498,7 +507,7 @@ int main() {
 
     end = clock();
     cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
-    
+
 
 
     // print all the fishes
@@ -506,9 +515,9 @@ int main() {
         print_fish(fishes[i]);
     }
 
+    printf("Number of fishes: %d\n", N_FISHES);
     printf("Dimensions: %d\n", DIMENSIONS);
     printf("Epochs: %d\n", MAX_ITER);
-    printf("Number of fishes: %d\n", N_FISHES);
     printf("Execution time: %f\n", cpu_time_used);
     printf("Best fitness: %f\n", best_fitness/DIMENSIONS);
 
