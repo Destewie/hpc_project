@@ -270,10 +270,7 @@ void updateWeightsArray(Fish *fishArray, int n_fishes, float *global_max_delta_f
 }
 
 
-//QUA
-
-
-void calculateBarycenter(Fish *fishArray, int n_fishes, float *global_barycenter, int rank){
+void calculateBarycenter(Fish *fishArray, int n_fishes, float *global_barycenter){
 
     float local_numerator[DIMENSIONS];
     float global_numerator[DIMENSIONS];
@@ -286,10 +283,11 @@ void calculateBarycenter(Fish *fishArray, int n_fishes, float *global_barycenter
         global_numerator[d] = 0.0;
     }
 
-    
+    #pragma omp parallel for
     for (int i = 0; i < n_fishes; i++) {
         local_denominator += fishArray[i].weight;
 
+        #pragma omp parallel for
         for (int d = 0; d<DIMENSIONS; d++){
             local_numerator[d] += fishArray[i].position[d] * fishArray[i].weight;
         }
@@ -298,100 +296,220 @@ void calculateBarycenter(Fish *fishArray, int n_fishes, float *global_barycenter
     MPI_Allreduce(local_numerator, global_numerator, DIMENSIONS, MPI_FLOAT, MPI_SUM, MPI_COMM_WORLD);
     MPI_Allreduce(&local_denominator, &global_denominator, 1, MPI_FLOAT, MPI_SUM, MPI_COMM_WORLD);
 
+    #pragma omp parallel for
     for (int d = 0; d<DIMENSIONS; d++){
         if (global_denominator != 0.0) {
             global_barycenter[d] = global_numerator[d] / global_denominator;
         }
     }
 
-    printf("[%d] Barycenter: %f %f\n", rank, global_barycenter[0], global_barycenter[1]);
+    // printf("[%d] Barycenter: %f %f\n", rank, global_barycenter[0], global_barycenter[1]);
 }
 
-// void calculateSumWeights(Fish *fishArray, float *old_sum, float *new_sum){
-//     *old_sum = 0.0;
-//     *new_sum = 0.0;
+void calculateSumWeights(Fish *fishArray, int n_fishes, float *global_old_sum, float *global_new_sum){
+    float local_old_sum = 0.0;
+    float local_new_sum = 0.0;
 
-//     for (int i = 0; i < N_FISHES; i++) {
-//         *old_sum += fishArray[i].previous_cycle_weight;
-//         *new_sum += fishArray[i].weight;
-//     }
-// }
+    #pragma omp parallel for
+    for (int i = 0; i < n_fishes; i++) {
+        local_old_sum += fishArray[i].previous_cycle_weight;
+        local_new_sum += fishArray[i].weight;
+    }
+    
+    MPI_Allreduce(&local_old_sum, global_old_sum, 1, MPI_FLOAT, MPI_SUM, MPI_COMM_WORLD);
+    MPI_Allreduce(&local_new_sum, global_new_sum, 1, MPI_FLOAT, MPI_SUM, MPI_COMM_WORLD);
+}
 
-// void volitivePositionUpdateArray(Fish *fishArray, int shrink, float* global_barycenter){
-//     double rand_mult = 0.0;
 
-//     // questo codice si può ottimizare mettendo shrink -1,1
-//     if (shrink==1) {
-//         for (int i = 0; i < N_FISHES; i++) {
-//             for (int d = 0; d < DIMENSIONS; d++) { // TODO: change max individual step with another step in order to have the possibility to tune it
-//                 rand_mult= fmin(((double)rand() / (double)RAND_MAX) + 0.1, 1.0); //valore qualsiasi tra 0.1 e 1
+void volitivePositionUpdateArray(Fish *fishArray, int n_fishes, int shrink, float* global_barycenter){
+    double rand_mult = 0.0;
 
-//                 double temp= fishArray[i].position[d];
-//                 fishArray[i].position[d] -= fishArray[i].max_volitive_step * rand_mult * (fishArray[i].position[d] - global_barycenter[d]);
+    // questo codice si può ottimizare mettendo shrink -1,1
+    if (shrink==1) {
+        #pragma omp parallel for
+        for (int i = 0; i < n_fishes; i++) {
+            #pragma omp parallel for
+            for (int d = 0; d < DIMENSIONS; d++) { // TODO: change max individual step with another step in order to have the possibility to tune it
+                rand_mult= fmin(((double)rand() / (double)RAND_MAX) + 0.1, 1.0); //valore qualsiasi tra 0.1 e 1
 
-//                 if (fishArray[i].position[d] > 1000.0 || fishArray[i].position[d] < -1000.0) {
-//                     // printf("LAST STRANGE FISH: rand_mult: %f\n", rand_mult);
-//                     // printf("dim= %d, pesce= %d\n", d, i);
-//                     // printf("fishArray[%d].max_volitive_step: %f\n",i, fishArray[i].max_volitive_step);
-//                     // printf("fishArray[%d].position[%d] before update: %f\n",i, d, temp);
-//                     // printf("fishArray[%d].position[%d] after update: %f\n",i, d, fishArray[i].position[d]);
-//                     // printf("global_barycenter: %f\n", global_barycenter[d]);
-//                     printf("porco cane\n");
-//                     exit(1);
-//                 }
-//             }
-//         }
-//     } else {
-//         for (int i = 0; i < N_FISHES; i++) {
-//             for (int d = 0; d < DIMENSIONS; d++){ // TODO: change max individual step with another step in order to have the possibility to tune it
-//                 rand_mult= fmin(((double)rand() / (double)RAND_MAX) + 0.1, 1.0); //valore qualsiasi tra 0.1 e 1
+                double temp= fishArray[i].position[d];
+                fishArray[i].position[d] -= fishArray[i].max_volitive_step * rand_mult * (fishArray[i].position[d] - global_barycenter[d]);
 
-//                 double temp= fishArray[i].position[d];
-//                 fishArray[i].position[d] += fishArray[i].max_volitive_step * rand_mult * (fishArray[i].position[d] - global_barycenter[d]);
+                if (fishArray[i].position[d] > 1000.0 || fishArray[i].position[d] < -1000.0) {
+                    // printf("LAST STRANGE FISH: rand_mult: %f\n", rand_mult);
+                    // printf("dim= %d, pesce= %d\n", d, i);
+                    // printf("fishArray[%d].max_volitive_step: %f\n",i, fishArray[i].max_volitive_step);
+                    // printf("fishArray[%d].position[%d] before update: %f\n",i, d, temp);
+                    // printf("fishArray[%d].position[%d] after update: %f\n",i, d, fishArray[i].position[d]);
+                    // printf("global_barycenter: %f\n", global_barycenter[d]);
+                    printf("porco cane\n");
+                    exit(1);
+                }
+            }
+        }
+    } else {
+        #pragma omp parallel for
+        for (int i = 0; i < n_fishes; i++) {
+            #pragma omp parallel for
+            for (int d = 0; d < DIMENSIONS; d++){ // TODO: change max individual step with another step in order to have the possibility to tune it
+                rand_mult= fmin(((double)rand() / (double)RAND_MAX) + 0.1, 1.0); //valore qualsiasi tra 0.1 e 1
 
-//                 if (fishArray[i].position[d] > 1000.0 || fishArray[i].position[d] < -1000.0) {
-//                     // printf("LAST STRANGE FISH: rand_mult: %f\n", rand_mult);
-//                     // printf("dim= %d, pesce= %d\n", d, i);
-//                     // printf("fishArray[%d].max_volitive_step: %f\n",i, fishArray[i].max_volitive_step);
-//                     // printf("fishArray[%d].position[%d] before update: %f\n",i, d, temp);
-//                     // printf("fishArray[%d].position[%d] after update: %f\n",i, d, fishArray[i].position[d]);
-//                     // printf("global_barycenter: %f\n", global_barycenter[d]);
-//                     exit(1);
-//                 }
-//             }
-//         }
-//     }
-// }
+                double temp= fishArray[i].position[d];
+                fishArray[i].position[d] += fishArray[i].max_volitive_step * rand_mult * (fishArray[i].position[d] - global_barycenter[d]);
 
-void collectiveVolitiveArray(Fish *fishes, int n_fishes, int rank) {
+                if (fishArray[i].position[d] > 1000.0 || fishArray[i].position[d] < -1000.0) {
+                    // printf("LAST STRANGE FISH: rand_mult: %f\n", rand_mult);
+                    // printf("dim= %d, pesce= %d\n", d, i);
+                    // printf("fishArray[%d].max_volitive_step: %f\n",i, fishArray[i].max_volitive_step);
+                    // printf("fishArray[%d].position[%d] before update: %f\n",i, d, temp);
+                    // printf("fishArray[%d].position[%d] after update: %f\n",i, d, fishArray[i].position[d]);
+                    // printf("global_barycenter: %f\n", global_barycenter[d]);
+                    printf("porco cane\n");
+                    exit(1);
+                }
+            }
+        }
+    }
+}
+
+void collectiveVolitiveArray(Fish *fishes, int n_fishes) {
     float global_barycenter[DIMENSIONS];
-    calculateBarycenter(fishes, n_fishes, global_barycenter, rank);
+    calculateBarycenter(fishes, n_fishes, global_barycenter);
 
-    // float old_sum_weights;
-    // float new_sum_weights;
-    // calculateSumWeights(fishes, &old_sum_weights, &new_sum_weights);
+    float global_old_sum_weights;
+    float global_new_sum_weights;
+    calculateSumWeights(fishes, &global_old_sum_weights, &global_new_sum_weights);
 
-    // if (old_sum_weights < new_sum_weights) {
-    //     //shrink = 1 -> il banco ha guadagnato peso quindi si deve avvicinare al baricentro
-    //     // printf("MOVIMENTO YEAH -> IL BANCO SI È AVVICINATO\n");
-    //     volitivePositionUpdateArray(fishes, 1, global_barycenter);
-    // } else if (old_sum_weights > new_sum_weights) {
-    //     //TODO: shrink = 0 -> il banco ha perso peso quindi si deve allargare in cerca di cibo
-    //     // printf("MOVIMENTO BLEAH -> IL BANCO SI È ALLONTANATO\n");
-    //     volitivePositionUpdateArray(fishes, 0, global_barycenter);
-    // }else{
-    //     // printf("EQUAL WEIGHTS, do nothing");
-    // }
+    if (global_old_sum_weights < global_new_sum_weights) {
+        //shrink = 1 -> il banco ha guadagnato peso quindi si deve avvicinare al baricentro
+        // printf("MOVIMENTO YEAH -> IL BANCO SI È AVVICINATO\n");
+        volitivePositionUpdateArray(fishes,n_fishes, 1, global_barycenter);
+    } else if (global_old_sum_weights > global_new_sum_weights) {
+        //TODO: shrink = 0 -> il banco ha perso peso quindi si deve allargare in cerca di cibo
+        // printf("MOVIMENTO BLEAH -> IL BANCO SI È ALLONTANATO\n");
+        volitivePositionUpdateArray(fishes,n_fishes, 0, global_barycenter);
+    }else{
+        // printf("EQUAL WEIGHTS, do nothing");
+    }
 
     // // for (int i = 0; i < N_FISHES; i++) {
     // //     print_fish(fishes[i]);
     // // }
 
-    // // update previous_cycle_weight
-    // for (int i = 0; i < N_FISHES; i++) {
-    //     fishes[i].previous_cycle_weight = fishes[i].weight;
-    // }
+    // update previous_cycle_weight
+    for (int i = 0; i < n_fishes; i++) {
+        fishes[i].previous_cycle_weight = fishes[i].weight;
+    }
 }
+
+
+
+
+    
+void breeding(Fish *fishes, int n_fishes, int rank, int num_ranks) {
+    int first_index = 0;
+    int second_index = 0;
+    int worst_index = 0;
+
+    // Trova il pesce migliore, il secondo migliore e il peggiore nel rank locale
+    for (int i = 0; i < n_fishes; i++) {
+        if (fishes[i].weight > fishes[first_index].weight) {
+            second_index = first_index;
+            first_index = i;
+        } else if (fishes[i].weight > fishes[second_index].weight) {
+            second_index = i;
+        }
+
+        if (fishes[i].weight < fishes[worst_index].weight) {
+            worst_index = i;
+        }
+    }
+
+    // Prepara i dati da inviare agli altri rank
+    double data_to_send[7] = {
+        (double)rank,
+        (double)first_index,
+        fishes[first_index].weight,
+        (double)second_index,
+        fishes[second_index].weight,
+        (double)worst_index,
+        fishes[worst_index].weight
+    };
+
+    // Allgather per condividere le informazioni con tutti i rank
+    double *gathered_data = (double *)malloc(num_ranks * 7 * sizeof(double));
+    MPI_Allgather(data_to_send, 7, MPI_DOUBLE, gathered_data, 7, MPI_DOUBLE, MPI_COMM_WORLD);
+
+    // Analizza i dati raccolti per trovare il miglior pesce, il secondo migliore e il peggiore globale
+    int global_first_rank = 0, global_first_index = 0;
+    int global_second_rank = 0, global_second_index = 0;
+    int global_worst_rank = 0, global_worst_index = 0;
+    double best_weight = 0.0, second_best_weight = 0.0, worst_weight = DBL_MAX;
+
+    for (int i = 0; i < num_ranks; i++) {
+        int offset = i * 7;
+        int curr_rank = (int)gathered_data[offset];
+        int curr_first_index = (int)gathered_data[offset + 1];
+        double curr_first_weight = gathered_data[offset + 2];
+        int curr_second_index = (int)gathered_data[offset + 3];
+        double curr_second_weight = gathered_data[offset + 4];
+        int curr_worst_index = (int)gathered_data[offset + 5];
+        double curr_worst_weight = gathered_data[offset + 6];
+
+        // Aggiorna il migliore globale
+        if (curr_first_weight > best_weight || (curr_first_weight == best_weight && curr_rank < global_first_rank)) {
+            global_second_rank = global_first_rank;
+            global_second_index = global_first_index;
+            second_best_weight = best_weight;
+
+            global_first_rank = curr_rank;
+            global_first_index = curr_first_index;
+            best_weight = curr_first_weight;
+        } else if (curr_first_weight > second_best_weight || (curr_first_weight == second_best_weight && curr_rank < global_second_rank)) {
+            global_second_rank = curr_rank;
+            global_second_index = curr_first_index;
+            second_best_weight = curr_first_weight;
+        }
+
+        // Aggiorna il peggiore globale
+        if (curr_worst_weight < worst_weight || (curr_worst_weight == worst_weight && curr_rank < global_worst_rank)) {
+            global_worst_rank = curr_rank;
+            global_worst_index = curr_worst_index;
+            worst_weight = curr_worst_weight;
+        }
+    }
+
+    if (best_weight > BREEDING_THRESHOLD && second_best_weight > BREEDING_THRESHOLD) {
+        // Il rank con il pesce migliore e il secondo migliore manda le coordinate al rank con il pesce peggiore
+        if (rank == global_first_rank || rank == global_second_rank) {
+            double message[DIMENSIONS];
+            for (int d = 0; d < DIMENSIONS; d++) {
+                if (rank == global_first_rank) {
+                    message[d] = fishes[global_first_index].position[d];
+                } else {
+                    message[d] = fishes[global_second_index].position[d];
+                }
+            }
+            MPI_Send(message, DIMENSIONS, MPI_DOUBLE, global_worst_rank, 0, MPI_COMM_WORLD);
+        }
+
+        // Il rank con il pesce peggiore riceve le coordinate e crea un nuovo pesce
+        if (rank == global_worst_rank) {
+            double first_pos[DIMENSIONS], second_pos[DIMENSIONS];
+            MPI_Recv(first_pos, DIMENSIONS, MPI_DOUBLE, global_first_rank, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            MPI_Recv(second_pos, DIMENSIONS, MPI_DOUBLE, global_second_rank, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+
+            for (int d = 0; d < DIMENSIONS; d++) {
+                fishes[global_worst_index].position[d] = (first_pos[d] + second_pos[d]) / 2;
+            }
+            fishes[global_worst_index].weight = (best_weight + second_best_weight) / 2;
+            fishes[global_worst_index].fitness = objective_function(fishes[global_worst_index].position) * MULTIPLIER;
+        }
+    }
+
+    free(gathered_data);
+}
+
 
 //-------------------------------------------------------------------------------------------
 //---------------------------- MAIN ---------------------------------------------------------
@@ -413,7 +531,7 @@ int main(int argc, char *argv[]) {
     float local_total_fitness = 0.0;
     float global_total_fitness = 0.0;
     float local_weighted_total_fitness[DIMENSIONS];
-    float global_weighted_total_fitness[DIMENSIONS];
+    float global_weighted_total_fitness[DIMENSIONS];global_barycenter
     float local_max_improvement = 0.0;
     float global_max_improvement = 0.0;
     srand(time(NULL)+rank);  // Seed for random number generation have a different value for each process at each iteration
@@ -428,7 +546,8 @@ int main(int argc, char *argv[]) {
         individualMovementArray(local_school, local_n, &local_total_fitness, &global_total_fitness, local_weighted_total_fitness, global_weighted_total_fitness, &local_max_improvement, &global_max_improvement);
         updateWeightsArray(local_school, local_n, &global_max_improvement);
         collectiveMovementArray(local_school, local_n, &global_total_fitness, global_weighted_total_fitness);
-        collectiveVolitiveArray(local_school, local_n, rank);
+        collectiveVolitiveArray(local_school, local_n);
+        breeding(local_school, local_n, rank, size);
     }
 
     free(local_school);
