@@ -215,14 +215,12 @@ void individualMovementArray (Fish *fishArray, int n_fishes, float *local_tot_de
     for (int i = 0; i < n_fishes; i++) {
         individualMovement(&fishArray[i], local_tot_delta_fitness, local_weighted_tot_delta_fitness, local_max_delta_fitness_improvement);  // Inizializza ciascun pesce
     }
-    printf("local_tot_delta_fitness: %f\n", *local_tot_delta_fitness);
 
     //aggiornamento parallelo
     MPI_Allreduce(local_tot_delta_fitness, global_tot_delta_fitness, 1 , MPI_FLOAT, MPI_SUM, MPI_COMM_WORLD);
     MPI_Allreduce(local_weighted_tot_delta_fitness, global_weighted_tot_delta_fitness, DIMENSIONS, MPI_FLOAT, MPI_SUM, MPI_COMM_WORLD);
     MPI_Allreduce(local_max_delta_fitness_improvement, global_max_delta_fitness_improvement, 1, MPI_FLOAT, MPI_MAX, MPI_COMM_WORLD);
 
-    printf("\tglobal_tot_delta_fitness: %f\n", *global_tot_delta_fitness);
 }
 
 
@@ -267,10 +265,133 @@ void updateWeightsArray(Fish *fishArray, int n_fishes, float *global_max_delta_f
     #pragma omp parallel for
     for (int i = 0; i < n_fishes; i++) {
         updateWeights(&fishArray[i], global_max_delta_fitness_improvement);
-        print_fish(fishArray[i]);
+        print_fish(*fishArray[i]);
     }
 }
 
+
+//QUA
+
+
+void calculateBarycenter(Fish *fishArray, int n_fishes, float *global_barycenter){
+
+    float local_numerator[DIMENSIONS];
+    float global_numerator[DIMENSIONS];
+    float local_denominator = 0.0;
+    float global_denominator = 0.0;
+
+    for (int d = 0; d<DIMENSIONS; d++){
+        global_barycenter[d] = 0.0;
+        local_numerator[d] = 0.0;
+        global_numerator[d] = 0.0;
+    }
+
+    
+    for (int i = 0; i < n_fishes; i++) {
+        local_denominator += fishArray[i].weight;
+
+        for (int d = 0; d<DIMENSIONS; d++){
+            local_numerator[d] += fishArray[i].position[d] * fishArray[i].weight;
+        }
+    }
+
+    MPI_Allreduce(local_numerator, global_numerator, DIMENSIONS, MPI_FLOAT, MPI_SUM, MPI_COMM_WORLD);
+    MPI_Allreduce(&local_denominator, &global_denominator, 1, MPI_FLOAT, MPI_SUM, MPI_COMM_WORLD);
+
+    for (int d = 0; d<DIMENSIONS; d++){
+        if (global_denominator != 0.0) {
+            global_barycenter[d] = global_numerator[d] / global_denominator;
+        }
+    }
+
+    printf("Barycenter: %f %f\n", global_barycenter[0], global_barycenter[1]);
+}
+
+// void calculateSumWeights(Fish *fishArray, float *old_sum, float *new_sum){
+//     *old_sum = 0.0;
+//     *new_sum = 0.0;
+
+//     for (int i = 0; i < N_FISHES; i++) {
+//         *old_sum += fishArray[i].previous_cycle_weight;
+//         *new_sum += fishArray[i].weight;
+//     }
+// }
+
+// void volitivePositionUpdateArray(Fish *fishArray, int shrink, float* global_barycenter){
+//     double rand_mult = 0.0;
+
+//     // questo codice si può ottimizare mettendo shrink -1,1
+//     if (shrink==1) {
+//         for (int i = 0; i < N_FISHES; i++) {
+//             for (int d = 0; d < DIMENSIONS; d++) { // TODO: change max individual step with another step in order to have the possibility to tune it
+//                 rand_mult= fmin(((double)rand() / (double)RAND_MAX) + 0.1, 1.0); //valore qualsiasi tra 0.1 e 1
+
+//                 double temp= fishArray[i].position[d];
+//                 fishArray[i].position[d] -= fishArray[i].max_volitive_step * rand_mult * (fishArray[i].position[d] - global_barycenter[d]);
+
+//                 if (fishArray[i].position[d] > 1000.0 || fishArray[i].position[d] < -1000.0) {
+//                     // printf("LAST STRANGE FISH: rand_mult: %f\n", rand_mult);
+//                     // printf("dim= %d, pesce= %d\n", d, i);
+//                     // printf("fishArray[%d].max_volitive_step: %f\n",i, fishArray[i].max_volitive_step);
+//                     // printf("fishArray[%d].position[%d] before update: %f\n",i, d, temp);
+//                     // printf("fishArray[%d].position[%d] after update: %f\n",i, d, fishArray[i].position[d]);
+//                     // printf("global_barycenter: %f\n", global_barycenter[d]);
+//                     printf("porco cane\n");
+//                     exit(1);
+//                 }
+//             }
+//         }
+//     } else {
+//         for (int i = 0; i < N_FISHES; i++) {
+//             for (int d = 0; d < DIMENSIONS; d++){ // TODO: change max individual step with another step in order to have the possibility to tune it
+//                 rand_mult= fmin(((double)rand() / (double)RAND_MAX) + 0.1, 1.0); //valore qualsiasi tra 0.1 e 1
+
+//                 double temp= fishArray[i].position[d];
+//                 fishArray[i].position[d] += fishArray[i].max_volitive_step * rand_mult * (fishArray[i].position[d] - global_barycenter[d]);
+
+//                 if (fishArray[i].position[d] > 1000.0 || fishArray[i].position[d] < -1000.0) {
+//                     // printf("LAST STRANGE FISH: rand_mult: %f\n", rand_mult);
+//                     // printf("dim= %d, pesce= %d\n", d, i);
+//                     // printf("fishArray[%d].max_volitive_step: %f\n",i, fishArray[i].max_volitive_step);
+//                     // printf("fishArray[%d].position[%d] before update: %f\n",i, d, temp);
+//                     // printf("fishArray[%d].position[%d] after update: %f\n",i, d, fishArray[i].position[d]);
+//                     // printf("global_barycenter: %f\n", global_barycenter[d]);
+//                     exit(1);
+//                 }
+//             }
+//         }
+//     }
+// }
+
+void collectiveVolitiveArray(Fish *fishes, int n_fishes) {
+    float global_barycenter[DIMENSIONS];
+    calculateBarycenter(fishes, n_fishes, global_barycenter);
+
+    // float old_sum_weights;
+    // float new_sum_weights;
+    // calculateSumWeights(fishes, &old_sum_weights, &new_sum_weights);
+
+    // if (old_sum_weights < new_sum_weights) {
+    //     //shrink = 1 -> il banco ha guadagnato peso quindi si deve avvicinare al baricentro
+    //     // printf("MOVIMENTO YEAH -> IL BANCO SI È AVVICINATO\n");
+    //     volitivePositionUpdateArray(fishes, 1, global_barycenter);
+    // } else if (old_sum_weights > new_sum_weights) {
+    //     //TODO: shrink = 0 -> il banco ha perso peso quindi si deve allargare in cerca di cibo
+    //     // printf("MOVIMENTO BLEAH -> IL BANCO SI È ALLONTANATO\n");
+    //     volitivePositionUpdateArray(fishes, 0, global_barycenter);
+    // }else{
+    //     // printf("EQUAL WEIGHTS, do nothing");
+    // }
+
+    // // for (int i = 0; i < N_FISHES; i++) {
+    // //     print_fish(fishes[i]);
+    // // }
+
+    // // update previous_cycle_weight
+    // for (int i = 0; i < N_FISHES; i++) {
+    //     fishes[i].previous_cycle_weight = fishes[i].weight;
+    // }
+}
 
 //-------------------------------------------------------------------------------------------
 //---------------------------- MAIN ---------------------------------------------------------
@@ -307,6 +428,7 @@ int main(int argc, char *argv[]) {
         individualMovementArray(local_school, local_n, &local_total_fitness, &global_total_fitness, local_weighted_total_fitness, global_weighted_total_fitness, &local_max_improvement, &global_max_improvement);
         updateWeightsArray(local_school, local_n, &global_max_improvement);
         collectiveMovementArray(local_school, local_n, &global_total_fitness, global_weighted_total_fitness);
+        collectiveVolitiveArray(local_school, local_n);
     }
 
     free(local_school);
