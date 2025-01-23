@@ -27,7 +27,6 @@
 #define FUNCTION "min_sphere"   //TODO: Capire se, al posto di fare un controllo su una stringa, possiamo passare alle funzioni direttamente un puntatore ad una funzione (in modo comodo, se no lasciamo perdere)
 #define MULTIPLIER -1   // 1 in case of maximization, -1 in case of minimization
 #define A 10.0 //rastrigin param
-#define LOG 1 // 1 to log the evolution of the fishes, 0 otherwise
 
 typedef struct {
     double position[DIMENSIONS];
@@ -106,6 +105,19 @@ double objective_function(double *x) {
         return 0.0;
     }
 }
+
+//-------------------------------------------------------------------------------------------
+//---------------------------- TESTING ---------------------------------------------------------
+//-------------------------------------------------------------------------------------------
+
+void print_fish(Fish *fish) {
+    printf("Fish: ");
+    for(int i=0; i<DIMENSIONS; i++){
+        printf("pos: %f ", fish->position[i]);
+    }
+    printf("\tweight: %f \tfitness: %f\n", fish->weight, fish->fitness);
+}
+
 
 //-------------------------------------------------------------------------------------------
 //---------------------------- FISH ---------------------------------------------------------
@@ -213,28 +225,49 @@ void individualMovementArray (Fish *fishArray, int n_fishes, float *local_tot_de
     printf("\tglobal_tot_delta_fitness: %f\n", *global_tot_delta_fitness);
 }
 
-//-------------------------------------------------------------------------------------------
-//---------------------------- TESTING ---------------------------------------------------------
-//-------------------------------------------------------------------------------------------
 
-void write_fishes_to_json(Fish *fishes,FILE *file, int last) {
+void collectiveMovement(Fish *fish, float *global_tot_delta_fitness, float *global_weighted_tot_delta_fitness) {
+    if (*global_tot_delta_fitness == 0.0) {
+        *global_tot_delta_fitness = 1;
+    }
 
-    fprintf(file, "\t[\n");
+    #pragma omp parallel for
+    for (int d =0;d<DIMENSIONS; d++){
+        fish->new_position[d] = fish->position[d] + global_weighted_tot_delta_fitness[d] / *global_tot_delta_fitness;
+        // printf("Update for collective movement of %f\n", fish->new_position[d]-fish->position[d]);
+        fish->position[d] = fish->new_position[d]; //TODO: fa schifo, ma segue la logica dell'aggiornare prima la new position e poi quella current
+    }
+    fish->new_fitness = objective_function(fish->position) * MULTIPLIER; // questo va fatto per forza!
+}
 
-    for (int i = 0; i < N_FISHES; i++) {
-        if (DIMENSIONS==1){
-            fprintf(file, "\t\t{\"x\": [%.6f ],", fishes[i].position[0]);
-        }else if(DIMENSIONS==2){
-            fprintf(file, "\t\t{\"x\": [%.6f , %.6f],", fishes[i].position[0],fishes[i].position[1]);
-        }
-        fprintf(file, "\"weight\": %.6f }", fishes[i].weight);
-        if (i == N_FISHES - 1 && last==0) {
-            fprintf(file, "\n],");
-        } else if(i == N_FISHES - 1 && last==1){
-            fprintf(file, "\n]");
-        }else{
-            fprintf(file, ",\n");
-        }
+void collectiveMovementArray(Fish *fishArray, int n_fishes, float *global_tot_delta_fitness, float *global_weighted_tot_delta_fitness) {
+    #pragma omp parallel for
+    for (int i = 0; i < n_fishes; i++) {
+        collectiveMovement(&fishArray[i], global_tot_delta_fitness, global_weighted_tot_delta_fitness);  // Inizializza ciascun pesce
+    }
+}
+
+void updateWeights(Fish *fish, float *global_max_delta_fitness_improvement) {
+    if (*global_max_delta_fitness_improvement != 0.0) { // Avoid division by zero
+        fish->weight += (fish->new_fitness - fish->fitness)/ *global_max_delta_fitness_improvement;
+    }    // fish->weight += (fish->new_fitness - fish->fitness);
+
+    if (fish->weight<=W_SCALE_MIN) {
+        fish->weight = W_SCALE_MIN; //TODO: non siamo sicure di questa cosa...
+    } else if (fish->weight>W_SCALE_MAX) {
+        fish->weight = W_SCALE_MAX;
+    }
+
+    //che qui la delta fitness sia positiva, non ci interessa...
+    //a noi interessa che la delta fitness sia positiva prima di fare il movimento singolo
+    fish->fitness = fish->new_fitness;
+}
+
+void updateWeightsArray(Fish *fishArray, int n_fishes, float *global_max_delta_fitness_improvement) {
+    #pragma omp parallel for
+    for (int i = 0; i < n_fishes; i++) {
+        updateWeights(&fishArray[i], global_max_delta_fitness_improvement);
+        print_fish(fishArray[i]);
     }
 }
 
@@ -244,16 +277,6 @@ void write_fishes_to_json(Fish *fishes,FILE *file, int last) {
 //-------------------------------------------------------------------------------------------
 
 int main(int argc, char *argv[]) {
-
-    if (LOG){
-        char filename[50];
-        sprintf(filename, "../evolution_logs/%s_%dd_log.json",FUNCTION, DIMENSIONS);
-        FILE *file = fopen(filename, "w");
-        if (file == NULL) {
-            perror("Error opening file");
-            return 1;
-        }
-    }
 
     //variabili MPI
     MPI_Init(&argc, &argv);
@@ -282,10 +305,8 @@ int main(int argc, char *argv[]) {
     for (int iter = 0; iter < MAX_ITER; iter++) {
         variablesReset(&local_total_fitness, local_weighted_total_fitness, &local_max_improvement);
         individualMovementArray(local_school, local_n, &local_total_fitness, &global_total_fitness, local_weighted_total_fitness, global_weighted_total_fitness, &local_max_improvement, &global_max_improvement);
-        // SAVE ON FILE
-        if (DIMENSIONS <= 2 && LOG) {
-            write_fishes_to_json(fishes, file, iter==MAX_ITER-1?1:0);
-        }
+        updateWeightsArray(local_school, local_n, &global_max_improvement);
+        collectiveMovementArray(local_school, local_n, &global_total_fitness, global_weighted_total_fitness);
     }
 
     free(local_school);
