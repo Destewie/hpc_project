@@ -27,6 +27,7 @@
 #define FUNCTION "min_sphere"   //TODO: Capire se, al posto di fare un controllo su una stringa, possiamo passare alle funzioni direttamente un puntatore ad una funzione (in modo comodo, se no lasciamo perdere)
 #define MULTIPLIER -1   // 1 in case of maximization, -1 in case of minimization
 #define A 10.0 //rastrigin param
+#define LOG 1 // 1 to log the evolution of the fishes, 0 otherwise
 
 typedef struct {
     double position[DIMENSIONS];
@@ -213,10 +214,47 @@ void individualMovementArray (Fish *fishArray, int n_fishes, float *local_tot_de
 }
 
 //-------------------------------------------------------------------------------------------
+//---------------------------- TESTING ---------------------------------------------------------
+//-------------------------------------------------------------------------------------------
+
+void write_fishes_to_json(Fish *fishes,FILE *file, int last) {
+
+    fprintf(file, "\t[\n");
+
+    for (int i = 0; i < N_FISHES; i++) {
+        if (DIMENSIONS==1){
+            fprintf(file, "\t\t{\"x\": [%.6f ],", fishes[i].position[0]);
+        }else if(DIMENSIONS==2){
+            fprintf(file, "\t\t{\"x\": [%.6f , %.6f],", fishes[i].position[0],fishes[i].position[1]);
+        }
+        fprintf(file, "\"weight\": %.6f }", fishes[i].weight);
+        if (i == N_FISHES - 1 && last==0) {
+            fprintf(file, "\n],");
+        } else if(i == N_FISHES - 1 && last==1){
+            fprintf(file, "\n]");
+        }else{
+            fprintf(file, ",\n");
+        }
+    }
+}
+
+
+//-------------------------------------------------------------------------------------------
 //---------------------------- MAIN ---------------------------------------------------------
 //-------------------------------------------------------------------------------------------
 
 int main(int argc, char *argv[]) {
+
+    if (LOG){
+        char filename[50];
+        sprintf(filename, "../evolution_logs/%s_%dd_log.json",FUNCTION, DIMENSIONS);
+        FILE *file = fopen(filename, "w");
+        if (file == NULL) {
+            perror("Error opening file");
+            return 1;
+        }
+    }
+
     //variabili MPI
     MPI_Init(&argc, &argv);
     int rank, size;
@@ -244,6 +282,10 @@ int main(int argc, char *argv[]) {
     for (int iter = 0; iter < MAX_ITER; iter++) {
         variablesReset(&local_total_fitness, local_weighted_total_fitness, &local_max_improvement);
         individualMovementArray(local_school, local_n, &local_total_fitness, &global_total_fitness, local_weighted_total_fitness, global_weighted_total_fitness, &local_max_improvement, &global_max_improvement);
+        // SAVE ON FILE
+        if (DIMENSIONS <= 2 && LOG) {
+            write_fishes_to_json(fishes, file, iter==MAX_ITER-1?1:0);
+        }
     }
 
     free(local_school);
