@@ -1,0 +1,33 @@
+/home/annachiara.fortuna/hpc_project/our_versions/parallel_execution/src/parallell_FSO.c: In function ‘rastrigin’:
+/home/annachiara.fortuna/hpc_project/our_versions/parallel_execution/src/parallell_FSO.c:57:42: error: ‘M_PI’ undeclared (first use in this function)
+         sum += x[i] * x[i] - A * cos(2 * M_PI * x[i]);
+                                          ^
+/home/annachiara.fortuna/hpc_project/our_versions/parallel_execution/src/parallell_FSO.c:57:42: note: each undeclared identifier is reported only once for each function it appears in
+/home/annachiara.fortuna/hpc_project/our_versions/parallel_execution/src/parallell_FSO.c: In function ‘ackley’:
+/home/annachiara.fortuna/hpc_project/our_versions/parallel_execution/src/parallell_FSO.c:83:25: error: ‘M_PI’ undeclared (first use in this function)
+         sum2 += cos(2 * M_PI * x[i]);
+                         ^
+/home/annachiara.fortuna/hpc_project/our_versions/parallel_execution/src/parallell_FSO.c:85:86: error: ‘M_E’ undeclared (first use in this function)
+     return -20 * exp(-0.2 * sqrt(sum1 / DIMENSIONS)) - exp(sum2 / DIMENSIONS) + 20 + M_E;
+                                                                                      ^
+/home/annachiara.fortuna/hpc_project/our_versions/parallel_execution/src/parallell_FSO.c: In function ‘main’:
+/home/annachiara.fortuna/hpc_project/our_versions/parallel_execution/src/parallell_FSO.c:225:11: warning: unused variable ‘global_best_fitness’ [-Wunused-variable]
+     float global_best_fitness = -2000.0;
+           ^
+/home/annachiara.fortuna/hpc_project/our_versions/parallel_execution/src/parallell_FSO.c:224:11: warning: unused variable ‘local_best_fitness’ [-Wunused-variable]
+     float local_best_fitness = -2000.0;
+           ^
+/home/annachiara.fortuna/hpc_project/our_versions/parallel_execution/src/parallell_FSO.c: In function ‘ackley’:
+/home/annachiara.fortuna/hpc_project/our_versions/parallel_execution/src/parallell_FSO.c:86:1: warning: control reaches end of non-void function [-Wreturn-type]
+ }
+ ^
+[proxy:0:0@hpc-c12-node33.unitn.it] HYDU_create_process (utils/launch/launch.c:75): execvp error on file /home/annachiara.fortuna/hpc_project/our_versions/parallel_execution/src/parallell_FSO (No such file or directory)
+[proxy:0:0@hpc-c12-node33.unitn.it] HYDU_create_process (utils/launch/launch.c:75): execvp error on file /home/annachiara.fortuna/hpc_project/our_versions/parallel_execution/src/parallell_FSO (No such file or directory)
+[proxy:0:0@hpc-c12-node33.unitn.it] HYDU_create_process (utils/launch/launch.c:75): execvp error on file /home/annachiara.fortuna/hpc_project/our_versions/parallel_execution/src/parallell_FSO (No such file or directory)
+[proxy:0:0@hpc-c12-node33.unitn.it] HYDU_create_process (utils/launch/launch.c:75): [proxy:0:0@hpc-c12-node33.unitn.it] HYDU_create_process (utils/launch/launch.c:75): execvp error on file /home/annachiara.fortuna/hpc_project/our_versions/parallel_execution/src/parallell_FSO (No such file or directory)
+execvp error on file /home/annachiara.fortuna/hpc_project/our_versions/parallel_execution/src/parallell_FSO (No such file or directory)
+[proxy:0:1@hpc-c11-node13.unitn.it] HYDU_create_process (utils/launch/launch.c:75): execvp error on file /home/annachiara.fortuna/hpc_project/our_versions/parallel_execution/src/parallell_FSO (No such file or directory)
+[proxy:0:1@hpc-c11-node13.unitn.it] HYDU_create_process (utils/launch/launch.c:75): execvp error on file /home/annachiara.fortuna/hpc_project/our_versions/parallel_execution/src/parallell_FSO (No such file or directory)
+[proxy:0:1@hpc-c11-node13.unitn.it] HYDU_create_process (utils/launch/launch.c:75): [proxy:0:1@hpc-c11-node13.unitn.it] HYDU_create_process (utils/launch/launch.c:75): execvp error on file /home/annachiara.fortuna/hpc_project/our_versions/parallel_execution/src/parallell_FSO (No such file or directory)
+[proxy:0:1@hpc-c11-node13.unitn.it] HYDU_create_process (utils/launch/launch.c:75): execvp error on file /home/annachiara.fortuna/hpc_project/our_versions/parallel_execution/src/parallell_FSO (No such file or directory)
+execvp error on file /home/annachiara.fortuna/hpc_project/our_versions/parallel_execution/src/parallell_FSO (No such file or directory)

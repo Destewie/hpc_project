@@ -2,17 +2,23 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
+#ifndef M_E
+#define M_E 2.71828182845904523536
+#endif
 #include <time.h>
 #include <omp.h>
 #include <mpi.h>
 
-#define N_FISHES 1000 // Numero di pesci
-#define DIMENSIONS 3 // Dimensione dello spazio
+#define N_FISHES 30 // Numero di pesci
+#define DIMENSIONS 2 // Dimensione dello spazio
 #define BOUNDS_MIN -30.0   // Minimum bound of the search space
 #define BOUNDS_MAX 30.0    // Maximum bound of the search space
 #define BOUNDS_MIN_W 0.1   // Minimum bound of the search space
 #define BOUNDS_MAX_W 10.0    // Maximum bound of the search space
-#define MAX_ITER 100000
+#define MAX_ITER 100
 #define MAX_INDIVIDUAL_STEP 1.5 // Passo massimo del movimento individuale
 #define MAX_VOLITIVE_STEP 0.2 // Passo massimo del movimento volitivo
 #define W_SCALE_MIN 1.0
@@ -196,11 +202,14 @@ void individualMovementArray (Fish *fishArray, int n_fishes, float *local_tot_de
     for (int i = 0; i < n_fishes; i++) {
         individualMovement(&fishArray[i], local_tot_delta_fitness, local_weighted_tot_delta_fitness, local_max_delta_fitness_improvement);  // Inizializza ciascun pesce
     }
+    printf("local_tot_delta_fitness: %f\n", *local_tot_delta_fitness);
 
     //aggiornamento parallelo
     MPI_Allreduce(local_tot_delta_fitness, global_tot_delta_fitness, 1 , MPI_FLOAT, MPI_SUM, MPI_COMM_WORLD);
     MPI_Allreduce(local_weighted_tot_delta_fitness, global_weighted_tot_delta_fitness, DIMENSIONS, MPI_FLOAT, MPI_SUM, MPI_COMM_WORLD);
     MPI_Allreduce(local_max_delta_fitness_improvement, global_max_delta_fitness_improvement, 1, MPI_FLOAT, MPI_MAX, MPI_COMM_WORLD);
+
+    printf("\tglobal_tot_delta_fitness: %f\n", *global_tot_delta_fitness);
 }
 
 //-------------------------------------------------------------------------------------------
@@ -225,7 +234,7 @@ int main(int argc, char *argv[]) {
     float global_weighted_total_fitness[DIMENSIONS];
     float local_max_improvement = 0.0;
     float global_max_improvement = 0.0;
-    srand(time(NULL));  // Seed for random number generation
+    srand(time(NULL)+rank);  // Seed for random number generation have a different value for each process at each iteration
 
     //l'effettivo sottogruppo di pesci
     int local_n = N_FISHES / size;

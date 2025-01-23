@@ -1,0 +1,7 @@
+/home/annachiara.fortuna/hpc_project/our_versions/parallel_execution/src/parallell_FSO.c: In function ‘main’:
+/home/annachiara.fortuna/hpc_project/our_versions/parallel_execution/src/parallell_FSO.c:230:11: warning: unused variable ‘global_best_fitness’ [-Wunused-variable]
+     float global_best_fitness = -2000.0;
+           ^
+/home/annachiara.fortuna/hpc_project/our_versions/parallel_execution/src/parallell_FSO.c:229:11: warning: unused variable ‘local_best_fitness’ [-Wunused-variable]
+     float local_best_fitness = -2000.0;
+           ^
