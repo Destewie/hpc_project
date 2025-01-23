@@ -14,7 +14,7 @@
 
 #define N_FISHES 30 // Numero di pesci
 #define DIMENSIONS 2 // Dimensione dello spazio
-#define BOUNDS_MIN -30.0   // Minimum bound of the search space
+#define BOUNDS_MIN 5.0   // Minimum bound of the search space
 #define BOUNDS_MAX 30.0    // Maximum bound of the search space
 #define BOUNDS_MIN_W 0.1   // Minimum bound of the search space
 #define BOUNDS_MAX_W 10.0    // Maximum bound of the search space
@@ -265,7 +265,7 @@ void updateWeightsArray(Fish *fishArray, int n_fishes, float *global_max_delta_f
     #pragma omp parallel for
     for (int i = 0; i < n_fishes; i++) {
         updateWeights(&fishArray[i], global_max_delta_fitness_improvement);
-        print_fish(*fishArray[i]);
+        // print_fish(*fishArray[i]);
     }
 }
 
@@ -273,7 +273,7 @@ void updateWeightsArray(Fish *fishArray, int n_fishes, float *global_max_delta_f
 //QUA
 
 
-void calculateBarycenter(Fish *fishArray, int n_fishes, float *global_barycenter){
+void calculateBarycenter(Fish *fishArray, int n_fishes, float *global_barycenter, int rank){
 
     float local_numerator[DIMENSIONS];
     float global_numerator[DIMENSIONS];
@@ -304,7 +304,7 @@ void calculateBarycenter(Fish *fishArray, int n_fishes, float *global_barycenter
         }
     }
 
-    printf("Barycenter: %f %f\n", global_barycenter[0], global_barycenter[1]);
+    printf("[%d] Barycenter: %f %f\n", rank, global_barycenter[0], global_barycenter[1]);
 }
 
 // void calculateSumWeights(Fish *fishArray, float *old_sum, float *new_sum){
@@ -363,9 +363,9 @@ void calculateBarycenter(Fish *fishArray, int n_fishes, float *global_barycenter
 //     }
 // }
 
-void collectiveVolitiveArray(Fish *fishes, int n_fishes) {
+void collectiveVolitiveArray(Fish *fishes, int n_fishes, int rank) {
     float global_barycenter[DIMENSIONS];
-    calculateBarycenter(fishes, n_fishes, global_barycenter);
+    calculateBarycenter(fishes, n_fishes, global_barycenter, rank);
 
     // float old_sum_weights;
     // float new_sum_weights;
@@ -428,7 +428,7 @@ int main(int argc, char *argv[]) {
         individualMovementArray(local_school, local_n, &local_total_fitness, &global_total_fitness, local_weighted_total_fitness, global_weighted_total_fitness, &local_max_improvement, &global_max_improvement);
         updateWeightsArray(local_school, local_n, &global_max_improvement);
         collectiveMovementArray(local_school, local_n, &global_total_fitness, global_weighted_total_fitness);
-        collectiveVolitiveArray(local_school, local_n);
+        collectiveVolitiveArray(local_school, local_n, rank);
     }
 
     free(local_school);
