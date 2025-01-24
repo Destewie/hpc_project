@@ -1,0 +1,22 @@
+/home/annachiara.fortuna/hpc_project/our_versions/parallel_execution/src/parallell_FSO.c: In function ‘volitivePositionUpdateArray’:
+/home/annachiara.fortuna/hpc_project/our_versions/parallel_execution/src/parallell_FSO.c:335:24: warning: unused variable ‘temp’ [-Wunused-variable]
+                 double temp= fishArray[i].position[d];
+                        ^
+/home/annachiara.fortuna/hpc_project/our_versions/parallel_execution/src/parallell_FSO.c:357:24: warning: unused variable ‘temp’ [-Wunused-variable]
+                 double temp= fishArray[i].position[d];
+                        ^
+/home/annachiara.fortuna/hpc_project/our_versions/parallel_execution/src/parallell_FSO.c: In function ‘breeding’:
+/home/annachiara.fortuna/hpc_project/our_versions/parallel_execution/src/parallell_FSO.c:455:16: warning: unused variable ‘curr_second_weight’ [-Wunused-variable]
+         double curr_second_weight = gathered_data[offset + 4];
+                ^
+/home/annachiara.fortuna/hpc_project/our_versions/parallel_execution/src/parallell_FSO.c:454:13: warning: unused variable ‘curr_second_index’ [-Wunused-variable]
+         int curr_second_index = (int)gathered_data[offset + 3];
+             ^
+/home/annachiara.fortuna/hpc_project/our_versions/parallel_execution/src/parallell_FSO.c: In function ‘main’:
+/home/annachiara.fortuna/hpc_project/our_versions/parallel_execution/src/parallell_FSO.c:530:11: warning: unused variable ‘global_best_fitness’ [-Wunused-variable]
+     float global_best_fitness = -2000.0;
+           ^
+/home/annachiara.fortuna/hpc_project/our_versions/parallel_execution/src/parallell_FSO.c:529:11: warning: unused variable ‘local_best_fitness’ [-Wunused-variable]
+     float local_best_fitness = -2000.0;
+           ^
+=>> PBS: job killed: walltime 113 exceeded limit 100

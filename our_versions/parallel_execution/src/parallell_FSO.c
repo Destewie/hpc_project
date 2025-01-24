@@ -303,7 +303,7 @@ void calculateBarycenter(Fish *fishArray, int n_fishes, float *global_barycenter
         }
     }
 
-    // printf("[%d] Barycenter: %f %f\n", rank, global_barycenter[0], global_barycenter[1]);
+    printf("Barycenter: %f %f\n", global_barycenter[0], global_barycenter[1]);
 }
 
 void calculateSumWeights(Fish *fishArray, int n_fishes, float *global_old_sum, float *global_new_sum){
@@ -378,7 +378,7 @@ void collectiveVolitiveArray(Fish *fishes, int n_fishes) {
 
     float global_old_sum_weights;
     float global_new_sum_weights;
-    calculateSumWeights(fishes, &global_old_sum_weights, &global_new_sum_weights);
+    calculateSumWeights(fishes, n_fishes,  &global_old_sum_weights, &global_new_sum_weights);
 
     if (global_old_sum_weights < global_new_sum_weights) {
         //shrink = 1 -> il banco ha guadagnato peso quindi si deve avvicinare al baricentro
@@ -444,7 +444,7 @@ void breeding(Fish *fishes, int n_fishes, int rank, int num_ranks) {
     int global_first_rank = 0, global_first_index = 0;
     int global_second_rank = 0, global_second_index = 0;
     int global_worst_rank = 0, global_worst_index = 0;
-    double best_weight = 0.0, second_best_weight = 0.0, worst_weight = DBL_MAX;
+    double best_weight = W_SCALE_MIN, second_best_weight = W_SCALE_MIN, worst_weight = W_SCALE_MAX;
 
     for (int i = 0; i < num_ranks; i++) {
         int offset = i * 7;
@@ -531,7 +531,7 @@ int main(int argc, char *argv[]) {
     float local_total_fitness = 0.0;
     float global_total_fitness = 0.0;
     float local_weighted_total_fitness[DIMENSIONS];
-    float global_weighted_total_fitness[DIMENSIONS];global_barycenter
+    float global_weighted_total_fitness[DIMENSIONS];
     float local_max_improvement = 0.0;
     float global_max_improvement = 0.0;
     srand(time(NULL)+rank);  // Seed for random number generation have a different value for each process at each iteration
