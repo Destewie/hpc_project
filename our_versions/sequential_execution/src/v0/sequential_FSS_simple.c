@@ -1,12 +1,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
+#ifndef M_E
+#define M_E 2.71828182845904523536
+#endif
 #include <time.h>
 #include <string.h> // Include for strcmp
 
-#define N_FISHES 320
-#define DIMENSIONS 256
-#define MAX_ITER 100000
+#define N_FISHES 15
+#define DIMENSIONS 2
+#define MAX_ITER 150
 #define BOUNDS_MIN -30.0   // Minimum bound of the search space
 #define BOUNDS_MAX 30.0    // Maximum bound of the search space
 #define BOUNDS_MIN_W 0.1   // Minimum bound of the search space
@@ -16,9 +22,10 @@
 #define W_SCALE_MIN 1.0
 #define W_SCALE_MAX 10.0
 #define BREEDING_THRESHOLD 7.0 // minimus threshold of weight to breedh new fishes
-#define FUNCTION "min_sphere"   //TODO: Capire se, al posto di fare un controllo su una stringa, possiamo passare alle funzioni direttamente un puntatore ad una funzione (in modo comodo, se no lasciamo perdere)
+#define FUNCTION "min_ackley"   //TODO: Capire se, al posto di fare un controllo su una stringa, possiamo passare alle funzioni direttamente un puntatore ad una funzione (in modo comodo, se no lasciamo perdere)
 #define MULTIPLIER -1   // 1 in case of maximization, -1 in case of minimization
 #define A 10.0 //rastrigin param
+#define LOG 1 // 1 to log in the json, 0 not to log
 
 typedef struct {
     double position[DIMENSIONS];
@@ -56,7 +63,7 @@ void write_fishes_to_json(Fish *fishes,FILE *file, int last) {
         }else{
             fprintf(file, ",\n");
         }
-    }
+    } 
 }
 
 // Clamp positions to within bounds
@@ -434,13 +441,18 @@ int main() {
     double cpu_time_used;
     start = clock();
 
-    // char filename[50];
-    // sprintf(filename, "../evolution_logs/%s_%dd_log.json",FUNCTION, DIMENSIONS);
-    // FILE *file = fopen(filename, "w");
-    // if (file == NULL) {
-    //     perror("Error opening file");
-    //     return 1;
-    // }
+    FILE *file; 
+
+    // File opening
+    if (DIMENSIONS <= 2 && LOG) {
+        char filename[50];
+        sprintf(filename, "../../evolution_logs/%s_%dd_log.json",FUNCTION, DIMENSIONS);
+        file = fopen(filename, "w");
+        if (file == NULL) {
+            perror("Error opening file");
+            return 1;
+        }
+    }
 
     float best_fitness = -2000.0;
     float total_fitness = 0.0;
@@ -450,11 +462,11 @@ int main() {
 
     // INITIALIZATION
     Fish fishes[N_FISHES];
-    // fprintf(file, "[\n");
     initFishArray(fishes);
-    // if (DIMENSIONS <= 2) {
-    //     write_fishes_to_json(fishes, file, 0);
-    // }
+
+    if (DIMENSIONS <= 2 && LOG) {
+        write_fishes_to_json(fishes, file, 0);
+    }
 
     // MAIN LOOP
     for (int iter = 0; iter < MAX_ITER; iter++) {
@@ -484,23 +496,23 @@ int main() {
         breeding(fishes);
 
         // SAVE ON FILE
-        // if (DIMENSIONS <= 2) {
-        //     write_fishes_to_json(fishes, file, iter==MAX_ITER-1?1:0);
-        // }
+        if (DIMENSIONS <= 2 && LOG) {
+            write_fishes_to_json(fishes, file, iter==MAX_ITER-1?1:0);
+        }
+
         for (int i = 0; i < N_FISHES; i++) {
-            // print_fish(fishes[i]);
             if (best_fitness<fishes[i].fitness) {
                 best_fitness = fishes[i].fitness;
             }
         }
     }
 
-    // fprintf(file, "\n]");
-    // fclose(file);
 
     end = clock();
     cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
 
+    fprintf(file, "\n]");
+    fclose(file);
 
 
     // print all the fishes

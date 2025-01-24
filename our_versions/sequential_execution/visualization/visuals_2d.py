@@ -93,10 +93,10 @@ def create_animation(data):
 if __name__ == "__main__":
     try:
         # Percorso del file JSON
-        # filepath = "../evolution_logs/min_sphere_2d_log.json"
-        # filepath = "../evolution_logs/min_rastrigin_2d_log.json"
-        # filepath = "../evolution_logs/min__2d_log.json"
-        filepath = "../evolution_logs/min_ackley_2d_log.json"
+        # filepath = "./../evolution_logs/min_sphere_2d_log.json"
+        # filepath = "./../evolution_logs/min_rastrigin_2d_log.json"
+        # filepath = "./../evolution_logs/min__2d_log.json"
+        filepath = "./../evolution_logs/min_ackley_2d_log.json"
 
 
         data = read_json(filepath)
