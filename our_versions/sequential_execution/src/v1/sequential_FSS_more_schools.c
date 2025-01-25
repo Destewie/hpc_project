@@ -14,7 +14,7 @@
 #define N_FISHES_PER_SCHOOL 3
 #define N_FISHES N_SCHOOLS*N_FISHES_PER_SCHOOL
 #define DIMENSIONS 2
-#define MAX_ITER 100000
+#define MAX_ITER 100
 #define BOUNDS_MIN -30.0   // Minimum bound of the search space
 #define BOUNDS_MAX 30.0    // Maximum bound of the search space
 #define DELTA_BOUNDS BOUNDS_MAX - BOUNDS_MIN
@@ -48,24 +48,43 @@ typedef struct {
 //----------------------------- UTILS -------------------------------------------------------
 //-------------------------------------------------------------------------------------------
 
-void write_fishes_to_json(Fish *fishes,FILE *file, int last) {
+void write_fishes_to_json(Fish *fishes, FILE *file, int first, int last) {
+    if (first) {
+        // Scrive l'apertura dell'array principale solo se è la prima chiamata
+        fprintf(file, "[\n");
+    }
 
     fprintf(file, "\t[\n");
 
     for (int i = 0; i < N_FISHES; i++) {
-        if (DIMENSIONS==1){
-            fprintf(file, "\t\t{\"x\": [%.6f ],", fishes[i].position[0]);
-        }else if(DIMENSIONS==2){
-            fprintf(file, "\t\t{\"x\": [%.6f , %.6f],", fishes[i].position[0],fishes[i].position[1]);
+        if (DIMENSIONS == 1) {
+            fprintf(file, "\t\t{\"x\": [%.6f],", fishes[i].position[0]);
+        } else if (DIMENSIONS == 2) {
+            fprintf(file, "\t\t{\"x\": [%.6f, %.6f],", fishes[i].position[0], fishes[i].position[1]);
+        } else {
+            fprintf(file, "\t\t{\"x\": [");
+            for (int d = 0; d < DIMENSIONS; d++) {
+                fprintf(file, "%.6f", fishes[i].position[d]);
+                if (d < DIMENSIONS - 1) {
+                    fprintf(file, ", ");
+                }
+            }
+            fprintf(file, "],");
         }
-        fprintf(file, "\"weight\": %.6f }", fishes[i].weight);
-        if (i == N_FISHES - 1 && last==0) {
-            fprintf(file, "\n],");
-        } else if(i == N_FISHES - 1 && last==1){
-            fprintf(file, "\n]");
-        }else{
+        fprintf(file, "\"weight\": %.6f}", fishes[i].weight);
+
+        if (i < N_FISHES - 1) {
             fprintf(file, ",\n");
+        } else {
+            fprintf(file, "\n");
         }
+    }
+
+    if (last) {
+        // Chiude l'array principale se è l'ultima chiamata
+        fprintf(file, "\t]\n]\n");
+    } else {
+        fprintf(file, "\t],\n");
     }
 }
 
@@ -468,7 +487,7 @@ int main() {
     // fprintf(file, "[\n");
     initFishArray(fishes);
     if (DIMENSIONS <= 2) {
-        write_fishes_to_json(fishes, file, 0);
+        write_fishes_to_json(fishes, file, 1, 0);
     }
 
     // MAIN LOOP
@@ -502,7 +521,7 @@ int main() {
 
         // SAVE ON FILE
         if (DIMENSIONS <= 2) {
-            write_fishes_to_json(fishes, file, iter==MAX_ITER-1?1:0);
+            write_fishes_to_json(fishes, file, 0, iter==MAX_ITER-1?1:0);
         }
 
         // //calcolo la best fitness 

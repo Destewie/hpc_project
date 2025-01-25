@@ -28,9 +28,9 @@ def read_json(filepath):
 
 def create_animation(data):
     # function = min_rastrigin_function
-    # function = min_spherical_function
+    function = min_spherical_function
     # function = min_rosenbrock_function
-    function = min_ackley_function
+    # function = min_ackley_function
 
     # Determina i limiti di spawn dai dati
     all_positions = [coord for epoch in data for fish in epoch for coord in fish["x"]]
@@ -67,10 +67,13 @@ def create_animation(data):
         current_weights = weights[frame]
 
         # Normalizza i pesi per avere dimensioni proporzionate
-        normalized_weights = [
-            5 + 60 * (w - min_weight) / (max_weight - min_weight)  # Imposta una dimensione minima di 10
-            for w in current_weights
-        ]
+        if max_weight == min_weight:
+            normalized_weights = [5 for _ in current_weights]
+        else:
+            normalized_weights = [
+                5 + 60 * (w - min_weight) / (max_weight - min_weight) 
+                for w in current_weights
+            ]
 
         ax.clear()
         ax.set_xlim(spawn_bounds[0], spawn_bounds[1])
@@ -93,10 +96,10 @@ def create_animation(data):
 if __name__ == "__main__":
     try:
         # Percorso del file JSON
-        # filepath = "./../evolution_logs/min_sphere_2d_log.json"
+        filepath = "./../evolution_logs/min_sphere_2d_log.json"
         # filepath = "./../evolution_logs/min_rastrigin_2d_log.json"
         # filepath = "./../evolution_logs/min__2d_log.json"
-        filepath = "./../evolution_logs/min_ackley_2d_log.json"
+        # filepath = "./../evolution_logs/min_ackley_2d_log.json"
 
 
         data = read_json(filepath)

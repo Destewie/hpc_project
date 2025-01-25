@@ -22,7 +22,7 @@
 #define W_SCALE_MIN 1.0
 #define W_SCALE_MAX 10.0
 #define BREEDING_THRESHOLD 7.0 // minimus threshold of weight to breedh new fishes
-#define FUNCTION "min_ackley"   //TODO: Capire se, al posto di fare un controllo su una stringa, possiamo passare alle funzioni direttamente un puntatore ad una funzione (in modo comodo, se no lasciamo perdere)
+#define FUNCTION "min_sphere"   //TODO: Capire se, al posto di fare un controllo su una stringa, possiamo passare alle funzioni direttamente un puntatore ad una funzione (in modo comodo, se no lasciamo perdere)
 #define MULTIPLIER -1   // 1 in case of maximization, -1 in case of minimization
 #define A 10.0 //rastrigin param
 #define LOG 1 // 1 to log in the json, 0 not to log
@@ -45,26 +45,46 @@ typedef struct {
 //----------------------------- UTILS -------------------------------------------------------
 //-------------------------------------------------------------------------------------------
 
-void write_fishes_to_json(Fish *fishes,FILE *file, int last) {
+void write_fishes_to_json(Fish *fishes, FILE *file, int first, int last) {
+    if (first) {
+        // Scrive l'apertura dell'array principale solo se è la prima chiamata
+        fprintf(file, "[\n");
+    }
 
     fprintf(file, "\t[\n");
 
     for (int i = 0; i < N_FISHES; i++) {
-        if (DIMENSIONS==1){
-            fprintf(file, "\t\t{\"x\": [%.6f ],", fishes[i].position[0]);
-        }else if(DIMENSIONS==2){
-            fprintf(file, "\t\t{\"x\": [%.6f , %.6f],", fishes[i].position[0],fishes[i].position[1]);
+        if (DIMENSIONS == 1) {
+            fprintf(file, "\t\t{\"x\": [%.6f],", fishes[i].position[0]);
+        } else if (DIMENSIONS == 2) {
+            fprintf(file, "\t\t{\"x\": [%.6f, %.6f],", fishes[i].position[0], fishes[i].position[1]);
+        } else {
+            fprintf(file, "\t\t{\"x\": [");
+            for (int d = 0; d < DIMENSIONS; d++) {
+                fprintf(file, "%.6f", fishes[i].position[d]);
+                if (d < DIMENSIONS - 1) {
+                    fprintf(file, ", ");
+                }
+            }
+            fprintf(file, "],");
         }
-        fprintf(file, "\"weight\": %.6f }", fishes[i].weight);
-        if (i == N_FISHES - 1 && last==0) {
-            fprintf(file, "\n],");
-        } else if(i == N_FISHES - 1 && last==1){
-            fprintf(file, "\n]");
-        }else{
+        fprintf(file, "\"weight\": %.6f}", fishes[i].weight);
+
+        if (i < N_FISHES - 1) {
             fprintf(file, ",\n");
+        } else {
+            fprintf(file, "\n");
         }
-    } 
+    }
+
+    if (last) {
+        // Chiude l'array principale se è l'ultima chiamata
+        fprintf(file, "\t]\n");
+    } else {
+        fprintf(file, "\t],\n");
+    }
 }
+
 
 // Clamp positions to within bounds
 double clamp(double value, double min, double max) {
@@ -376,19 +396,13 @@ void collectiveVolitiveArray(Fish *fishes) {
 
     if (old_sum_weights < new_sum_weights) {
         //shrink = 1 -> il banco ha guadagnato peso quindi si deve avvicinare al baricentro
-        // printf("MOVIMENTO YEAH -> IL BANCO SI È AVVICINATO\n");
         volitivePositionUpdateArray(fishes, 1, barycenter);
     } else if (old_sum_weights > new_sum_weights) {
-        //TODO: shrink = 0 -> il banco ha perso peso quindi si deve allargare in cerca di cibo
-        // printf("MOVIMENTO BLEAH -> IL BANCO SI È ALLONTANATO\n");
+        //shrink = 0 -> il banco ha perso peso quindi si deve allargare in cerca di cibo
         volitivePositionUpdateArray(fishes, 0, barycenter);
     }else{
         // printf("EQUAL WEIGHTS, do nothing");
     }
-
-    // for (int i = 0; i < N_FISHES; i++) {
-    //     print_fish(fishes[i]);
-    // }
 
     // update previous_cycle_weight
     for (int i = 0; i < N_FISHES; i++) {
@@ -423,8 +437,6 @@ void breeding(Fish *fishes){
         }
         fishes[worst_index].weight = (fishes[first_index].weight + fishes[second_index].weight) / 2;
         fishes[worst_index].fitness = objective_function(fishes[worst_index].position)*MULTIPLIER;
-
-        // printf("NEW FISH : weight: %f, fitness: %f\n", fishes[worst_index].weight, fishes[worst_index].fitness);
     }
 
 }
@@ -465,7 +477,7 @@ int main() {
     initFishArray(fishes);
 
     if (DIMENSIONS <= 2 && LOG) {
-        write_fishes_to_json(fishes, file, 0);
+        write_fishes_to_json(fishes, file, 1, 0);
     }
 
     // MAIN LOOP
@@ -474,17 +486,10 @@ int main() {
         variables_reset(&total_fitness, weighted_total_fitness, &max_improvement);
 
         // INDIVIDUAL MOVEMENT
-        // printf("\n-------------------------ITER %d-------------------\n", iter);
         individualMovementArray(fishes, &total_fitness, weighted_total_fitness, &max_improvement);
-        // printf("total fitness: %f   ", total_fitness);
 
         // UPDATE WEIGHTS
         updateWeightsArray(fishes, &max_improvement);
-
-        // for (int d = 0; d<DIMENSIONS; d++){
-        //     printf("wtf(%d): %f  ", d,  weighted_total_fitness[d]);
-        // }
-        // printf("  max improvement: %f\n", max_improvement);
 
         // COLLECTIVE MOVEMENT
         collectiveMovementArray(fishes, &total_fitness, weighted_total_fitness);
@@ -497,7 +502,7 @@ int main() {
 
         // SAVE ON FILE
         if (DIMENSIONS <= 2 && LOG) {
-            write_fishes_to_json(fishes, file, iter==MAX_ITER-1?1:0);
+            write_fishes_to_json(fishes, file, 0, iter==MAX_ITER-1?1:0);
         }
 
         for (int i = 0; i < N_FISHES; i++) {
