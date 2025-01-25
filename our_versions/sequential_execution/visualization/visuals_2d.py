@@ -15,10 +15,13 @@ def validate_json(data):
             raise ValueError("Each epoch must be a list of fish objects.")
 
         for fish in epoch:
-            if "x" not in fish or "weight" not in fish:
-                raise ValueError("Each fish object must have 'x' and 'weight' keys.")
+
+            if "x" not in fish or "weight" not in fish or "color" not in fish:
+                raise ValueError("Each fish object must have 'x', 'weight', and 'color' keys.")
             if not isinstance(fish["x"], list) or len(fish["x"]) != 2:
                 raise ValueError("'x' must be a list with exactly two values.")
+            if not isinstance(fish["color"], str):
+                raise ValueError("'color' must be a string representing a valid color.")
 
 def read_json(filepath):
     with open(filepath, 'r') as file:
@@ -36,9 +39,10 @@ def create_animation(data):
     all_positions = [coord for epoch in data for fish in epoch for coord in fish["x"]]
     spawn_bounds = [min(all_positions), max(all_positions)]
 
-    # Estrarre le posizioni e i pesi per ogni epoca
+    # Estrarre le posizioni, i pesi e i colori per ogni epoca
     positions = [[(fish["x"][0], fish["x"][1]) for fish in epoch] for epoch in data]
     weights = [[fish["weight"] for fish in epoch] for epoch in data]
+    colors = [[fish["color"] for fish in epoch] for epoch in data]
 
     # Trova i limiti dei pesi globali
     all_weights = [weight for epoch in weights for weight in epoch]
@@ -60,15 +64,16 @@ def create_animation(data):
     ax.contour(X, Y, Z, 20, cmap='viridis')
 
     # Aggiungi i punti
-    scat = ax.scatter([], [], color='red', zorder=5)
+    scat = ax.scatter([], [], zorder=5)
 
     def update(frame):
         current_positions = positions[frame]
         current_weights = weights[frame]
+        current_colors = colors[frame]
 
         # Normalizza i pesi per avere dimensioni proporzionate
         if max_weight == min_weight:
-            normalized_weights = [5 for _ in current_weights]
+            normalized_weights = [10 for _ in current_weights]
         else:
             normalized_weights = [
                 5 + 60 * (w - min_weight) / (max_weight - min_weight) 
@@ -83,9 +88,9 @@ def create_animation(data):
         # Ridisegna la funzione
         ax.contour(X, Y, Z, 20, cmap='viridis')
 
-        # Disegna i punti (i pesci)
+        # Disegna i punti (i pesci) con i colori specificati
         x_data, y_data = zip(*current_positions)
-        scat = ax.scatter(x_data, y_data, s=normalized_weights, color='red', zorder=5)
+        scat = ax.scatter(x_data, y_data, s=normalized_weights, c=current_colors, zorder=5)
         return scat,
 
     ani = FuncAnimation(fig, update, frames=len(positions), interval=500)
@@ -100,7 +105,6 @@ if __name__ == "__main__":
         # filepath = "./../evolution_logs/min_rastrigin_2d_log.json"
         # filepath = "./../evolution_logs/min__2d_log.json"
         # filepath = "./../evolution_logs/min_ackley_2d_log.json"
-
 
         data = read_json(filepath)
         create_animation(data)

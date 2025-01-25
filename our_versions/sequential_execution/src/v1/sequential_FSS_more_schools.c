@@ -29,6 +29,10 @@
 #define FUNCTION "min_sphere"   //TODO: Capire se, al posto di fare un controllo su una stringa, possiamo passare alle funzioni direttamente un puntatore ad una funzione (in modo comodo, se no lasciamo perdere)
 #define MULTIPLIER -1   // 1 in case of maximization, -1 in case of minimization
 #define A 10.0 //rastrigin param
+#define LOG 1 // 1 to log the results, 0 otherwise
+
+//10 very different colors that will be used by a python script to plot the results
+const char *COLORS[] = {"#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf"};
 
 typedef struct {
     double position[DIMENSIONS];
@@ -49,6 +53,7 @@ typedef struct {
 //-------------------------------------------------------------------------------------------
 
 void write_fishes_to_json(Fish *fishes, FILE *file, int first, int last) {
+
     if (first) {
         // Scrive l'apertura dell'array principale solo se è la prima chiamata
         fprintf(file, "[\n");
@@ -57,21 +62,15 @@ void write_fishes_to_json(Fish *fishes, FILE *file, int first, int last) {
     fprintf(file, "\t[\n");
 
     for (int i = 0; i < N_FISHES; i++) {
-        if (DIMENSIONS == 1) {
-            fprintf(file, "\t\t{\"x\": [%.6f],", fishes[i].position[0]);
-        } else if (DIMENSIONS == 2) {
-            fprintf(file, "\t\t{\"x\": [%.6f, %.6f],", fishes[i].position[0], fishes[i].position[1]);
-        } else {
-            fprintf(file, "\t\t{\"x\": [");
-            for (int d = 0; d < DIMENSIONS; d++) {
-                fprintf(file, "%.6f", fishes[i].position[d]);
-                if (d < DIMENSIONS - 1) {
-                    fprintf(file, ", ");
-                }
+        int school_index = i / N_FISHES_PER_SCHOOL;
+        fprintf(file, "\t\t{\"x\": [");
+        for (int d = 0; d < DIMENSIONS; d++) {
+            fprintf(file, "%.6f", fishes[i].position[d]);
+            if (d < DIMENSIONS - 1) {
+                fprintf(file, ", ");
             }
-            fprintf(file, "],");
         }
-        fprintf(file, "\"weight\": %.6f}", fishes[i].weight);
+        fprintf(file, "], \"weight\": %.6f, \"color\": \"%s\"}", fishes[i].weight, COLORS[school_index]);
 
         if (i < N_FISHES - 1) {
             fprintf(file, ",\n");
@@ -186,11 +185,15 @@ void print_fish(Fish fish){
 }
 
 // Funzione per inizializzare un singolo pesce
-void initFish(Fish *fish) {
-    for (int i = 0; i < DIMENSIONS; i++) {
+void initFish(Fish *fish, int fish_index) {
+    for (int d = 0; d < DIMENSIONS; d++) {
         // fish->position[i] = ((double)rand() / RAND_MAX) * (BOUNDS_MAX - BOUNDS_MIN) + BOUNDS_MIN;
-        fish->position[i] = ((double)rand() / RAND_MAX) * (PORTION_BOUNDS) + (BOUNDS_MIN + PORTION_BOUNDS * (i/N_FISHES_PER_SCHOOL));
-        fish->new_position[i] = fish->position[i];
+        int school_index = fish_index / N_FISHES_PER_SCHOOL; // Calcola il banco
+        double lower_bound = BOUNDS_MIN + school_index * PORTION_BOUNDS; // Limite inferiore per il banco
+        double upper_bound = lower_bound + PORTION_BOUNDS; // Limite superiore per il banco
+        fish->position[d] = ((double)rand() / RAND_MAX) * (upper_bound - lower_bound) + lower_bound;
+
+        fish->new_position[d] = fish->position[d];
     }
 
     fish->weight = W_SCALE_MAX / 2;   // Peso iniziale
@@ -206,7 +209,7 @@ void initFish(Fish *fish) {
 // Funzione per inizializzare un array di pesci
 void initFishArray(Fish* fishArray) {
     for (int i = 0; i < N_FISHES; i++) {
-        initFish(&fishArray[i]);  // Inizializza ciascun pesce
+        initFish(&fishArray[i], i);  // Inizializza ciascun pesce
         // print_fish(fishArray[i]);
     }
 }
@@ -486,7 +489,7 @@ int main() {
     Fish fishes[N_FISHES]; //creiamo un vettore unico che sarà diviso in banchi di pesci in base agli indici
     // fprintf(file, "[\n");
     initFishArray(fishes);
-    if (DIMENSIONS <= 2) {
+    if (DIMENSIONS <= 2 && LOG) {
         write_fishes_to_json(fishes, file, 1, 0);
     }
 
@@ -520,7 +523,7 @@ int main() {
         // breeding(fishes);
 
         // SAVE ON FILE
-        if (DIMENSIONS <= 2) {
+        if (DIMENSIONS <= 2 && LOG) {
             write_fishes_to_json(fishes, file, 0, iter==MAX_ITER-1?1:0);
         }
 
