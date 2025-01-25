@@ -68,7 +68,7 @@ void write_fishes_to_json(Fish *fishes, FILE *file, int first, int last) {
             }
             fprintf(file, "],");
         }
-        fprintf(file, "\"weight\": %.6f}", fishes[i].weight);
+        fprintf(file, "\"weight\": %.6f, \"color\": \"red\"}", fishes[i].weight);
 
         if (i < N_FISHES - 1) {
             fprintf(file, ",\n");
