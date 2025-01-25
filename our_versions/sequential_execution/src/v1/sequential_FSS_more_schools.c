@@ -16,7 +16,7 @@
 #define DIMENSIONS 2
 #define MAX_ITER 100
 #define BOUNDS_MIN -30.0   // Minimum bound of the search space
-#define BOUNDS_MAX 30.0    // Maximum bound of the search space
+#define BOUNDS_MAX 10.0    // Maximum bound of the search space
 #define DELTA_BOUNDS BOUNDS_MAX - BOUNDS_MIN
 #define PORTION_BOUNDS DELTA_BOUNDS / N_SCHOOLS
 #define BOUNDS_MIN_W 0.1   // Minimum bound of the search space
@@ -314,9 +314,11 @@ void collectiveMovement(Fish *fish, float *tot_delta_fitness, float *weighted_to
     fish->new_fitness = objective_function(fish->position) * MULTIPLIER; // questo va fatto per forza!
 }
 
-void collectiveMovementArray(Fish *fishArray, float *tot_delta_fitness, float *weighted_tot_delta_fitness) {
-    for (int i = 0; i < N_FISHES_PER_SCHOOL; i++) {
-        collectiveMovement(&fishArray[i], tot_delta_fitness, weighted_tot_delta_fitness);  // Inizializza ciascun pesce
+void collectiveMovementArray(Fish *fishArray, float *tot_delta_fitness, float weighted_tot_delta_fitness[N_SCHOOLS][DIMENSIONS]) {
+    for (int s = 0; s < N_SCHOOLS; s++) {
+        for (int i = 0; i < N_FISHES_PER_SCHOOL; i++) {
+            collectiveMovement(&fishArray[s*N_FISHES_PER_SCHOOL+i], &tot_delta_fitness[s], weighted_tot_delta_fitness[s]);  // Inizializza ciascun pesce
+        }
     }
 }
 
@@ -505,13 +507,8 @@ int main() {
         // UPDATE WEIGHTS
         updateWeightsArray(fishes, max_improvement);
 
-        // for (int d = 0; d<DIMENSIONS; d++){
-        //     printf("wtf(%d): %f  ", d,  weighted_total_fitness[d]);
-        // }
-        // printf("  max improvement: %f\n", max_improvement);
-
         // COLLECTIVE MOVEMENT
-        // collectiveMovementArray(fishes, &total_fitness, weighted_total_fitness);
+        collectiveMovementArray(fishes, total_fitness, weighted_total_fitness);
 
         // COLLECTIVE VOLITIVE MOVEMENT
         // collectiveVolitiveArray(fishes);
