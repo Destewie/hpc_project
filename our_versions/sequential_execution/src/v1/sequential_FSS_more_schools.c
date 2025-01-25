@@ -10,13 +10,13 @@
 #include <time.h>
 #include <string.h> // Include for strcmp
 
-#define N_SCHOOLS 4
-#define N_FISHES_PER_SCHOOL 3
+#define N_SCHOOLS 10
+#define N_FISHES_PER_SCHOOL 10
 #define N_FISHES N_SCHOOLS*N_FISHES_PER_SCHOOL
 #define DIMENSIONS 2
 #define MAX_ITER 100
 #define BOUNDS_MIN -60.0   // Minimum bound of the search space
-#define BOUNDS_MAX 20.0    // Maximum bound of the search space
+#define BOUNDS_MAX 60.0    // Maximum bound of the search space
 #define DELTA_BOUNDS BOUNDS_MAX - BOUNDS_MIN
 #define PORTION_BOUNDS DELTA_BOUNDS / N_SCHOOLS
 #define BOUNDS_MIN_W 0.1   // Minimum bound of the search space
@@ -439,33 +439,40 @@ void collectiveVolitiveArray(Fish *fishes) {
 void breeding(Fish *fishes){
     //mi salvo l'indice del pesce con weight maggiore e il secondo in ordine di weight
     //se la weigh supera la threshold costante, allora figlio -> creo un nuovo pesce con posizione media tra i due e peso medio tra i due
-    int first_index = 0;
-    int second_index = 0;
-    int worst_index = 0;
+    int first_index;
+    int second_index;
+    int worst_index;
 
-    for (int i = 0; i < N_FISHES_PER_SCHOOL; i++) {
-        if (fishes[i].weight > fishes[first_index].weight) {
-            second_index = first_index;
-            first_index = i;
-        } else if (fishes[i].weight > fishes[second_index].weight) {
-            second_index = i;
+    for (int s=0; s<N_SCHOOLS; s++) {
+        first_index = s*N_FISHES_PER_SCHOOL;
+        second_index = s*N_FISHES_PER_SCHOOL+1;
+        worst_index = s*N_FISHES_PER_SCHOOL;
+
+        for (int i = 0; i < N_FISHES_PER_SCHOOL; i++) {
+            if (fishes[s*N_FISHES_PER_SCHOOL+i].weight > fishes[s*N_FISHES_PER_SCHOOL+first_index].weight) {
+                second_index = s*N_FISHES_PER_SCHOOL+first_index;
+                first_index = s*N_FISHES_PER_SCHOOL+i;
+            } else if (fishes[s*N_FISHES_PER_SCHOOL+i].weight > fishes[s*N_FISHES_PER_SCHOOL+second_index].weight) {
+                second_index = s*N_FISHES_PER_SCHOOL+i;
+            }
+
+            if (fishes[s*N_FISHES_PER_SCHOOL+i].weight < fishes[s*N_FISHES_PER_SCHOOL+worst_index].weight) {
+                worst_index = s*N_FISHES_PER_SCHOOL+i;
+            }
         }
 
-        if (fishes[i].weight < fishes[worst_index].weight) {
-            worst_index = i;
+        //sopprimo il pesce peggiore e lo rimpiazzo con il figlio dei due migliori
+        if (fishes[first_index].weight > BREEDING_THRESHOLD && fishes[second_index].weight > BREEDING_THRESHOLD) {
+            for (int d = 0; d < DIMENSIONS; d++) {
+                fishes[worst_index].position[d] = (fishes[first_index].position[d] + fishes[second_index].position[d]) / 2;
+            }
+            fishes[worst_index].weight = (fishes[first_index].weight + fishes[second_index].weight) / 2;
+            fishes[worst_index].fitness = objectiveFunction(fishes[worst_index].position)*MULTIPLIER;
+
+            // printf("NEW FISH : weight: %f, fitness: %f\n", fishes[worst_index].weight, fishes[worst_index].fitness);
         }
     }
 
-    //sopprimo il pesce peggiore e lo rimpiazzo con il figlio dei due migliori
-    if (fishes[first_index].weight > BREEDING_THRESHOLD && fishes[second_index].weight > BREEDING_THRESHOLD) {
-        for (int d = 0; d < DIMENSIONS; d++) {
-            fishes[worst_index].position[d] = (fishes[first_index].position[d] + fishes[second_index].position[d]) / 2;
-        }
-        fishes[worst_index].weight = (fishes[first_index].weight + fishes[second_index].weight) / 2;
-        fishes[worst_index].fitness = objectiveFunction(fishes[worst_index].position)*MULTIPLIER;
-
-        // printf("NEW FISH : weight: %f, fitness: %f\n", fishes[worst_index].weight, fishes[worst_index].fitness);
-    }
 
 }
 
@@ -520,7 +527,7 @@ int main() {
         collectiveVolitiveArray(fishes);
 
         // BREEDING
-        // breeding(fishes);
+        breeding(fishes);
 
         // SAVE ON FILE
         if (DIMENSIONS <= 2 && LOG) {
@@ -536,12 +543,11 @@ int main() {
         // }
     }
 
-    // fprintf(file, "\n]");
-    // fclose(file);
 
     end = clock();
     cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
 
+    fclose(file);
 
 
     // print all the fishes
