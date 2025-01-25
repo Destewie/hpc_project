@@ -45,7 +45,7 @@ typedef struct {
 //----------------------------- UTILS -------------------------------------------------------
 //-------------------------------------------------------------------------------------------
 
-void write_fishes_to_json(Fish *fishes, FILE *file, int first, int last) {
+void WriteFischesToJson(Fish *fishes, FILE *file, int first, int last) {
     if (first) {
         // Scrive l'apertura dell'array principale solo se è la prima chiamata
         fprintf(file, "[\n");
@@ -94,7 +94,7 @@ double clamp(double value, double min, double max) {
 }
 
 // Per resettare le variabili all'inizio di ogni epoca
-void variables_reset(float *tot_fitness, float *weighted_tot_fitness, float *max_improvement) {
+void variablesReset(float *tot_fitness, float *weighted_tot_fitness, float *max_improvement) {
     *tot_fitness = 0.0;
 
     for (int i = 0; i<DIMENSIONS; i++ ){
@@ -151,7 +151,7 @@ double ackley(double *x){
     return -20 * exp(-0.2 * sqrt(sum1 / DIMENSIONS)) - exp(sum2 / DIMENSIONS) + 20 + M_E;
 }
 
-double objective_function(double *x) {
+double objectiveFunction(double *x) {
     if (strcmp(FUNCTION, "min_rosenbrok") == 0) {
         return rosenbrok(x);
     } else if (strcmp(FUNCTION, "min_sphere") == 0) {
@@ -173,7 +173,7 @@ double objective_function(double *x) {
 
 
 
-void print_fish(Fish fish){
+void printFish(Fish fish){
     printf("Fish: ");
     // for(int i=0; i<DIMENSIONS; i++){
     //     printf("pos: %f ", fish.position[i]);
@@ -191,7 +191,7 @@ void initFish(Fish *fish) {
     fish->weight = W_SCALE_MAX / 2;   // Peso iniziale
     fish->previous_cycle_weight = fish->weight;
 
-    fish->fitness = objective_function(fish->position)*MULTIPLIER;        // Fitness iniziale //TODO: capire qual è il valore migliore di inizializzazione
+    fish->fitness = objectiveFunction(fish->position)*MULTIPLIER;        // Fitness iniziale //TODO: capire qual è il valore migliore di inizializzazione
     fish->new_fitness = fish->fitness;
 
     fish->max_individual_step = MAX_INDIVIDUAL_STEP; //TODO: capire qual è il valore migliore di inizializzazione e come aggiornarlo dinamicamente
@@ -202,7 +202,7 @@ void initFish(Fish *fish) {
 void initFishArray(Fish* fishArray) {
     for (int i = 0; i < N_FISHES; i++) {
         initFish(&fishArray[i]);  // Inizializza ciascun pesce
-        // print_fish(fishArray[i]);
+        // printFish(fishArray[i]);
     }
 }
 
@@ -219,7 +219,7 @@ void individualMovement(Fish *fish, float *tot_delta_fitness, float *weighted_to
     }
 
     // Aggiorno la fitness
-    fish->new_fitness = objective_function(fish->new_position)*MULTIPLIER;
+    fish->new_fitness = objectiveFunction(fish->new_position)*MULTIPLIER;
 
 
 
@@ -276,7 +276,7 @@ void collectiveMovement(Fish *fish, float *tot_delta_fitness, float *weighted_to
         // printf("Update for collective movement of %f\n", fish->new_position[d]-fish->position[d]);
         fish->position[d] = fish->new_position[d]; //TODO: fa schifo, ma segue la logica dell'aggiornare prima la new position e poi quella current
     }
-    fish->new_fitness = objective_function(fish->position) * MULTIPLIER; // questo va fatto per forza!
+    fish->new_fitness = objectiveFunction(fish->position) * MULTIPLIER; // questo va fatto per forza!
 }
 
 void collectiveMovementArray(Fish *fishArray, float *tot_delta_fitness, float *weighted_tot_delta_fitness) {
@@ -304,7 +304,7 @@ void updateWeights(Fish *fish, float *max_delta_fitness_improvement) {
 void updateWeightsArray(Fish *fishArray,  float *max_delta_fitness_improvement) {
     for (int i = 0; i < N_FISHES; i++) {
         updateWeights(&fishArray[i], max_delta_fitness_improvement);
-        // print_fish(fishArray[i]);
+        // printFish(fishArray[i]);
     }
 }
 
@@ -436,7 +436,7 @@ void breeding(Fish *fishes){
             fishes[worst_index].position[d] = (fishes[first_index].position[d] + fishes[second_index].position[d]) / 2;
         }
         fishes[worst_index].weight = (fishes[first_index].weight + fishes[second_index].weight) / 2;
-        fishes[worst_index].fitness = objective_function(fishes[worst_index].position)*MULTIPLIER;
+        fishes[worst_index].fitness = objectiveFunction(fishes[worst_index].position)*MULTIPLIER;
     }
 
 }
@@ -477,13 +477,13 @@ int main() {
     initFishArray(fishes);
 
     if (DIMENSIONS <= 2 && LOG) {
-        write_fishes_to_json(fishes, file, 1, 0);
+        WriteFischesToJson(fishes, file, 1, 0);
     }
 
     // MAIN LOOP
     for (int iter = 0; iter < MAX_ITER; iter++) {
 
-        variables_reset(&total_fitness, weighted_total_fitness, &max_improvement);
+        variablesReset(&total_fitness, weighted_total_fitness, &max_improvement);
 
         // INDIVIDUAL MOVEMENT
         individualMovementArray(fishes, &total_fitness, weighted_total_fitness, &max_improvement);
@@ -502,7 +502,7 @@ int main() {
 
         // SAVE ON FILE
         if (DIMENSIONS <= 2 && LOG) {
-            write_fishes_to_json(fishes, file, 0, iter==MAX_ITER-1?1:0);
+            WriteFischesToJson(fishes, file, 0, iter==MAX_ITER-1?1:0);
         }
 
         for (int i = 0; i < N_FISHES; i++) {
@@ -522,7 +522,7 @@ int main() {
 
     // print all the fishes
     for (int i = 0; i < N_FISHES; i++) {
-        print_fish(fishes[i]);
+        printFish(fishes[i]);
     }
 
     printf("Number of fishes: %d\n", N_FISHES);

@@ -90,7 +90,7 @@ double ackley(double *x){
     return -20 * exp(-0.2 * sqrt(sum1 / DIMENSIONS)) - exp(sum2 / DIMENSIONS) + 20 + M_E;
 }
 
-double objective_function(double *x) {
+double objectiveFunction(double *x) {
     if (strcmp(FUNCTION, "min_rosenbrok") == 0) {
         return rosenbrok(x);
     } else if (strcmp(FUNCTION, "min_sphere") == 0) {
@@ -110,7 +110,7 @@ double objective_function(double *x) {
 //---------------------------- TESTING ---------------------------------------------------------
 //-------------------------------------------------------------------------------------------
 
-void print_fish(Fish *fish) {
+void printFish(Fish *fish) {
     printf("Fish: ");
     for(int i=0; i<DIMENSIONS; i++){
         printf("pos: %f ", fish->position[i]);
@@ -132,7 +132,7 @@ void initFish(Fish *fish) {
     fish->weight = W_SCALE_MAX / 2;   // Peso iniziale
     fish->previous_cycle_weight = fish->weight;
 
-    fish->fitness = objective_function(fish->position)*MULTIPLIER;        // Fitness iniziale //TODO: capire qual è il valore migliore di inizializzazione
+    fish->fitness = objectiveFunction(fish->position)*MULTIPLIER;        // Fitness iniziale //TODO: capire qual è il valore migliore di inizializzazione
     fish->new_fitness = fish->fitness;
 
     fish->max_individual_step = MAX_INDIVIDUAL_STEP; //TODO: capire qual è il valore migliore di inizializzazione e come aggiornarlo dinamicamente
@@ -143,7 +143,7 @@ void initFish(Fish *fish) {
 void initFishArray(Fish* fishArray, int n_fishes) {
     for (int i = 0; i < n_fishes; i++) {
         initFish(&fishArray[i]);  // Inizializza ciascun pesce
-        // print_fish(fishArray[i]);
+        // printFish(fishArray[i]);
     }
 }
 
@@ -170,7 +170,7 @@ void individualMovement(Fish *fish, float *local_tot_delta_fitness, float *local
     }
 
     // Aggiorno la fitness
-    fish->new_fitness = objective_function(fish->new_position)*MULTIPLIER;
+    fish->new_fitness = objectiveFunction(fish->new_position)*MULTIPLIER;
 
     // -------------- Update the collective variables
     double delta_fitness = fish->new_fitness - fish->fitness;
@@ -235,7 +235,7 @@ void collectiveMovement(Fish *fish, float *global_tot_delta_fitness, float *glob
         // printf("Update for collective movement of %f\n", fish->new_position[d]-fish->position[d]);
         fish->position[d] = fish->new_position[d]; //TODO: fa schifo, ma segue la logica dell'aggiornare prima la new position e poi quella current
     }
-    fish->new_fitness = objective_function(fish->position) * MULTIPLIER; // questo va fatto per forza!
+    fish->new_fitness = objectiveFunction(fish->position) * MULTIPLIER; // questo va fatto per forza!
 }
 
 void collectiveMovementArray(Fish *fishArray, int n_fishes, float *global_tot_delta_fitness, float *global_weighted_tot_delta_fitness) {
@@ -265,7 +265,7 @@ void updateWeightsArray(Fish *fishArray, int n_fishes, float *global_max_delta_f
     #pragma omp parallel for
     for (int i = 0; i < n_fishes; i++) {
         updateWeights(&fishArray[i], global_max_delta_fitness_improvement);
-        // print_fish(*fishArray[i]);
+        // printFish(*fishArray[i]);
     }
 }
 
@@ -393,7 +393,7 @@ void collectiveVolitiveArray(Fish *fishes, int n_fishes) {
     }
 
     // // for (int i = 0; i < N_FISHES; i++) {
-    // //     print_fish(fishes[i]);
+    // //     printFish(fishes[i]);
     // // }
 
     // update previous_cycle_weight
@@ -503,7 +503,7 @@ void breeding(Fish *fishes, int n_fishes, int rank, int num_ranks) {
                 fishes[global_worst_index].position[d] = (first_pos[d] + second_pos[d]) / 2;
             }
             fishes[global_worst_index].weight = (best_weight + second_best_weight) / 2;
-            fishes[global_worst_index].fitness = objective_function(fishes[global_worst_index].position) * MULTIPLIER;
+            fishes[global_worst_index].fitness = objectiveFunction(fishes[global_worst_index].position) * MULTIPLIER;
         }
     }
 
