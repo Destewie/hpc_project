@@ -276,25 +276,6 @@ void individualMovementArray (Fish *fishArray, float *tot_delta_fitness, float w
 }
 
 
-void collectiveMovement(Fish *fish, float *tot_delta_fitness, float *weighted_tot_delta_fitness) {
-    if (*tot_delta_fitness == 0.0) {
-        *tot_delta_fitness = 1;
-    }
-
-    for (int d =0;d<DIMENSIONS; d++){
-        fish->new_position[d] = fish->position[d] + weighted_tot_delta_fitness[d] / *tot_delta_fitness;
-        // printf("Update for collective movement of %f\n", fish->new_position[d]-fish->position[d]);
-        fish->position[d] = fish->new_position[d]; //TODO: fa schifo, ma segue la logica dell'aggiornare prima la new position e poi quella current
-    }
-    fish->new_fitness = objective_function(fish->position) * MULTIPLIER; // questo va fatto per forza!
-}
-
-void collectiveMovementArray(Fish *fishArray, float *tot_delta_fitness, float *weighted_tot_delta_fitness) {
-    for (int i = 0; i < N_FISHES_PER_SCHOOL; i++) {
-        collectiveMovement(&fishArray[i], tot_delta_fitness, weighted_tot_delta_fitness);  // Inizializza ciascun pesce
-    }
-}
-
 void updateWeights(Fish *fish, float *max_delta_fitness_improvement) {
     if (*max_delta_fitness_improvement != 0.0) { // Avoid division by zero
         fish->weight += (fish->new_fitness - fish->fitness)/ *max_delta_fitness_improvement;
@@ -312,9 +293,30 @@ void updateWeights(Fish *fish, float *max_delta_fitness_improvement) {
 }
 
 void updateWeightsArray(Fish *fishArray,  float *max_delta_fitness_improvement) {
+    for (int s = 0; s < N_SCHOOLS; s++) {
+        for (int i = 0; i < N_FISHES_PER_SCHOOL; i++) {
+            updateWeights(&fishArray[s*N_FISHES_PER_SCHOOL+i], &max_delta_fitness_improvement[s]);
+        }
+    }
+}
+
+
+void collectiveMovement(Fish *fish, float *tot_delta_fitness, float *weighted_tot_delta_fitness) {
+    if (*tot_delta_fitness == 0.0) {
+        *tot_delta_fitness = 1;
+    }
+
+    for (int d =0;d<DIMENSIONS; d++){
+        fish->new_position[d] = fish->position[d] + weighted_tot_delta_fitness[d] / *tot_delta_fitness;
+        // printf("Update for collective movement of %f\n", fish->new_position[d]-fish->position[d]);
+        fish->position[d] = fish->new_position[d]; //TODO: fa schifo, ma segue la logica dell'aggiornare prima la new position e poi quella current
+    }
+    fish->new_fitness = objective_function(fish->position) * MULTIPLIER; // questo va fatto per forza!
+}
+
+void collectiveMovementArray(Fish *fishArray, float *tot_delta_fitness, float *weighted_tot_delta_fitness) {
     for (int i = 0; i < N_FISHES_PER_SCHOOL; i++) {
-        updateWeights(&fishArray[i], max_delta_fitness_improvement);
-        // print_fish(fishArray[i]);
+        collectiveMovement(&fishArray[i], tot_delta_fitness, weighted_tot_delta_fitness);  // Inizializza ciascun pesce
     }
 }
 
@@ -487,7 +489,6 @@ int main() {
 
     // INITIALIZATION
     Fish fishes[N_FISHES]; //creiamo un vettore unico che sarà diviso in banchi di pesci in base agli indici
-    // fprintf(file, "[\n");
     initFishArray(fishes);
     if (DIMENSIONS <= 2 && LOG) {
         write_fishes_to_json(fishes, file, 1, 0);
@@ -499,14 +500,10 @@ int main() {
         variables_reset(total_fitness, weighted_total_fitness, max_improvement);
 
         // INDIVIDUAL MOVEMENT
-        // printf("\n-------------------------ITER %d-------------------\n", iter);
         individualMovementArray(fishes, total_fitness, weighted_total_fitness, max_improvement);
-        // for (int s=0; s<N_SCHOOLS; s++){
-        //     printf("[%d] total fitness: %f\n",s, total_fitness[s]);
-        // }
 
         // UPDATE WEIGHTS
-        // updateWeightsArray(fishes, &max_improvement);
+        updateWeightsArray(fishes, max_improvement);
 
         // for (int d = 0; d<DIMENSIONS; d++){
         //     printf("wtf(%d): %f  ", d,  weighted_total_fitness[d]);
