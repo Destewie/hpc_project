@@ -16,7 +16,7 @@
 #define DIMENSIONS 2
 #define MAX_ITER 100
 #define BOUNDS_MIN -60.0   // Minimum bound of the search space
-#define BOUNDS_MAX 20.0    // Maximum bound of the search space
+#define BOUNDS_MAX 60.0    // Maximum bound of the search space
 #define DELTA_BOUNDS BOUNDS_MAX - BOUNDS_MIN
 #define PORTION_BOUNDS DELTA_BOUNDS / N_SCHOOLS
 #define BOUNDS_MIN_W 0.1   // Minimum bound of the search space
@@ -186,15 +186,23 @@ void printFish(Fish fish){
 
 // Funzione per inizializzare un singolo pesce
 void initFish(Fish *fish, int fish_index) {
+
+    // Posizioni iniziali divise per banco
+    int school_index = fish_index / N_FISHES_PER_SCHOOL; // Calcola il banco
+    double portion_bounds = (BOUNDS_MAX - BOUNDS_MIN) / N_SCHOOLS; // Calcola la porzione corretta per ciascun banco
+    double lower_bound = BOUNDS_MIN + school_index * portion_bounds; // Limite inferiore per il banco
+    double upper_bound = lower_bound + portion_bounds; // Limite superiore per il banco
+
+
+
     for (int d = 0; d < DIMENSIONS; d++) {
         // // Posizioni iniziali random
         // fish->position[d] = ((double)rand() / RAND_MAX) * (BOUNDS_MAX - BOUNDS_MIN) + BOUNDS_MIN;
 
         // Posizioni iniziali divise per banco
-        int school_index = fish_index / N_FISHES_PER_SCHOOL; // Calcola il banco
-        double lower_bound = BOUNDS_MIN + school_index * PORTION_BOUNDS; // Limite inferiore per il banco
-        double upper_bound = lower_bound + PORTION_BOUNDS; // Limite superiore per il banco
+        printf("school_i: %d, lower: %f, upper: %f\n", school_index, lower_bound, upper_bound);
         fish->position[d] = ((double)rand() / RAND_MAX) * (upper_bound - lower_bound) + lower_bound;
+        printf("rand*(upper-lower) + lower = %f\n", ((double)rand() / RAND_MAX) * (upper_bound - lower_bound) + lower_bound);
 
         fish->new_position[d] = fish->position[d];
     }
