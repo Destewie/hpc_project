@@ -10,15 +10,13 @@
 #include <time.h>
 #include <string.h> // Include for strcmp
 
-#define N_SCHOOLS 3
+#define N_SCHOOLS 6
 #define N_FISHES_PER_SCHOOL 8
 #define N_FISHES N_SCHOOLS*N_FISHES_PER_SCHOOL
 #define DIMENSIONS 2
 #define MAX_ITER 100
-#define BOUNDS_MIN -60.0   // Minimum bound of the search space
-#define BOUNDS_MAX 60.0    // Maximum bound of the search space
-#define DELTA_BOUNDS BOUNDS_MAX - BOUNDS_MIN
-#define PORTION_BOUNDS DELTA_BOUNDS / N_SCHOOLS
+#define BOUNDS_MIN 60.0   // Minimum bound of the search space
+#define BOUNDS_MAX -60.0    // Maximum bound of the search space
 #define BOUNDS_MIN_W 0.1   // Minimum bound of the search space
 #define BOUNDS_MAX_W 10.0    // Maximum bound of the search space
 #define MAX_INDIVIDUAL_STEP 1.5 // Maximum step for individual movement
@@ -193,16 +191,17 @@ void initFish(Fish *fish, int fish_index) {
     double lower_bound = BOUNDS_MIN + school_index * portion_bounds; // Limite inferiore per il banco
     double upper_bound = lower_bound + portion_bounds; // Limite superiore per il banco
 
-
-
     for (int d = 0; d < DIMENSIONS; d++) {
         // // Posizioni iniziali random
         // fish->position[d] = ((double)rand() / RAND_MAX) * (BOUNDS_MAX - BOUNDS_MIN) + BOUNDS_MIN;
 
         // Posizioni iniziali divise per banco
-        printf("school_i: %d, lower: %f, upper: %f\n", school_index, lower_bound, upper_bound);
-        fish->position[d] = ((double)rand() / RAND_MAX) * (upper_bound - lower_bound) + lower_bound;
-        printf("rand*(upper-lower) + lower = %f\n", ((double)rand() / RAND_MAX) * (upper_bound - lower_bound) + lower_bound);
+        if (d == 0) {
+            fish->position[d] = ((double)rand() / RAND_MAX) * (upper_bound - lower_bound) + lower_bound;
+            printf("[D0] lower_bound: %f, upper_bound: %f\n, x: %f", lower_bound, upper_bound, fish->position[d]);
+        } else {
+            fish->position[d] = ((double)rand() / RAND_MAX) * (BOUNDS_MAX - BOUNDS_MIN) + BOUNDS_MIN;
+        }
 
         fish->new_position[d] = fish->position[d];
     }
@@ -444,44 +443,42 @@ void collectiveVolitiveArray(Fish *fishes) {
     }
 }
 
-void breeding(Fish *fishes){
-    //mi salvo l'indice del pesce con weight maggiore e il secondo in ordine di weight
-    //se la weigh supera la threshold costante, allora figlio -> creo un nuovo pesce con posizione media tra i due e peso medio tra i due
-    int first_index;
-    int second_index;
-    int worst_index;
+void breeding(Fish *fishes) {
+    for (int s = 0; s < N_SCHOOLS; s++) {
+        // Indici del miglior, secondo miglior e peggiore pesce del banco
+        int first_index = s * N_FISHES_PER_SCHOOL;
+        int second_index = -1; // Inizializza con un valore non valido
+        int worst_index = s * N_FISHES_PER_SCHOOL;
 
-    for (int s=0; s<N_SCHOOLS; s++) {
-        first_index = s*N_FISHES_PER_SCHOOL;
-        second_index = s*N_FISHES_PER_SCHOOL+1;
-        worst_index = s*N_FISHES_PER_SCHOOL;
+        for (int i = 1; i < N_FISHES_PER_SCHOOL; i++) {
+            int current_index = s * N_FISHES_PER_SCHOOL + i;
 
-        for (int i = 0; i < N_FISHES_PER_SCHOOL; i++) {
-            if (fishes[s*N_FISHES_PER_SCHOOL+i].weight > fishes[s*N_FISHES_PER_SCHOOL+first_index].weight) {
-                second_index = s*N_FISHES_PER_SCHOOL+first_index;
-                first_index = s*N_FISHES_PER_SCHOOL+i;
-            } else if (fishes[s*N_FISHES_PER_SCHOOL+i].weight > fishes[s*N_FISHES_PER_SCHOOL+second_index].weight) {
-                second_index = s*N_FISHES_PER_SCHOOL+i;
+            // Controlla se il peso corrente è maggiore del primo
+            if (fishes[current_index].weight > fishes[first_index].weight) {
+                second_index = first_index; // Aggiorna il secondo con il vecchio primo
+                first_index = current_index;
+            } 
+            // Controlla se il peso corrente è maggiore del secondo (solo se valido)
+            else if (second_index == -1 || fishes[current_index].weight > fishes[second_index].weight) {
+                second_index = current_index;
             }
 
-            if (fishes[s*N_FISHES_PER_SCHOOL+i].weight < fishes[s*N_FISHES_PER_SCHOOL+worst_index].weight) {
-                worst_index = s*N_FISHES_PER_SCHOOL+i;
+            // Aggiorna il peggiore
+            if (fishes[current_index].weight < fishes[worst_index].weight) {
+                worst_index = current_index;
             }
         }
 
-        //sopprimo il pesce peggiore e lo rimpiazzo con il figlio dei due migliori
+        // Esegui il "breeding" solo se entrambi superano la threshold
         if (fishes[first_index].weight > BREEDING_THRESHOLD && fishes[second_index].weight > BREEDING_THRESHOLD) {
             for (int d = 0; d < DIMENSIONS; d++) {
                 fishes[worst_index].position[d] = (fishes[first_index].position[d] + fishes[second_index].position[d]) / 2;
             }
             fishes[worst_index].weight = (fishes[first_index].weight + fishes[second_index].weight) / 2;
-            fishes[worst_index].fitness = objectiveFunction(fishes[worst_index].position)*MULTIPLIER;
+            fishes[worst_index].fitness = objectiveFunction(fishes[worst_index].position) * MULTIPLIER;
 
-            // printf("NEW FISH : weight: %f, fitness: %f\n", fishes[worst_index].weight, fishes[worst_index].fitness);
         }
     }
-
-
 }
 
 
