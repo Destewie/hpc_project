@@ -12,7 +12,7 @@
 #include <omp.h>
 #include <mpi.h>
 
-#define N_FISHES 30 // Numero di pesci
+#define N_FISHES 30 // Numero di pesci per processo
 #define DIMENSIONS 2 // Dimensione dello spazio
 #define BOUNDS_MIN 5.0   // Minimum bound of the search space
 #define BOUNDS_MAX 30.0    // Maximum bound of the search space
@@ -119,45 +119,44 @@ void printFish(Fish *fish) {
     printf("\tweight: %f \tfitness: %f\n", fish->weight, fish->fitness);
 }
 
-void collectFischesIntoJson(Fish *fishes, char* json, int first, int last) {
-    if (first) {
-        // Scrive l'apertura dell'array principale solo se è la prima chiamata
-        fprintf(json, "[\n");
-    }
+// void collectFischesIntoJson(Fish *fishes, FILE *file, int first_iter, int last_iter, int rank, int n_ranks) {
 
-    fprintf(json, "\t[\n");
+//     if (rank == 0) {
+//         //voglio raccogliere tutti i pesci in una mia variabile
+//     }
 
-    for (int i = 0; i < N_FISHES; i++) {
-        if (DIMENSIONS == 1) {
-            fprintf(json, "\t\t{\"x\": [%.6f],", fishes[i].position[0]);
-        } else if (DIMENSIONS == 2) {
-            fprintf(json, "\t\t{\"x\": [%.6f, %.6f],", fishes[i].position[0], fishes[i].position[1]);
-        } else {
-            fprintf(json, "\t\t{\"x\": [");
-            for (int d = 0; d < DIMENSIONS; d++) {
-                fprintf(json, "%.6f", fishes[i].position[d]);
-                if (d < DIMENSIONS - 1) {
-                    fprintf(json, ", ");
-                }
-            }
-            fprintf(json, "],");
-        }
-        fprintf(json, "\"weight\": %.6f, \"color\": \"red\"}", fishes[i].weight);
+//     if (first_iter) {
+//         // Scrive l'apertura dell'array principale solo se è la prima chiamata
+//         fprintf(file, "[\n");
+//     }
 
-        if (i < N_FISHES - 1) {
-            fprintf(json, ",\n");
-        } else {
-            fprintf(json, "\n");
-        }
-    }
+//     fprintf(file, "\t[\n");
 
-    if (last) {
-        // Chiude l'array principale se è l'ultima chiamata
-        fprintf(json "\t]\n");
-    } else {
-        fprintf(json, "\t],\n");
-    }
-}
+//     for (int i = 0; i < N_FISHES; i++) {
+//         int school_index = i / N_FISHES_PER_SCHOOL;
+//         fprintf(file, "\t\t{\"x\": [");
+//         for (int d = 0; d < DIMENSIONS; d++) {
+//             fprintf(file, "%.6f", fishes[i].position[d]);
+//             if (d < DIMENSIONS - 1) {
+//                 fprintf(file, ", ");
+//             }
+//         }
+//         fprintf(file, "], \"weight\": %.6f, \"color\": \"%s\"}", fishes[i].weight, COLORS[school_index]);
+
+//         if (i < N_FISHES - 1) {
+//             fprintf(file, ",\n");
+//         } else {
+//             fprintf(file, "\n");
+//         }
+//     }
+
+//     if (last_iter) {
+//         // Chiude l'array principale se è l'ultima chiamata
+//         fprintf(file, "\t]\n]\n");
+//     } else {
+//         fprintf(file, "\t],\n");
+//     }
+// }
 //-------------------------------------------------------------------------------------------
 //---------------------------- FISH ---------------------------------------------------------
 //-------------------------------------------------------------------------------------------
@@ -321,7 +320,7 @@ void updateWeightsArray(Fish *fishArray, int n_fishes, float *global_max_delta_f
 }
 
 
-void calculateBarycenter(Fish *fishArray, int n_fishes, float *global_barycenter){
+void calculateBarycenter(Fish *fishArray, int n_fishes, float *global_barycenter, int current_iteration){
 
     float local_numerator[DIMENSIONS];
     float global_numerator[DIMENSIONS];
@@ -436,13 +435,13 @@ void volitivePositionUpdateArray(Fish *fishArray, int n_fishes, int shrink, floa
     }
 }
 
-void collectiveVolitiveArray(Fish *fishes, int n_fishes) {
+void collectiveVolitiveArray(Fish *fishes, int n_fishes, int current_iteration) {
     float global_barycenter[DIMENSIONS];
-    calculateBarycenter(fishes, n_fishes, global_barycenter);
+    calculateBarycenter(fishes, n_fishes, global_barycenter, current_iteration);
 
     float global_old_sum_weights;
     float global_new_sum_weights;
-    calculateSumWeights(fishes, n_fishes,  &global_old_sum_weights, &global_new_sum_weights);
+    calculateSumWeights(fishes, n_fishes, current_iteration,  &global_old_sum_weights, &global_new_sum_weights);
 
     if (global_old_sum_weights < global_new_sum_weights) {
         //shrink = 1 -> il banco ha guadagnato peso quindi si deve avvicinare al baricentro
@@ -616,11 +615,11 @@ int main(int argc, char *argv[]) {
 
     for (int iter = 0; iter < MAX_ITER; iter++) {
         variablesReset(&local_total_fitness, local_weighted_total_fitness, &local_max_improvement);
-        individualMovementArray(local_school, local_n, &local_total_fitness, &global_total_fitness, local_weighted_total_fitness, global_weighted_total_fitness, &local_max_improvement, &global_max_improvement);
+        individualMovementArray(local_school, local_n, iter, &local_total_fitness, &global_total_fitness, local_weighted_total_fitness, global_weighted_total_fitness, &local_max_improvement, &global_max_improvement);
         updateWeightsArray(local_school, local_n, &global_max_improvement);
         collectiveMovementArray(local_school, local_n, &global_total_fitness, global_weighted_total_fitness);
-        collectiveVolitiveArray(local_school, local_n);
-        breeding(local_school, local_n, rank, size);
+        collectiveVolitiveArray(local_school, local_n, iter);
+        breeding(local_school, local_n, iter, rank, size);
     }
 
     free(local_school);
