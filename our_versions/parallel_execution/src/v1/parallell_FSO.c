@@ -12,7 +12,7 @@
 #include <omp.h>
 #include <mpi.h>
 
-#define N_FISHES 50 // Numero di pesci totale
+#define N_FISHES 10 // Numero di pesci totale
 #define DIMENSIONS 2 // Dimensione dello spazio
 #define BOUNDS_MIN 5.0   // Minimum bound of the search space
 #define BOUNDS_MAX 30.0    // Maximum bound of the search space
@@ -625,7 +625,7 @@ int main(int argc, char *argv[]) {
         //clock
         start = clock();
         //file opening
-        sprintf(filename, "~/hpc_project/our_versions/parallel_execution/evolution_logs/%s_%dd_log.json",FUNCTION, DIMENSIONS);
+        sprintf(filename, "/home/federico.desanti/hpc_project/our_versions/parallel_execution/evolution_logs/%s_%dd_log.json",FUNCTION, DIMENSIONS);
         file = fopen(filename, "w");
         if (file == NULL) {
             perror("Error opening file");

@@ -1,6 +1,12 @@
-# Our generated logs
-*.json
+# Assicurati che i file in parallel_execution/evolution_logs/*.json siano tracciati
+our_versions/sequential_execution/evolution_logs/*.json
+
+# Ma NON ignorare performances.json
 !performances.json
+
+# parallel output
+*.sh.e*
+*.sh.o*
 
 # Everything under the FishSchoolSearch directory
 FishSchoolSearch/
