@@ -12,14 +12,14 @@
 #include <omp.h>
 #include <mpi.h>
 
-#define N_FISHES 30 // Numero di pesci per processo
+#define N_FISHES 50 // Numero di pesci totale
 #define DIMENSIONS 2 // Dimensione dello spazio
 #define BOUNDS_MIN 5.0   // Minimum bound of the search space
 #define BOUNDS_MAX 30.0    // Maximum bound of the search space
 #define BOUNDS_MIN_W 0.1   // Minimum bound of the search space
 #define BOUNDS_MAX_W 10.0    // Maximum bound of the search space
-#define UPDATE_FREQUENCY 100 // Frequency of the update of the collective variables all together
-#define MAX_ITER 1000
+#define UPDATE_FREQUENCY 75 // Frequency of the update of the collective variables all together
+#define MAX_ITER 100
 #define MAX_INDIVIDUAL_STEP 1.5 // Passo massimo del movimento individuale
 #define MAX_VOLITIVE_STEP 0.2 // Passo massimo del movimento volitivo
 #define W_SCALE_MIN 1.0
@@ -379,8 +379,8 @@ void calculateSumWeights(Fish *fishArray, int n_fishes, int current_iteration, f
     MPI_Allreduce(&local_old_sum, global_old_sum, 1, MPI_FLOAT, MPI_SUM, MPI_COMM_WORLD);
     MPI_Allreduce(&local_new_sum, global_new_sum, 1, MPI_FLOAT, MPI_SUM, MPI_COMM_WORLD);
     }else{
-        global_old_sum = local_old_sum;
-        global_new_sum = local_new_sum;
+        *global_old_sum = local_old_sum;
+        *global_new_sum = local_new_sum;
     }
 }
 
@@ -590,11 +590,20 @@ void breeding(Fish *fishes, int n_fishes, int current_iteration, int rank, int n
 
 int main(int argc, char *argv[]) {
 
+
+
     //variabili MPI
     MPI_Init(&argc, &argv);
     int rank, size;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &size);
+
+    clock_t start, end, partial;
+    double cpu_time_used;
+    //create a timer
+    if (rank==0){
+        start = clock();
+    }
 
     //TODO: pensiamo ad un modo per implementare un timer
 
@@ -615,6 +624,11 @@ int main(int argc, char *argv[]) {
     initFishArray(local_school, local_n);
 
     for (int iter = 0; iter < MAX_ITER; iter++) {
+        if (rank == 0 && (iter % (UPDATE_FREQUENCY+1)==0 || iter % (UPDATE_FREQUENCY)==0)){
+            partial = clock();
+            cpu_time_used = ((double) (partial - start)) / CLOCKS_PER_SEC;
+            printf("[iter %d] partial TIME of execution: %f\n",iter, cpu_time_used);
+        }
         variablesReset(&local_total_fitness, local_weighted_total_fitness, &local_max_improvement);
         individualMovementArray(local_school, local_n, iter, &local_total_fitness, &global_total_fitness, local_weighted_total_fitness, global_weighted_total_fitness, &local_max_improvement, &global_max_improvement);
         updateWeightsArray(local_school, local_n, &global_max_improvement);
@@ -623,7 +637,19 @@ int main(int argc, char *argv[]) {
         breeding(local_school, local_n, iter, rank, size);
     }
 
-    free(local_school);
+    
     MPI_Finalize();
+
+    if (rank == 0){
+        end = clock();
+        cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
+        printf("TIME of execution: %f", cpu_time_used);
+    }
+
+    free(local_school);
+    
+
     return 0;
 }
+
+// notiamo che 

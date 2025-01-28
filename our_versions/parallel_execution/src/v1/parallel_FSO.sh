@@ -12,10 +12,10 @@
 #PBS -q short_cpuQ
 
 # expected timespan for execution
-#PBS -l walltime=02:00:00
+#PBS -l walltime=00:02:00
 
 # chunks (~nodes) : cores per chunk : shared memory per chunk (?)
-#PBS -l select=2:ncpus=5:mem=2gb
+#PBS -l select=1:ncpus=2:mem=2gb
 
 readonly C_PROGRAM_PATH=~/hpc_project/our_versions/parallel_execution/src/v1/parallell_FSO.c
 readonly EXECUTABLE_PATH_AND_NAME=~/hpc_project/our_versions/parallel_execution/src/v1/parallell_FSO
@@ -25,4 +25,4 @@ module load mpich-3.2
 # build
 mpicc $C_PROGRAM_PATH -g -Wall -fopenmp -lm -std=c99 -o $EXECUTABLE_PATH_AND_NAME 
 # run
-mpirun.actual -n 10 $EXECUTABLE_PATH_AND_NAME
+mpirun.actual -n 2 $EXECUTABLE_PATH_AND_NAME
