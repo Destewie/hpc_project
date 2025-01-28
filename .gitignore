@@ -1,5 +1,8 @@
+# All json OUT
+*json
+
 # Assicurati che i file in parallel_execution/evolution_logs/*.json siano tracciati
-our_versions/sequential_execution/evolution_logs/*.json
+!our_versions/parallel_execution/evolution_logs/*.json
 
 # Ma NON ignorare performances.json
 !performances.json
