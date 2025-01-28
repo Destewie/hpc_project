@@ -119,44 +119,45 @@ void printFish(Fish *fish) {
     printf("\tweight: %f \tfitness: %f\n", fish->weight, fish->fitness);
 }
 
-// void collectFischesIntoJson(Fish *fishes, FILE *file, int first_iter, int last_iter, int rank, int n_ranks) {
+void collectFishesIntoJson(Fish *fishes, FILE *file, int first_iter, int last_iter, int rank, int n_ranks) {
 
-//     if (rank == 0) {
-//         //voglio raccogliere tutti i pesci in una mia variabile
-//     }
+    if (rank == 0) {
+        //voglio raccogliere tutti i pesci in una mia variabile
+    }
 
-//     if (first_iter) {
-//         // Scrive l'apertura dell'array principale solo se è la prima chiamata
-//         fprintf(file, "[\n");
-//     }
+    if (first_iter) {
+        // Scrive l'apertura dell'array principale solo se è la prima chiamata
+        fprintf(file, "[\n");
+    }
 
-//     fprintf(file, "\t[\n");
+    fprintf(file, "\t[\n");
 
-//     for (int i = 0; i < N_FISHES; i++) {
-//         int school_index = i / N_FISHES_PER_SCHOOL;
-//         fprintf(file, "\t\t{\"x\": [");
-//         for (int d = 0; d < DIMENSIONS; d++) {
-//             fprintf(file, "%.6f", fishes[i].position[d]);
-//             if (d < DIMENSIONS - 1) {
-//                 fprintf(file, ", ");
-//             }
-//         }
-//         fprintf(file, "], \"weight\": %.6f, \"color\": \"%s\"}", fishes[i].weight, COLORS[school_index]);
+    for (int i = 0; i < N_FISHES; i++) {
+        int school_index = i / N_FISHES_PER_SCHOOL;
+        fprintf(file, "\t\t{\"x\": [");
+        for (int d = 0; d < DIMENSIONS; d++) {
+            fprintf(file, "%.6f", fishes[i].position[d]);
+            if (d < DIMENSIONS - 1) {
+                fprintf(file, ", ");
+            }
+        }
+        fprintf(file, "], \"weight\": %.6f, \"color\": \"%s\"}", fishes[i].weight, COLORS[school_index]);
 
-//         if (i < N_FISHES - 1) {
-//             fprintf(file, ",\n");
-//         } else {
-//             fprintf(file, "\n");
-//         }
-//     }
+        if (i < N_FISHES - 1) {
+            fprintf(file, ",\n");
+        } else {
+            fprintf(file, "\n");
+        }
+    }
 
-//     if (last_iter) {
-//         // Chiude l'array principale se è l'ultima chiamata
-//         fprintf(file, "\t]\n]\n");
-//     } else {
-//         fprintf(file, "\t],\n");
-//     }
-// }
+    if (last_iter) {
+        // Chiude l'array principale se è l'ultima chiamata
+        fprintf(file, "\t]\n]\n");
+    } else {
+        fprintf(file, "\t],\n");
+    }
+}
+
 //-------------------------------------------------------------------------------------------
 //---------------------------- FISH ---------------------------------------------------------
 //-------------------------------------------------------------------------------------------
