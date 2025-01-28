@@ -18,7 +18,7 @@ fi
 
 # Avvio dello script di visualizzazione Python
 echo "Avvio della visualizzazione..."
-cd ../../visualization
+cd ../../../visualization
 python3 visuals_2d.py
 if [ $? -ne 0 ]; then
     echo "Errore durante l'esecuzione dello script Python."
