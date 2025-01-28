@@ -160,7 +160,7 @@ void writeFishesToJson(Fish *fishes, int n_fishes, FILE* file, int first_iter, i
                 }
             }
             fprintf(file, "], \"weight\": %.6f, \"color\": \"%s\"}", 
-                                all_fishes[i].weight, COLORS[rank]);
+                                all_fishes[i].weight, COLORS[i/n_fishes]);
 
             if (i < N_FISHES - 1) {
                 fprintf(file, ",\n");
@@ -625,7 +625,7 @@ int main(int argc, char *argv[]) {
         //clock
         start = clock();
         //file opening
-        sprintf(filename, "/home/federico.desanti/hpc_project/our_versions/parallel_execution/evolution_logs/%s_%dd_log.json",FUNCTION, DIMENSIONS);
+        sprintf(filename, "/home/federico.desanti/hpc_project/our_versions/evolution_logs/%s_%dd_log.json",FUNCTION, DIMENSIONS);
         file = fopen(filename, "w");
         if (file == NULL) {
             perror("Error opening file");
