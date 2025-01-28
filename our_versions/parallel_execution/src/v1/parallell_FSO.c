@@ -124,8 +124,7 @@ void printFish(Fish *fish) {
 }
 
 
-void addToJsonString(Fish *fishes, int n_fishes, char *json_string, int first_iter, int last_iter, int rank, int n_ranks) {
-    char *current = json_string; // Puntatore alla posizione corrente nella stringa
+void writeFishesToJson(Fish *fishes, int n_fishes, FILE* file, int first_iter, int last_iter, int rank, int n_ranks) {
 
     if (rank != 0) {
         // Gli altri rank mandano i loro pesci
@@ -147,33 +146,33 @@ void addToJsonString(Fish *fishes, int n_fishes, char *json_string, int first_it
 
         // Costruzione del JSON
         if (first_iter) {
-            current += sprintf(current, "[\n");
+            fprintf(file, "[\n");
         }
 
-        current += sprintf(current, "\t[\n");
+        fprintf(file, "\t[\n");
 
         for (int i = 0; i < N_FISHES; i++) {
-            current += sprintf(current, "\t\t{\"x\": [");
+            fprintf(file, "\t\t{\"x\": [");
             for (int d = 0; d < DIMENSIONS; d++) {
-                current += sprintf(current, "%.6f", all_fishes[i].position[d]);
+                fprintf(file, "%.6f", all_fishes[i].position[d]);
                 if (d < DIMENSIONS - 1) {
-                    current += sprintf(current, ", ");
+                    fprintf(file, ", ");
                 }
             }
-            current += sprintf(current, "], \"weight\": %.6f, \"color\": \"%s\"}", 
+            fprintf(file, "], \"weight\": %.6f, \"color\": \"%s\"}", 
                                 all_fishes[i].weight, COLORS[rank]);
 
             if (i < N_FISHES - 1) {
-                current += sprintf(current, ",\n");
+                fprintf(file, ",\n");
             } else {
-                current += sprintf(current, "\n");
+                fprintf(file, "\n");
             }
         }
 
         if (last_iter) {
-            current += sprintf(current, "\t]\n]\n");
+            fprintf(file, "\t]\n]\n");
         } else {
-            current += sprintf(current, "\t],\n");
+            fprintf(file, "\t],\n");
         }
     }
 }
@@ -621,15 +620,16 @@ int main(int argc, char *argv[]) {
     double cpu_time_used;
     //open file for logging
     FILE *file;
-    char filename[50];
+    char filename[200];
     if (rank==0){
         //clock
         start = clock();
         //file opening
-        sprintf(filename, "../../evolution_logs/%s_%dd_log.json",FUNCTION, DIMENSIONS);
+        sprintf(filename, "~/hpc_project/our_versions/parallel_execution/evolution_logs/%s_%dd_log.json",FUNCTION, DIMENSIONS);
         file = fopen(filename, "w");
         if (file == NULL) {
             perror("Error opening file");
+            MPI_Abort(MPI_COMM_WORLD, 1);
             return 1;
         }
     }
@@ -649,7 +649,7 @@ int main(int argc, char *argv[]) {
     int local_n = N_FISHES / size;
     Fish *local_school = malloc(local_n * sizeof(Fish));
     initFishArray(local_school, local_n);
-    addToJsonString(local_school, local_n, file, 1, 0, rank, size);
+    writeFishesToJson(local_school, local_n, file, 1, 0, rank, size);
 
     for (int iter = 0; iter < MAX_ITER; iter++) {
         if (rank == 0 && ((iter % (UPDATE_FREQUENCY))==0) ){
@@ -665,7 +665,7 @@ int main(int argc, char *argv[]) {
         collectiveMovementArray(local_school, local_n, &global_total_fitness, global_weighted_total_fitness);
         collectiveVolitiveArray(local_school, local_n, iter);
         breeding(local_school, local_n, iter, rank, size);
-        addToJsonString(local_school, local_n, file, 0, iter == MAX_ITER - 1, rank, size);
+        writeFishesToJson(local_school, local_n, file, 0, iter == MAX_ITER - 1, rank, size);
     }
 
     MPI_Finalize();
