@@ -29,6 +29,10 @@
 #define MULTIPLIER -1   // 1 in case of maximization, -1 in case of minimization
 #define A 10.0 //rastrigin param
 
+//10 very different colors that will be used by a python script to plot the results
+//based on the processor to which they belong
+const char *COLORS[] = {"#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf"};
+
 typedef struct {
     double position[DIMENSIONS];
     double new_position[DIMENSIONS];
@@ -119,42 +123,61 @@ void printFish(Fish *fish) {
     printf("\tweight: %f \tfitness: %f\n", fish->weight, fish->fitness);
 }
 
-void collectFishesIntoJson(Fish *fishes, FILE *file, int first_iter, int last_iter, int rank, int n_ranks) {
+void writeFishesToJson(Fish *fishes, int n_fishes, FILE *file, int first_iter, int last_iter, int rank, int n_ranks) {
 
-    if (rank == 0) {
-        //voglio raccogliere tutti i pesci in una mia variabile
-    }
+    if (rank != 0) {
+        //gli altri rank mandano i loro pesci
+        MPI_Send(fishes, n_fishes * sizeof(Fish), MPI_BYTE, 0, 0, MPI_COMM_WORLD);
+    } else {
+        Fish all_fishes[N_FISHES];
+        //voglio raccogliere tutti i pesci in all_fishes
+        //metto i miei pesci all'inizio di all_fishes
+        for (int i = 0; i < n_fishes; i++) {
+            all_fishes[i] = fishes[i];
+        }
 
-    if (first_iter) {
-        // Scrive l'apertura dell'array principale solo se è la prima chiamata
-        fprintf(file, "[\n");
-    }
+        //mi aspetto n=size - 1 messaggi da parte degli altri rank che voglio ricevere in ordine in base al rank che me lo manda
+        for (int i = 1; i < n_ranks; i++) {
+            Fish received_fishes[n_fishes];
+            MPI_Recv(received_fishes, n_fishes * sizeof(Fish), MPI_BYTE, i, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
-    fprintf(file, "\t[\n");
-
-    for (int i = 0; i < N_FISHES; i++) {
-        int school_index = i / N_FISHES_PER_SCHOOL;
-        fprintf(file, "\t\t{\"x\": [");
-        for (int d = 0; d < DIMENSIONS; d++) {
-            fprintf(file, "%.6f", fishes[i].position[d]);
-            if (d < DIMENSIONS - 1) {
-                fprintf(file, ", ");
+            //copio i pesci ricevuti in all_fishes
+            for (int j = 0; j < n_fishes; j++) {
+                all_fishes[i * n_fishes + j] = received_fishes[j];
             }
         }
-        fprintf(file, "], \"weight\": %.6f, \"color\": \"%s\"}", fishes[i].weight, COLORS[school_index]);
 
-        if (i < N_FISHES - 1) {
-            fprintf(file, ",\n");
-        } else {
-            fprintf(file, "\n");
+        //json forming
+        if (first_iter) {
+            // Scrive l'apertura dell'array principale solo se è la prima chiamata
+            fprintf(file, "[\n");
         }
-    }
 
-    if (last_iter) {
-        // Chiude l'array principale se è l'ultima chiamata
-        fprintf(file, "\t]\n]\n");
-    } else {
-        fprintf(file, "\t],\n");
+        fprintf(file, "\t[\n");
+
+        for (int i = 0; i < N_FISHES; i++) {
+            fprintf(file, "\t\t{\"x\": [");
+            for (int d = 0; d < DIMENSIONS; d++) {
+                fprintf(file, "%.6f", fishes[i].position[d]);
+                if (d < DIMENSIONS - 1) {
+                    fprintf(file, ", ");
+                }
+            }
+            fprintf(file, "], \"weight\": %.6f, \"color\": \"%s\"}", fishes[i].weight, COLORS[rank]);
+
+            if (i < N_FISHES - 1) {
+                fprintf(file, ",\n");
+            } else {
+                fprintf(file, "\n");
+            }
+        }
+
+        if (last_iter) {
+            // Chiude l'array principale se è l'ultima chiamata
+            fprintf(file, "\t]\n]\n");
+        } else {
+            fprintf(file, "\t],\n");
+        }
     }
 }
 
@@ -362,7 +385,7 @@ void calculateBarycenter(Fish *fishArray, int n_fishes, float *global_barycenter
         }
     }
 
-    printf("Barycenter: %f %f\n", global_barycenter[0], global_barycenter[1]);
+    // printf("Barycenter: %f %f\n", global_barycenter[0], global_barycenter[1]);
 }
 
 void calculateSumWeights(Fish *fishArray, int n_fishes, int current_iteration, float *global_old_sum, float *global_new_sum){
@@ -590,19 +613,28 @@ void breeding(Fish *fishes, int n_fishes, int current_iteration, int rank, int n
 
 int main(int argc, char *argv[]) {
 
-
-
     //variabili MPI
     MPI_Init(&argc, &argv);
     int rank, size;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &size);
 
-    clock_t start, end, partial;
-    double cpu_time_used;
     //create a timer
+    clock_t start, end, long_iteration_start, long_iteration_end;
+    double cpu_time_used;
+    //open file for logging
+    FILE *file;
+    char filename[50];
     if (rank==0){
+        //clock
         start = clock();
+        //file opening
+        sprintf(filename, "../../evolution_logs/%s_%dd_log.json",FUNCTION, DIMENSIONS);
+        file = fopen(filename, "w");
+        if (file == NULL) {
+            perror("Error opening file");
+            return 1;
+        }
     }
 
     //TODO: pensiamo ad un modo per implementare un timer
@@ -624,10 +656,12 @@ int main(int argc, char *argv[]) {
     initFishArray(local_school, local_n);
 
     for (int iter = 0; iter < MAX_ITER; iter++) {
-        if (rank == 0 && (iter % (UPDATE_FREQUENCY+1)==0 || iter % (UPDATE_FREQUENCY)==0)){
-            partial = clock();
-            cpu_time_used = ((double) (partial - start)) / CLOCKS_PER_SEC;
-            printf("[iter %d] partial TIME of execution: %f\n",iter, cpu_time_used);
+        if (rank == 0 && ((iter % (UPDATE_FREQUENCY))==0) ){
+            long_iteration_start = clock();
+        } else if (rank == 0 && (iter % (UPDATE_FREQUENCY+1))==0){
+            long_iteration_end = clock();
+            cpu_time_used = ((double) (long_iteration_end - long_iteration_end)) / CLOCKS_PER_SEC;
+            printf("[iter %d->%d] partial TIME of execution: %f\n",iter-1, iter, cpu_time_used);
         }
         variablesReset(&local_total_fitness, local_weighted_total_fitness, &local_max_improvement);
         individualMovementArray(local_school, local_n, iter, &local_total_fitness, &global_total_fitness, local_weighted_total_fitness, global_weighted_total_fitness, &local_max_improvement, &global_max_improvement);
@@ -641,9 +675,13 @@ int main(int argc, char *argv[]) {
     MPI_Finalize();
 
     if (rank == 0){
+        //timer stop
         end = clock();
         cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
         printf("TIME of execution: %f", cpu_time_used);
+
+        //file closing
+        fclose(file);
     }
 
     free(local_school);
