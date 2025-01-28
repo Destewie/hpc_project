@@ -45,7 +45,7 @@ typedef struct {
 //----------------------------- UTILS -------------------------------------------------------
 //-------------------------------------------------------------------------------------------
 
-void WriteFischesToJson(Fish *fishes, FILE *file, int first, int last) {
+void WriteFishesToJson(Fish *fishes, FILE *file, int first, int last) {
     if (first) {
         // Scrive l'apertura dell'array principale solo se è la prima chiamata
         fprintf(file, "[\n");
@@ -477,7 +477,7 @@ int main() {
     initFishArray(fishes);
 
     if (DIMENSIONS <= 2 && LOG) {
-        WriteFischesToJson(fishes, file, 1, 0);
+        WriteFishesToJson(fishes, file, 1, 0);
     }
 
     // MAIN LOOP
@@ -502,7 +502,7 @@ int main() {
 
         // SAVE ON FILE
         if (DIMENSIONS <= 2 && LOG) {
-            WriteFischesToJson(fishes, file, 0, iter==MAX_ITER-1?1:0);
+            WriteFishesToJson(fishes, file, 0, iter==MAX_ITER-1?1:0);
         }
 
         for (int i = 0; i < N_FISHES; i++) {
