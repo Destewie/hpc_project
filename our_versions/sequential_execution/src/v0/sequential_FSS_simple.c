@@ -458,7 +458,7 @@ int main() {
     // File opening
     if (DIMENSIONS <= 2 && LOG) {
         char filename[50];
-        sprintf(filename, "../../evolution_logs/%s_%dd_log.json",FUNCTION, DIMENSIONS);
+        sprintf(filename, "../../../evolution_logs/%s_%dd_log.json",FUNCTION, DIMENSIONS);
         file = fopen(filename, "w");
         if (file == NULL) {
             perror("Error opening file");
