@@ -191,11 +191,11 @@ void initFish(Fish *fish) {
     fish->weight = W_SCALE_MAX / 2;   // Peso iniziale
     fish->previous_cycle_weight = fish->weight;
 
-    fish->fitness = objectiveFunction(fish->position)*MULTIPLIER;        // Fitness iniziale //TODO: capire qual è il valore migliore di inizializzazione
+    fish->fitness = objectiveFunction(fish->position)*MULTIPLIER;        // Fitness iniziale 
     fish->new_fitness = fish->fitness;
 
-    fish->max_individual_step = MAX_INDIVIDUAL_STEP; //TODO: capire qual è il valore migliore di inizializzazione e come aggiornarlo dinamicamente
-    fish->max_volitive_step = MAX_VOLITIVE_STEP; //TODO: capire qual è il valore migliore di inizializzazione e come aggiornarlo dinamicamente
+    fish->max_individual_step = MAX_INDIVIDUAL_STEP; 
+    fish->max_volitive_step = MAX_VOLITIVE_STEP; 
 }
 
 // Funzione per inizializzare un array di pesci
@@ -274,7 +274,7 @@ void collectiveMovement(Fish *fish, float *tot_delta_fitness, float *weighted_to
     for (int d =0;d<DIMENSIONS; d++){
         fish->new_position[d] = fish->position[d] + weighted_tot_delta_fitness[d] / *tot_delta_fitness;
         // printf("Update for collective movement of %f\n", fish->new_position[d]-fish->position[d]);
-        fish->position[d] = fish->new_position[d]; //TODO: fa schifo, ma segue la logica dell'aggiornare prima la new position e poi quella current
+        fish->position[d] = fish->new_position[d]; 
     }
     fish->new_fitness = objectiveFunction(fish->position) * MULTIPLIER; // questo va fatto per forza!
 }
@@ -291,7 +291,7 @@ void updateWeights(Fish *fish, float *max_delta_fitness_improvement) {
     }    // fish->weight += (fish->new_fitness - fish->fitness);
 
     if (fish->weight<=W_SCALE_MIN) {
-        fish->weight = W_SCALE_MIN; //TODO: non siamo sicure di questa cosa...
+        fish->weight = W_SCALE_MIN; 
     } else if (fish->weight>W_SCALE_MAX) {
         fish->weight = W_SCALE_MAX;
     }
@@ -346,7 +346,7 @@ void volitivePositionUpdateArray(Fish *fishArray, int shrink, float* barycenter)
     // questo codice si può ottimizare mettendo shrink -1,1
     if (shrink==1) {
         for (int i = 0; i < N_FISHES; i++) {
-            for (int d = 0; d < DIMENSIONS; d++) { // TODO: change max individual step with another step in order to have the possibility to tune it
+            for (int d = 0; d < DIMENSIONS; d++) { 
                 rand_mult= fmin(((double)rand() / (double)RAND_MAX) + 0.1, 1.0); //valore qualsiasi tra 0.1 e 1
 
                 double temp= fishArray[i].position[d];
@@ -366,7 +366,7 @@ void volitivePositionUpdateArray(Fish *fishArray, int shrink, float* barycenter)
         }
     } else {
         for (int i = 0; i < N_FISHES; i++) {
-            for (int d = 0; d < DIMENSIONS; d++){ // TODO: change max individual step with another step in order to have the possibility to tune it
+            for (int d = 0; d < DIMENSIONS; d++){ 
                 rand_mult= fmin(((double)rand() / (double)RAND_MAX) + 0.1, 1.0); //valore qualsiasi tra 0.1 e 1
 
                 double temp= fishArray[i].position[d];

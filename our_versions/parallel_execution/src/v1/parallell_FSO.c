@@ -123,63 +123,61 @@ void printFish(Fish *fish) {
     printf("\tweight: %f \tfitness: %f\n", fish->weight, fish->fitness);
 }
 
-void writeFishesToJson(Fish *fishes, int n_fishes, FILE *file, int first_iter, int last_iter, int rank, int n_ranks) {
+
+void addToJsonString(Fish *fishes, int n_fishes, char *json_string, int first_iter, int last_iter, int rank, int n_ranks) {
+    char *current = json_string; // Puntatore alla posizione corrente nella stringa
 
     if (rank != 0) {
-        //gli altri rank mandano i loro pesci
+        // Gli altri rank mandano i loro pesci
         MPI_Send(fishes, n_fishes * sizeof(Fish), MPI_BYTE, 0, 0, MPI_COMM_WORLD);
     } else {
         Fish all_fishes[N_FISHES];
-        //voglio raccogliere tutti i pesci in all_fishes
-        //metto i miei pesci all'inizio di all_fishes
         for (int i = 0; i < n_fishes; i++) {
             all_fishes[i] = fishes[i];
         }
 
-        //mi aspetto n=size - 1 messaggi da parte degli altri rank che voglio ricevere in ordine in base al rank che me lo manda
         for (int i = 1; i < n_ranks; i++) {
             Fish received_fishes[n_fishes];
             MPI_Recv(received_fishes, n_fishes * sizeof(Fish), MPI_BYTE, i, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
-            //copio i pesci ricevuti in all_fishes
             for (int j = 0; j < n_fishes; j++) {
                 all_fishes[i * n_fishes + j] = received_fishes[j];
             }
         }
 
-        //json forming
+        // Costruzione del JSON
         if (first_iter) {
-            // Scrive l'apertura dell'array principale solo se è la prima chiamata
-            fprintf(file, "[\n");
+            current += sprintf(current, "[\n");
         }
 
-        fprintf(file, "\t[\n");
+        current += sprintf(current, "\t[\n");
 
         for (int i = 0; i < N_FISHES; i++) {
-            fprintf(file, "\t\t{\"x\": [");
+            current += sprintf(current, "\t\t{\"x\": [");
             for (int d = 0; d < DIMENSIONS; d++) {
-                fprintf(file, "%.6f", fishes[i].position[d]);
+                current += sprintf(current, "%.6f", all_fishes[i].position[d]);
                 if (d < DIMENSIONS - 1) {
-                    fprintf(file, ", ");
+                    current += sprintf(current, ", ");
                 }
             }
-            fprintf(file, "], \"weight\": %.6f, \"color\": \"%s\"}", fishes[i].weight, COLORS[rank]);
+            current += sprintf(current, "], \"weight\": %.6f, \"color\": \"%s\"}", 
+                                all_fishes[i].weight, COLORS[rank]);
 
             if (i < N_FISHES - 1) {
-                fprintf(file, ",\n");
+                current += sprintf(current, ",\n");
             } else {
-                fprintf(file, "\n");
+                current += sprintf(current, "\n");
             }
         }
 
         if (last_iter) {
-            // Chiude l'array principale se è l'ultima chiamata
-            fprintf(file, "\t]\n]\n");
+            current += sprintf(current, "\t]\n]\n");
         } else {
-            fprintf(file, "\t],\n");
+            current += sprintf(current, "\t],\n");
         }
     }
 }
+
 
 //-------------------------------------------------------------------------------------------
 //---------------------------- FISH ---------------------------------------------------------
@@ -194,11 +192,11 @@ void initFish(Fish *fish) {
     fish->weight = W_SCALE_MAX / 2;   // Peso iniziale
     fish->previous_cycle_weight = fish->weight;
 
-    fish->fitness = objectiveFunction(fish->position)*MULTIPLIER;        // Fitness iniziale //TODO: capire qual è il valore migliore di inizializzazione
+    fish->fitness = objectiveFunction(fish->position)*MULTIPLIER;        // Fitness iniziale 
     fish->new_fitness = fish->fitness;
 
-    fish->max_individual_step = MAX_INDIVIDUAL_STEP; //TODO: capire qual è il valore migliore di inizializzazione e come aggiornarlo dinamicamente
-    fish->max_volitive_step = MAX_VOLITIVE_STEP; //TODO: capire qual è il valore migliore di inizializzazione e come aggiornarlo dinamicamente
+    fish->max_individual_step = MAX_INDIVIDUAL_STEP; 
+    fish->max_volitive_step = MAX_VOLITIVE_STEP; 
 }
 
 // Funzione per inizializzare un array di pesci
@@ -242,7 +240,6 @@ void individualMovement(Fish *fish, float *local_tot_delta_fitness, float *local
         delta_fitness = 0.0;
     }
 
-    //TODO: da rimuovere in favore del calcolo parallelo
     *local_tot_delta_fitness += delta_fitness;
 
     #pragma omp parallel for
@@ -307,7 +304,7 @@ void collectiveMovement(Fish *fish, float *global_tot_delta_fitness, float *glob
     for (int d =0;d<DIMENSIONS; d++){
         fish->new_position[d] = fish->position[d] + global_weighted_tot_delta_fitness[d] / *global_tot_delta_fitness;
         // printf("Update for collective movement of %f\n", fish->new_position[d]-fish->position[d]);
-        fish->position[d] = fish->new_position[d]; //TODO: fa schifo, ma segue la logica dell'aggiornare prima la new position e poi quella current
+        fish->position[d] = fish->new_position[d]; 
     }
     fish->new_fitness = objectiveFunction(fish->position) * MULTIPLIER; // questo va fatto per forza!
 }
@@ -325,7 +322,7 @@ void updateWeights(Fish *fish, float *global_max_delta_fitness_improvement) {
     }    // fish->weight += (fish->new_fitness - fish->fitness);
 
     if (fish->weight<=W_SCALE_MIN) {
-        fish->weight = W_SCALE_MIN; //TODO: non siamo sicure di questa cosa...
+        fish->weight = W_SCALE_MIN; 
     } else if (fish->weight>W_SCALE_MAX) {
         fish->weight = W_SCALE_MAX;
     }
@@ -416,7 +413,7 @@ void volitivePositionUpdateArray(Fish *fishArray, int n_fishes, int shrink, floa
         #pragma omp parallel for
         for (int i = 0; i < n_fishes; i++) {
             #pragma omp parallel for
-            for (int d = 0; d < DIMENSIONS; d++) { // TODO: change max individual step with another step in order to have the possibility to tune it
+            for (int d = 0; d < DIMENSIONS; d++) { 
                 rand_mult= fmin(((double)rand() / (double)RAND_MAX) + 0.1, 1.0); //valore qualsiasi tra 0.1 e 1
 
                 double temp= fishArray[i].position[d];
@@ -438,7 +435,7 @@ void volitivePositionUpdateArray(Fish *fishArray, int n_fishes, int shrink, floa
         #pragma omp parallel for
         for (int i = 0; i < n_fishes; i++) {
             #pragma omp parallel for
-            for (int d = 0; d < DIMENSIONS; d++){ // TODO: change max individual step with another step in order to have the possibility to tune it
+            for (int d = 0; d < DIMENSIONS; d++){ 
                 rand_mult= fmin(((double)rand() / (double)RAND_MAX) + 0.1, 1.0); //valore qualsiasi tra 0.1 e 1
 
                 double temp= fishArray[i].position[d];
@@ -472,7 +469,7 @@ void collectiveVolitiveArray(Fish *fishes, int n_fishes, int current_iteration) 
         // printf("MOVIMENTO YEAH -> IL BANCO SI È AVVICINATO\n");
         volitivePositionUpdateArray(fishes,n_fishes, 1, global_barycenter);
     } else if (global_old_sum_weights > global_new_sum_weights) {
-        //TODO: shrink = 0 -> il banco ha perso peso quindi si deve allargare in cerca di cibo
+        //shrink = 0 -> il banco ha perso peso quindi si deve allargare in cerca di cibo
         // printf("MOVIMENTO BLEAH -> IL BANCO SI È ALLONTANATO\n");
         volitivePositionUpdateArray(fishes,n_fishes, 0, global_barycenter);
     }else{
@@ -637,8 +634,6 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    //TODO: pensiamo ad un modo per implementare un timer
-
     //variabili locali al sottogruppo di pesci
     float local_best_fitness = -2000.0;
     float global_best_fitness = -2000.0;
@@ -654,7 +649,7 @@ int main(int argc, char *argv[]) {
     int local_n = N_FISHES / size;
     Fish *local_school = malloc(local_n * sizeof(Fish));
     initFishArray(local_school, local_n);
-    writeFishesToJson(local_school, local_n, file, 1, 0, rank, size);
+    addToJsonString(local_school, local_n, file, 1, 0, rank, size);
 
     for (int iter = 0; iter < MAX_ITER; iter++) {
         if (rank == 0 && ((iter % (UPDATE_FREQUENCY))==0) ){
@@ -670,7 +665,7 @@ int main(int argc, char *argv[]) {
         collectiveMovementArray(local_school, local_n, &global_total_fitness, global_weighted_total_fitness);
         collectiveVolitiveArray(local_school, local_n, iter);
         breeding(local_school, local_n, iter, rank, size);
-        writeFishesToJson(local_school, local_n, file, 0, iter == MAX_ITER - 1, rank, size);
+        addToJsonString(local_school, local_n, file, 0, iter == MAX_ITER - 1, rank, size);
     }
 
     MPI_Finalize();
@@ -690,5 +685,3 @@ int main(int argc, char *argv[]) {
 
     return 0;
 }
-
-// notiamo che 
