@@ -654,6 +654,7 @@ int main(int argc, char *argv[]) {
     int local_n = N_FISHES / size;
     Fish *local_school = malloc(local_n * sizeof(Fish));
     initFishArray(local_school, local_n);
+    writeFishesToJson(local_school, local_n, file, 1, 0, rank, size);
 
     for (int iter = 0; iter < MAX_ITER; iter++) {
         if (rank == 0 && ((iter % (UPDATE_FREQUENCY))==0) ){
@@ -669,9 +670,9 @@ int main(int argc, char *argv[]) {
         collectiveMovementArray(local_school, local_n, &global_total_fitness, global_weighted_total_fitness);
         collectiveVolitiveArray(local_school, local_n, iter);
         breeding(local_school, local_n, iter, rank, size);
+        writeFishesToJson(local_school, local_n, file, 0, iter == MAX_ITER - 1, rank, size);
     }
 
-    
     MPI_Finalize();
 
     if (rank == 0){
