@@ -21,7 +21,7 @@
 #define FUNCTION "min_sphere"   //TODO: Capire se, al posto di fare un controllo su una stringa, possiamo passare alle funzioni direttamente un puntatore ad una funzione (in modo comodo, se no lasciamo perdere)
 #define MULTIPLIER -1   // 1 in case of maximization, -1 in case of minimization
 
-#define BOUNDS_MIN 10.0   // Minimum bound of the search space
+#define BOUNDS_MIN -30.0   // Minimum bound of the search space
 #define BOUNDS_MAX 30.0    // Maximum bound of the search space
 #define MAX_INDIVIDUAL_STEP 1.5 // Passo massimo del movimento individuale
 #define MAX_VOLITIVE_STEP 0.2 // Passo massimo del movimento volitivo
