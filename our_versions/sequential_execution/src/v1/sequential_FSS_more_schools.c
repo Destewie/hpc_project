@@ -10,22 +10,26 @@
 #include <time.h>
 #include <string.h> // Include for strcmp
 
-#define N_SCHOOLS 3
-#define N_FISHES_PER_SCHOOL 15
+#define N_SCHOOLS 5
+#define N_FISHES_PER_SCHOOL 20
 #define N_FISHES (N_SCHOOLS*N_FISHES_PER_SCHOOL)
 #define DIMENSIONS 2
 #define MAX_ITER 100
+#define UPDATE_FREQUENCY 20 // Iterations after which happens an update of the collective variables all together
+
+#define FUNCTION "min_rastrigin"   //TODO: Capire se, al posto di fare un controllo su una stringa, possiamo passare alle funzioni direttamente un puntatore ad una funzione (in modo comodo, se no lasciamo perdere)
+#define MULTIPLIER -1   // 1 in case of maximization, -1 in case of minimization
+
 #define BOUNDS_MIN 30.0   // Minimum bound of the search space
 #define BOUNDS_MAX -30.0    // Maximum bound of the search space
-#define BOUNDS_MIN_W 0.1   // Minimum bound of the search space
-#define BOUNDS_MAX_W 10.0    // Maximum bound of the search space
 #define MAX_INDIVIDUAL_STEP 1.7 // Maximum step for individual movement
 #define MAX_VOLITIVE_STEP 0.2 // Maximum step for collective movement
+
+#define BOUNDS_MIN_W 0.1   // Minimum bound of the search space
+#define BOUNDS_MAX_W 10.0    // Maximum bound of the search space
 #define W_SCALE_MIN 1.0
 #define W_SCALE_MAX 10.0
 #define BREEDING_THRESHOLD 7.0 // minimus threshold of weight to breedh new fishes
-#define FUNCTION "min_ackley"   //TODO: Capire se, al posto di fare un controllo su una stringa, possiamo passare alle funzioni direttamente un puntatore ad una funzione (in modo comodo, se no lasciamo perdere)
-#define MULTIPLIER -1   // 1 in case of maximization, -1 in case of minimization
 #define A 10.0 //rastrigin param
 #define LOG 1 // 1 to log the results, 0 otherwise
 
