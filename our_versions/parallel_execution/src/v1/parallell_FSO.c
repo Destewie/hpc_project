@@ -186,9 +186,25 @@ void writeFishesToJson(Fish *fishes, int n_fishes, FILE* file, int first_iter, i
 //---------------------------- FISH ---------------------------------------------------------
 //-------------------------------------------------------------------------------------------
 
-void initFish(Fish *fish) {
+void initFish(Fish *fish, int rank) {
+    // Posizioni iniziali divise per banco
+    int school_index = rank;
+    double portion_bounds = (BOUNDS_MAX - BOUNDS_MIN) / N_SCHOOLS; // Calcola la porzione corretta per ciascun banco
+    double lower_bound = BOUNDS_MIN + school_index * portion_bounds; // Limite inferiore per il banco
+    double upper_bound = lower_bound + portion_bounds; // Limite superiore per il banco
+
     for (int i = 0; i < DIMENSIONS; i++) {
-        fish->position[i] = ((double)rand() / RAND_MAX) * (BOUNDS_MAX - BOUNDS_MIN) + BOUNDS_MIN;
+        // // Posizioni iniziali random
+        // fish->position[d] = ((double)rand() / RAND_MAX) * (BOUNDS_MAX - BOUNDS_MIN) + BOUNDS_MIN;
+
+        // Posizioni iniziali divise per banco
+        if (d == 0) {
+            fish->position[d] = ((double)rand() / RAND_MAX) * (upper_bound - lower_bound) + lower_bound;
+            printf("[D0] lower_bound: %f, upper_bound: %f\n, x: %f", lower_bound, upper_bound, fish->position[d]);
+        } else {
+            fish->position[d] = ((double)rand() / RAND_MAX) * (BOUNDS_MAX - BOUNDS_MIN) + BOUNDS_MIN;
+        }
+
         fish->new_position[i] = fish->position[i];
     }
 
