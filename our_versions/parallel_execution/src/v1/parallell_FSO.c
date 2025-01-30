@@ -12,21 +12,25 @@
 #include <omp.h>
 #include <mpi.h>
 
-#define N_FISHES 10 // Numero di pesci totale
+
+#define N_FISHES 100 // Numero di pesci totale
 #define DIMENSIONS 2 // Dimensione dello spazio
-#define BOUNDS_MIN 5.0   // Minimum bound of the search space
-#define BOUNDS_MAX 30.0    // Maximum bound of the search space
-#define BOUNDS_MIN_W 0.1   // Minimum bound of the search space
-#define BOUNDS_MAX_W 10.0    // Maximum bound of the search space
-#define UPDATE_FREQUENCY 75 // Frequency of the update of the collective variables all together
 #define MAX_ITER 100
+#define UPDATE_FREQUENCY 20 // Frequency of the update of the collective variables all together
+
+#define FUNCTION "min_sphere"   //TODO: Capire se, al posto di fare un controllo su una stringa, possiamo passare alle funzioni direttamente un puntatore ad una funzione (in modo comodo, se no lasciamo perdere)
+#define MULTIPLIER -1   // 1 in case of maximization, -1 in case of minimization
+
+#define BOUNDS_MIN 10.0   // Minimum bound of the search space
+#define BOUNDS_MAX 30.0    // Maximum bound of the search space
 #define MAX_INDIVIDUAL_STEP 1.5 // Passo massimo del movimento individuale
 #define MAX_VOLITIVE_STEP 0.2 // Passo massimo del movimento volitivo
+
+#define BOUNDS_MIN_W 0.1   // Minimum bound of the search space
+#define BOUNDS_MAX_W 10.0    // Maximum bound of the search space
 #define W_SCALE_MIN 1.0
 #define W_SCALE_MAX 10.0
 #define BREEDING_THRESHOLD 7.0 // minimus threshold of weight to breedh new fishes
-#define FUNCTION "min_sphere"   //TODO: Capire se, al posto di fare un controllo su una stringa, possiamo passare alle funzioni direttamente un puntatore ad una funzione (in modo comodo, se no lasciamo perdere)
-#define MULTIPLIER -1   // 1 in case of maximization, -1 in case of minimization
 #define A 10.0 //rastrigin param
 
 //10 very different colors that will be used by a python script to plot the results
