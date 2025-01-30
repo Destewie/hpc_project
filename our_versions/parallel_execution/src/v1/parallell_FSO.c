@@ -9,14 +9,14 @@
 #define M_E 2.71828182845904523536
 #endif
 #include <time.h>
-#include <omp.h>
-#include <mpi.h>
+// #include <omp.h>
+// #include <mpi.h>
 
 
 #define N_FISHES 100 // Numero di pesci totale
 #define DIMENSIONS 2 // Dimensione dello spazio
-#define MAX_ITER 100
-#define UPDATE_FREQUENCY 50 // Number of iterations after which an update of the collective variables all together
+#define MAX_ITER 45
+#define UPDATE_FREQUENCY 10 // Number of iterations after which an update of the collective variables all together
 
 #define FUNCTION "min_sphere"   //TODO: Capire se, al posto di fare un controllo su una stringa, possiamo passare alle funzioni direttamente un puntatore ad una funzione (in modo comodo, se no lasciamo perdere)
 #define MULTIPLIER -1   // 1 in case of maximization, -1 in case of minimization
@@ -186,14 +186,14 @@ void writeFishesToJson(Fish *fishes, int n_fishes, FILE* file, int first_iter, i
 //---------------------------- FISH ---------------------------------------------------------
 //-------------------------------------------------------------------------------------------
 
-void initFish(Fish *fish, int rank) {
+void initFish(Fish *fish, int rank, int size) {
     // Posizioni iniziali divise per banco
     int school_index = rank;
-    double portion_bounds = (BOUNDS_MAX - BOUNDS_MIN) / N_SCHOOLS; // Calcola la porzione corretta per ciascun banco
+    double portion_bounds = (BOUNDS_MAX - BOUNDS_MIN) / size; // Calcola la porzione corretta per ciascun banco
     double lower_bound = BOUNDS_MIN + school_index * portion_bounds; // Limite inferiore per il banco
     double upper_bound = lower_bound + portion_bounds; // Limite superiore per il banco
 
-    for (int i = 0; i < DIMENSIONS; i++) {
+    for (int d = 0; d < DIMENSIONS; d++) {
         // // Posizioni iniziali random
         // fish->position[d] = ((double)rand() / RAND_MAX) * (BOUNDS_MAX - BOUNDS_MIN) + BOUNDS_MIN;
 
@@ -205,7 +205,7 @@ void initFish(Fish *fish, int rank) {
             fish->position[d] = ((double)rand() / RAND_MAX) * (BOUNDS_MAX - BOUNDS_MIN) + BOUNDS_MIN;
         }
 
-        fish->new_position[i] = fish->position[i];
+        fish->new_position[d] = fish->position[i];
     }
 
     fish->weight = W_SCALE_MAX / 2;   // Peso iniziale
@@ -219,9 +219,9 @@ void initFish(Fish *fish, int rank) {
 }
 
 // Funzione per inizializzare un array di pesci
-void initFishArray(Fish* fishArray, int n_fishes) {
+void initFishArray(Fish* fishArray, int n_fishes, int rank, int size) {
     for (int i = 0; i < n_fishes; i++) {
-        initFish(&fishArray[i]);  // Inizializza ciascun pesce
+        initFish(&fishArray[i], rank, size);  // Inizializza ciascun pesce
         // printFish(fishArray[i]);
     }
 }
@@ -668,13 +668,20 @@ int main(int argc, char *argv[]) {
     //l'effettivo sottogruppo di pesci
     int local_n = N_FISHES / size;
     Fish *local_school = malloc(local_n * sizeof(Fish));
-    initFishArray(local_school, local_n);
+    initFishArray(local_school, local_n, rank, size);
     writeFishesToJson(local_school, local_n, file, 1, 0, rank, size);
 
     for (int iter = 0; iter < MAX_ITER; iter++) {
-        if (rank == 0 && ((iter % (UPDATE_FREQUENCY))==0) ){
+        // if (rank == 0 && ((iter % (UPDATE_FREQUENCY))==0) ){
+        //     long_iteration_start = clock();
+        // } else if (rank == 0 && (iter % (UPDATE_FREQUENCY+1))==0){
+        //     long_iteration_end = clock();
+        //     cpu_time_used = ((double) (long_iteration_end - long_iteration_end)) / CLOCKS_PER_SEC;
+        //     printf("[iter %d->%d] partial TIME of execution: %f\n",iter-1, iter, cpu_time_used);
+        // }
+        if (rank == 0 && iter < (MAX_ITER-2) && (iter % 2) == 0) {
             long_iteration_start = clock();
-        } else if (rank == 0 && (iter % (UPDATE_FREQUENCY+1))==0){
+        } else if (rank == 0 && iter < (MAX_ITER-2) && (iter % 2) == 1) {
             long_iteration_end = clock();
             cpu_time_used = ((double) (long_iteration_end - long_iteration_end)) / CLOCKS_PER_SEC;
             printf("[iter %d->%d] partial TIME of execution: %f\n",iter-1, iter, cpu_time_used);

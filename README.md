@@ -10,14 +10,15 @@ Io e Annina che facciamo muovere i pesci eheh
 
 ## CRITICITÀ
 
-- [ ] Gestione dell'aggiornamento del peso -> divisione per il max_improvement: abbiamo visto che si comporta meglio senza quella divisione. Spesso infatti sono valori piccoli e quando quel valore è 0 non dividiamo per nulla.
-- [ ] Collective movement -> siamo sicur3 che stia funzionando correttamente? controlliamo i paper
+- [X] Gestione dell'aggiornamento del peso -> divisione per il max_improvement: abbiamo visto che si comporta meglio senza quella divisione. Spesso infatti sono valori piccoli e quando quel valore è 0 non dividiamo per nulla.
+- [X] Collective movement -> siamo sicur3 che stia funzionando correttamente? controlliamo i paper
 
 ## TODO
 
-- [ ] Controllare che la scrittura del json funzioni per n dimensioni
-- [ ] Capire ed implementare un criterio di fine 
+- [X] Controllare che la scrittura del json funzioni per n dimensioni
 - [ ] Una volta che abbiamo una versione funzionante (con le cose base), provare ad aggiungere anche altre funzionalità
+- [ ] cambiamo la v1 parallela per usare mpi_reduce e mpi_broadcast
+- [ ] cambiamo la v1 sequenziale per far comunicare i banchi tra di loro ogni n iterazioni
 
 ## NOTE IMPORTANTI SULLE NOSTRE SCELTE IMPLEMENTATIVE 
 - Abbiamo deciso di aggiornare i pesi dei pesci solo dopo il loro individual movement. In ogni caso, questo non influisce negativamente perché ad ogni individual movement verrà incluso anche il collective movement del ciclo prima.
