@@ -16,7 +16,7 @@
 #define N_FISHES 100 // Numero di pesci totale
 #define DIMENSIONS 2 // Dimensione dello spazio
 #define MAX_ITER 100
-#define UPDATE_FREQUENCY 20 // Number of iterations after which an update of the collective variables all together
+#define UPDATE_FREQUENCY 50 // Number of iterations after which an update of the collective variables all together
 
 #define FUNCTION "min_sphere"   //TODO: Capire se, al posto di fare un controllo su una stringa, possiamo passare alle funzioni direttamente un puntatore ad una funzione (in modo comodo, se no lasciamo perdere)
 #define MULTIPLIER -1   // 1 in case of maximization, -1 in case of minimization
