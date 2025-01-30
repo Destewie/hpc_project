@@ -5,7 +5,5 @@ for file in parallel_FSO.sh.e* parallel_FSO.sh.o* parallel_FSO; do
     fi
 done
 
-
-
 # Sottometti il job
 qsub parallel_FSO.sh

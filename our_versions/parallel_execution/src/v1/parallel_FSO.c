@@ -8,14 +8,14 @@
 #ifndef M_E
 #define M_E 2.71828182845904523536
 #endif
-#include <time.h>
-// #include <omp.h>
-// #include <mpi.h>
+#include <sys/time.h>
+#include <omp.h>
+#include <mpi.h>
 
 
 #define N_FISHES 100 // Numero di pesci totale
 #define DIMENSIONS 2 // Dimensione dello spazio
-#define MAX_ITER 45
+#define MAX_ITER 107
 #define UPDATE_FREQUENCY 10 // Number of iterations after which an update of the collective variables all together
 
 #define FUNCTION "min_sphere"   //TODO: Capire se, al posto di fare un controllo su una stringa, possiamo passare alle funzioni direttamente un puntatore ad una funzione (in modo comodo, se no lasciamo perdere)
@@ -200,12 +200,11 @@ void initFish(Fish *fish, int rank, int size) {
         // Posizioni iniziali divise per banco
         if (d == 0) {
             fish->position[d] = ((double)rand() / RAND_MAX) * (upper_bound - lower_bound) + lower_bound;
-            printf("[D0] lower_bound: %f, upper_bound: %f\n, x: %f", lower_bound, upper_bound, fish->position[d]);
         } else {
             fish->position[d] = ((double)rand() / RAND_MAX) * (BOUNDS_MAX - BOUNDS_MIN) + BOUNDS_MIN;
         }
 
-        fish->new_position[d] = fish->position[i];
+        fish->new_position[d] = fish->position[d];
     }
 
     fish->weight = W_SCALE_MAX / 2;   // Peso iniziale
@@ -296,6 +295,7 @@ void individualMovementArray (Fish *fishArray, int n_fishes, int current_iterati
 
     if (current_iteration % UPDATE_FREQUENCY == 0) {
         //aggiornamento parallelo
+        // printf("Sto per fare delle allReduce\n");
         MPI_Allreduce(local_tot_delta_fitness, global_tot_delta_fitness, 1 , MPI_FLOAT, MPI_SUM, MPI_COMM_WORLD);
         MPI_Allreduce(local_weighted_tot_delta_fitness, global_weighted_tot_delta_fitness, DIMENSIONS, MPI_FLOAT, MPI_SUM, MPI_COMM_WORLD);
         MPI_Allreduce(local_max_delta_fitness_improvement, global_max_delta_fitness_improvement, 1, MPI_FLOAT, MPI_MAX, MPI_COMM_WORLD);
@@ -636,14 +636,13 @@ int main(int argc, char *argv[]) {
     MPI_Comm_size(MPI_COMM_WORLD, &size);
 
     //create a timer
-    clock_t start, end, long_iteration_start, long_iteration_end;
-    double cpu_time_used;
+    struct timeval start_tot, end_tot, partial_a, partial_b;
+    double time_elapsed_tot, time_elapsed_partial;
+
     //open file for logging
     FILE *file;
     char filename[200];
     if (rank==0){
-        //clock
-        start = clock();
         //file opening
         sprintf(filename, "/home/federico.desanti/hpc_project/our_versions/evolution_logs/%s_%dd_log.json",FUNCTION, DIMENSIONS);
         file = fopen(filename, "w");
@@ -652,6 +651,10 @@ int main(int argc, char *argv[]) {
             MPI_Abort(MPI_COMM_WORLD, 1);
             return 1;
         }
+
+        //clock
+        gettimeofday(&start_tot, NULL);
+
     }
 
     //variabili locali al sottogruppo di pesci
@@ -669,39 +672,44 @@ int main(int argc, char *argv[]) {
     int local_n = N_FISHES / size;
     Fish *local_school = malloc(local_n * sizeof(Fish));
     initFishArray(local_school, local_n, rank, size);
-    writeFishesToJson(local_school, local_n, file, 1, 0, rank, size);
+    // writeFishesToJson(local_school, local_n, file, 1, 0, rank, size);
 
     for (int iter = 0; iter < MAX_ITER; iter++) {
-        // if (rank == 0 && ((iter % (UPDATE_FREQUENCY))==0) ){
-        //     long_iteration_start = clock();
-        // } else if (rank == 0 && (iter % (UPDATE_FREQUENCY+1))==0){
-        //     long_iteration_end = clock();
-        //     cpu_time_used = ((double) (long_iteration_end - long_iteration_end)) / CLOCKS_PER_SEC;
-        //     printf("[iter %d->%d] partial TIME of execution: %f\n",iter-1, iter, cpu_time_used);
-        // }
-        if (rank == 0 && iter < (MAX_ITER-2) && (iter % 2) == 0) {
-            long_iteration_start = clock();
-        } else if (rank == 0 && iter < (MAX_ITER-2) && (iter % 2) == 1) {
-            long_iteration_end = clock();
-            cpu_time_used = ((double) (long_iteration_end - long_iteration_end)) / CLOCKS_PER_SEC;
-            printf("[iter %d->%d] partial TIME of execution: %f\n",iter-1, iter, cpu_time_used);
+        //timer
+        if (rank == 0 && ((iter % (UPDATE_FREQUENCY+1)) == 0)) {
+            printf("Il prossimo tempo che leggi comprende le MPI_AllReduce... \n");
         }
+        if (rank == 0 && iter < (MAX_ITER - 2) && (iter % 2) == 0) {
+            gettimeofday(&partial_a, NULL);
+            if (iter != 0) {
+                time_elapsed_partial = (partial_a.tv_sec - partial_b.tv_sec) * 1000.0 + (partial_a.tv_usec - partial_b.tv_usec) / 1000.0;
+                time_elapsed_tot = (partial_a.tv_sec - start_tot.tv_sec) * 1000.0 + (partial_a.tv_usec - start_tot.tv_usec) / 1000.0;
+                printf("[iter %d->%d] partial TIME of execution: %f ms - from the beginning: %f ms\n", iter - 1, iter, time_elapsed_partial, time_elapsed_tot);
+            }
+        } else if (rank == 0 && iter < (MAX_ITER - 2) && (iter % 2) == 1) {
+            gettimeofday(&partial_b, NULL);
+            time_elapsed_partial = (partial_b.tv_sec - partial_a.tv_sec) * 1000.0 + (partial_b.tv_usec - partial_a.tv_usec) / 1000.0;
+            time_elapsed_tot = (partial_b.tv_sec - start_tot.tv_sec) * 1000.0 + (partial_b.tv_usec - start_tot.tv_usec) / 1000.0;
+            printf("[iter %d->%d] partial TIME of execution: %f ms - from the beginning: %f ms\n", iter - 1, iter, time_elapsed_partial, time_elapsed_tot);
+        } 
+
         variablesReset(&local_total_fitness, local_weighted_total_fitness, &local_max_improvement);
         individualMovementArray(local_school, local_n, iter, &local_total_fitness, &global_total_fitness, local_weighted_total_fitness, global_weighted_total_fitness, &local_max_improvement, &global_max_improvement);
         updateWeightsArray(local_school, local_n, &global_max_improvement);
         collectiveMovementArray(local_school, local_n, &global_total_fitness, global_weighted_total_fitness);
         collectiveVolitiveArray(local_school, local_n, iter);
         breeding(local_school, local_n, iter, rank, size);
-        writeFishesToJson(local_school, local_n, file, 0, iter == MAX_ITER - 1, rank, size);
+        // writeFishesToJson(local_school, local_n, file, 0, iter == MAX_ITER - 1, rank, size);
     }
 
     MPI_Finalize();
 
     if (rank == 0){
         //timer stop
-        end = clock();
-        cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
-        printf("TIME of execution: %f", cpu_time_used);
+        gettimeofday(&end_tot, NULL);
+        time_elapsed_tot = (end_tot.tv_sec - start_tot.tv_sec) * 1000.0 + (end_tot.tv_usec - start_tot.tv_usec) / 1000.0;
+        printf("TIME of execution: %f ms\n", time_elapsed_tot);
+
 
         //file closing
         fclose(file);

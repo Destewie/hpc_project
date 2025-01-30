@@ -12,13 +12,13 @@
 #PBS -q short_cpuQ
 
 # expected timespan for execution
-#PBS -l walltime=00:01:00
+#PBS -l walltime=00:05:00
 
 # chunks (~nodes) : cores per chunk : shared memory per chunk (?)
 #PBS -l select=1:ncpus=5:mem=2gb
 
-readonly C_PROGRAM_PATH=~/hpc_project/our_versions/parallel_execution/src/v1/parallell_FSO.c
-readonly EXECUTABLE_PATH_AND_NAME=~/hpc_project/our_versions/parallel_execution/src/v1/parallell_FSO
+readonly C_PROGRAM_PATH=~/hpc_project/our_versions/parallel_execution/src/v1/parallel_FSO.c
+readonly EXECUTABLE_PATH_AND_NAME=~/hpc_project/our_versions/parallel_execution/src/v1/parallel_FSO
 
 # get dependencies
 module load mpich-3.2
