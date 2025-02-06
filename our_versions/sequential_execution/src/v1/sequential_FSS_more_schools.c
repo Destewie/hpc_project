@@ -32,7 +32,8 @@
 #define W_SCALE_MAX 10.0
 #define BREEDING_THRESHOLD 7.0 // minimus threshold of weight to breedh new fishes
 #define A 10.0 //rastrigin param
-#define LOG 1 // 1 to log the results, 0 otherwise
+
+#define LOG 0 // 1 to log the results, 0 otherwise
 
 //10 very different colors that will be used by a python script to plot the results
 const char *COLORS[] = {"#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf"};

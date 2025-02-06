@@ -13,10 +13,10 @@
 #include <mpi.h>
 
 
-#define N_FISHES 100 // Numero di pesci totale
-#define DIMENSIONS 2 // Dimensione dello spazio
-#define MAX_ITER 107
-#define UPDATE_FREQUENCY 10 // Number of iterations after which an update of the collective variables all together
+#define N_FISHES 1000 // Numero di pesci totale
+#define DIMENSIONS 5 // Dimensione dello spazio
+#define MAX_ITER 1000
+#define UPDATE_FREQUENCY 100 // Number of iterations after which an update of the collective variables all together
 
 #define FUNCTION "min_sphere"   //TODO: Capire se, al posto di fare un controllo su una stringa, possiamo passare alle funzioni direttamente un puntatore ad una funzione (in modo comodo, se no lasciamo perdere)
 #define MULTIPLIER -1   // 1 in case of maximization, -1 in case of minimization
