@@ -679,7 +679,7 @@ int main(int argc, char *argv[]) {
         writeFishesToJson(local_school, local_n, file, 1, 0, rank, size);
     }
 
-    for (int iter = 0; iter < MAX_ITER; iter++) {
+    for (int iter = 1; iter < MAX_ITER; iter++) {
         //timer
         if (rank == 0 && ((iter % (UPDATE_FREQUENCY)) == 0)) {
             printf("Il prossimo tempo che leggi comprende le MPI_AllReduce... \n");

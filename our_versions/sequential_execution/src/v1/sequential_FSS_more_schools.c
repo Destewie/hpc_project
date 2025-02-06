@@ -12,11 +12,11 @@
 #include <string.h> // Include for strcmp
 
 #define N_SCHOOLS 10
-#define N_FISHES_PER_SCHOOL 10
+#define N_FISHES_PER_SCHOOL 100
 #define N_FISHES (N_SCHOOLS*N_FISHES_PER_SCHOOL)
-#define DIMENSIONS 2
-#define MAX_ITER 100
-#define UPDATE_FREQUENCY 10 // Iterations after which happens an update of the collective variables all together
+#define DIMENSIONS 5
+#define MAX_ITER 1000
+#define UPDATE_FREQUENCY 100 // Iterations after which happens an update of the collective variables all together
 
 #define FUNCTION "min_rastrigin"   //TODO: Capire se, al posto di fare un controllo su una stringa, possiamo passare alle funzioni direttamente un puntatore ad una funzione (in modo comodo, se no lasciamo perdere)
 #define MULTIPLIER -1   // 1 in case of maximization, -1 in case of minimization
@@ -632,7 +632,7 @@ int main() {
     }
 
     // MAIN LOOP
-    for (int iter = 0; iter < MAX_ITER; iter++) {
+    for (int iter = 1; iter < MAX_ITER; iter++) {
         //timer
         if ((iter % (UPDATE_FREQUENCY)) == 0) {
             printf("Il prossimo tempo che leggi comprende le MPI_AllReduce... \n");
