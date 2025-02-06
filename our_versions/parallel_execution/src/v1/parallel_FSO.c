@@ -33,6 +33,8 @@
 #define BREEDING_THRESHOLD 7.0 // minimus threshold of weight to breedh new fishes
 #define A 10.0 //rastrigin param
 
+#define LOG 0
+
 //10 very different colors that will be used by a python script to plot the results
 //based on the processor to which they belong
 const char *COLORS[] = {"#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf"};
@@ -642,7 +644,7 @@ int main(int argc, char *argv[]) {
     //open file for logging
     FILE *file;
     char filename[200];
-    if (rank==0){
+    if (rank==0 && LOG == 1){
         //file opening
         sprintf(filename, "/home/federico.desanti/hpc_project/our_versions/evolution_logs/%s_%dd_log.json",FUNCTION, DIMENSIONS);
         file = fopen(filename, "w");
@@ -672,7 +674,9 @@ int main(int argc, char *argv[]) {
     int local_n = N_FISHES / size;
     Fish *local_school = malloc(local_n * sizeof(Fish));
     initFishArray(local_school, local_n, rank, size);
-    // writeFishesToJson(local_school, local_n, file, 1, 0, rank, size);
+    if (LOG == 1) {
+        writeFishesToJson(local_school, local_n, file, 1, 0, rank, size);
+    }
 
     for (int iter = 0; iter < MAX_ITER; iter++) {
         //timer
@@ -699,7 +703,9 @@ int main(int argc, char *argv[]) {
         collectiveMovementArray(local_school, local_n, &global_total_fitness, global_weighted_total_fitness);
         collectiveVolitiveArray(local_school, local_n, iter);
         breeding(local_school, local_n, iter, rank, size);
-        // writeFishesToJson(local_school, local_n, file, 0, iter == MAX_ITER - 1, rank, size);
+        if (LOG == 1) {
+            writeFishesToJson(local_school, local_n, file, 0, iter == MAX_ITER - 1, rank, size);
+        }
     }
 
     MPI_Finalize();
@@ -712,7 +718,9 @@ int main(int argc, char *argv[]) {
 
 
         //file closing
-        fclose(file);
+        if (LOG == 1) {
+            fclose(file);
+        }
     }
 
     free(local_school);
