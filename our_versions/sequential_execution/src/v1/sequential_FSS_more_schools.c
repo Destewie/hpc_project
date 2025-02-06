@@ -8,6 +8,7 @@
 #define M_E 2.71828182845904523536
 #endif
 #include <time.h>
+#include <sys/time.h>
 #include <string.h> // Include for strcmp
 
 #define N_SCHOOLS 10
@@ -603,9 +604,8 @@ void breeding(Fish *fishes, int current_iter) {
 int main() {
 
     //create a timer
-    clock_t start, end;
-    double cpu_time_used;
-    start = clock();
+    struct timeval start_tot, end_tot, partial_a, partial_b;
+    double time_elapsed_tot, time_elapsed_partial;
 
     char filename[50];
     sprintf(filename, "../../../evolution_logs/%s_%dd_log.json",FUNCTION, DIMENSIONS);
@@ -614,6 +614,9 @@ int main() {
         perror("Error opening file");
         return 1;
     }
+
+    //clock
+    gettimeofday(&start_tot, NULL);
 
     // float best_fitness[N_SCHOOLS];
     float total_fitness[N_SCHOOLS];
@@ -630,6 +633,23 @@ int main() {
 
     // MAIN LOOP
     for (int iter = 0; iter < MAX_ITER; iter++) {
+        //timer
+        if ((iter % (UPDATE_FREQUENCY)) == 0) {
+            printf("Il prossimo tempo che leggi comprende le MPI_AllReduce... \n");
+        }
+        if (iter < (MAX_ITER - 2) && (iter % 2) == 0) {
+            gettimeofday(&partial_a, NULL);
+            if (iter != 0) {
+                time_elapsed_partial = (partial_a.tv_sec - partial_b.tv_sec) * 1000.0 + (partial_a.tv_usec - partial_b.tv_usec) / 1000.0;
+                time_elapsed_tot = (partial_a.tv_sec - start_tot.tv_sec) * 1000.0 + (partial_a.tv_usec - start_tot.tv_usec) / 1000.0;
+                printf("[iter %d->%d] partial TIME of execution: %f ms - from the beginning: %f ms\n", iter - 1, iter, time_elapsed_partial, time_elapsed_tot);
+            }
+        } else if (iter < (MAX_ITER - 2) && (iter % 2) == 1) {
+            gettimeofday(&partial_b, NULL);
+            time_elapsed_partial = (partial_b.tv_sec - partial_a.tv_sec) * 1000.0 + (partial_b.tv_usec - partial_a.tv_usec) / 1000.0;
+            time_elapsed_tot = (partial_b.tv_sec - start_tot.tv_sec) * 1000.0 + (partial_b.tv_usec - start_tot.tv_usec) / 1000.0;
+            printf("[iter %d->%d] partial TIME of execution: %f ms - from the beginning: %f ms\n", iter - 1, iter, time_elapsed_partial, time_elapsed_tot);
+        } 
 
         variablesReset(total_fitness, weighted_total_fitness, max_improvement);
 
@@ -663,26 +683,28 @@ int main() {
     }
 
 
-    end = clock();
-    cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
+    //timer stop
+    gettimeofday(&end_tot, NULL);
+    time_elapsed_tot = (end_tot.tv_sec - start_tot.tv_sec) * 1000.0 + (end_tot.tv_usec - start_tot.tv_usec) / 1000.0;
+    printf("TIME of execution: %f ms\n", time_elapsed_tot);
+
 
     fclose(file);
 
 
     // print all the fishes
-    for (int s = 0; s < N_SCHOOLS; s++) {
-        printf("----------- School %d\n", s);
-        for (int i = 0; i < N_FISHES_PER_SCHOOL; i++) {
-            printFish(fishes[s*N_FISHES_PER_SCHOOL+i]);
-        }
-    }
+    // for (int s = 0; s < N_SCHOOLS; s++) {
+    //     printf("----------- School %d\n", s);
+    //     for (int i = 0; i < N_FISHES_PER_SCHOOL; i++) {
+    //         printFish(fishes[s*N_FISHES_PER_SCHOOL+i]);
+    //     }
+    // }
 
     printf("Number of schools: %d\n", N_SCHOOLS);
     printf("Number of fishes per school: %d\n", N_FISHES_PER_SCHOOL);
     printf("Number of fishes: %d\n", N_FISHES);
     printf("Dimensions: %d\n", DIMENSIONS);
     printf("Epochs: %d\n", MAX_ITER);
-    printf("Execution time: %f\n", cpu_time_used);
     // printf("Best fitness: %f\n", best_fitness/DIMENSIONS);
 
     return 0;

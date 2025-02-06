@@ -680,7 +680,7 @@ int main(int argc, char *argv[]) {
 
     for (int iter = 0; iter < MAX_ITER; iter++) {
         //timer
-        if (rank == 0 && ((iter % (UPDATE_FREQUENCY+1)) == 0)) {
+        if (rank == 0 && ((iter % (UPDATE_FREQUENCY)) == 0)) {
             printf("Il prossimo tempo che leggi comprende le MPI_AllReduce... \n");
         }
         if (rank == 0 && iter < (MAX_ITER - 2) && (iter % 2) == 0) {
@@ -724,7 +724,6 @@ int main(int argc, char *argv[]) {
     }
 
     free(local_school);
-    
 
     return 0;
 }
