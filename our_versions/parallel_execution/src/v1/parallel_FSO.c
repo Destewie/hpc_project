@@ -333,8 +333,6 @@ void individualMovementArray (Fish *fishArray, int n_fishes, int current_iterati
         }
         *global_max_delta_fitness_improvement = *local_max_delta_fitness_improvement;
     }
-
-
 }
 
 
@@ -423,6 +421,8 @@ void calculateBarycenter(Fish *fishArray, int n_fishes, float *global_barycenter
     for (int d = 0; d<DIMENSIONS; d++){
         if (global_denominator != 0.0) {
             global_barycenter[d] = global_numerator[d] / global_denominator;
+        } else {
+            printf("Denominator is zero...\n");
         }
     }
 
