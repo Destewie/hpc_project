@@ -154,10 +154,12 @@ void writeFishesToJson(Fish *fishes, int n_fishes, FILE* file, int first_iter, i
         MPI_Send(fishes, n_fishes * sizeof(Fish), MPI_BYTE, 0, 0, MPI_COMM_WORLD);
     } else {
         Fish all_fishes[N_FISHES];
+        #pragma omp parallel for
         for (int i = 0; i < n_fishes; i++) {
             all_fishes[i] = fishes[i];
         }
 
+        #pragma omp parallel for
         for (int i = 1; i < n_ranks; i++) {
             Fish received_fishes[n_fishes];
             MPI_Recv(received_fishes, n_fishes * sizeof(Fish), MPI_BYTE, i, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
@@ -174,6 +176,7 @@ void writeFishesToJson(Fish *fishes, int n_fishes, FILE* file, int first_iter, i
 
         fprintf(file, "\t[\n");
 
+        #pragma omp parallel for
         for (int i = 0; i < N_FISHES; i++) {
             fprintf(file, "\t\t{\"x\": [");
             for (int d = 0; d < DIMENSIONS; d++) {
@@ -238,6 +241,7 @@ void initFish(Fish *fish, int rank, int size) {
 
 // Funzione per inizializzare un array di pesci
 void initFishArray(Fish* fishArray, int n_fishes, int rank, int size) {
+    #pragma omp parallel for
     for (int i = 0; i < n_fishes; i++) {
         initFish(&fishArray[i], rank, size);  // Inizializza ciascun pesce
         // printFish(fishArray[i]);
@@ -308,6 +312,7 @@ void individualMovement(Fish *fish, float *local_tot_delta_fitness, float *local
 }
 
 void individualMovementArray (Fish *fishArray, int n_fishes, int current_iteration, float *local_tot_delta_fitness, float *global_tot_delta_fitness, float *local_weighted_tot_delta_fitness, float *global_weighted_tot_delta_fitness, float *local_max_delta_fitness_improvement, float *global_max_delta_fitness_improvement) {
+    #pragma omp parallel for
     for (int i = 0; i < n_fishes; i++) {
         individualMovement(&fishArray[i], local_tot_delta_fitness, local_weighted_tot_delta_fitness, local_max_delta_fitness_improvement);  // Inizializza ciascun pesce
     }
@@ -386,6 +391,7 @@ void calculateBarycenter(Fish *fishArray, int n_fishes, float *global_barycenter
     float local_denominator = 0.0;
     float global_denominator = 0.0;
 
+    #pragma omp parallel for
     for (int d = 0; d<DIMENSIONS; d++){
         global_barycenter[d] = 0.0;
         local_numerator[d] = 0.0;
@@ -519,6 +525,7 @@ void collectiveVolitiveArray(Fish *fishes, int n_fishes, int current_iteration) 
     // // }
 
     // update previous_cycle_weight
+    #pragma omp parallel for
     for (int i = 0; i < n_fishes; i++) {
         fishes[i].previous_cycle_weight = fishes[i].weight;
     }
@@ -603,6 +610,7 @@ void breeding(Fish *fishes, int n_fishes, int current_iteration, int rank, int n
             // Il rank con il pesce migliore e il secondo migliore manda le coordinate al rank con il pesce peggiore
             if (rank == global_first_rank || rank == global_second_rank) {
                 double message[DIMENSIONS];
+                #pragma omp parallel for
                 for (int d = 0; d < DIMENSIONS; d++) {
                     if (rank == global_first_rank) {
                         message[d] = fishes[global_first_index].position[d];
@@ -619,6 +627,7 @@ void breeding(Fish *fishes, int n_fishes, int current_iteration, int rank, int n
                 MPI_Recv(first_pos, DIMENSIONS, MPI_DOUBLE, global_first_rank, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
                 MPI_Recv(second_pos, DIMENSIONS, MPI_DOUBLE, global_second_rank, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
+                #pragma omp parallel for
                 for (int d = 0; d < DIMENSIONS; d++) {
                     fishes[global_worst_index].position[d] = (first_pos[d] + second_pos[d]) / 2;
                 }
@@ -633,6 +642,7 @@ void breeding(Fish *fishes, int n_fishes, int current_iteration, int rank, int n
         // breeding in the school only
         if (fishes[first_index].weight > BREEDING_THRESHOLD && fishes[second_index].weight > BREEDING_THRESHOLD) {
             fishes[worst_index].weight = (fishes[first_index].weight + fishes[second_index].weight) / 2;
+            #pragma omp parallel for
             for (int d = 0; d < DIMENSIONS; d++) {
                 fishes[worst_index].position[d] = (fishes[first_index].position[d] + fishes[second_index].position[d]) / 2;
             }
