@@ -59,6 +59,7 @@ typedef struct {
 
 double rosenbrok(double *x) {
     double sum = 0.0;
+    #pragma omp parallel for
     for (int i = 0; i < DIMENSIONS - 1; i++) {
         double term1 = 100.0 * pow(x[i + 1] - x[i] * x[i], 2);
         double term2 = pow(1.0 - x[i], 2);
@@ -69,6 +70,7 @@ double rosenbrok(double *x) {
 
 double rastrigin(double *x) {
     double sum = A * DIMENSIONS; // Start with A * DIM
+    #pragma omp parallel for
     for (int i = 0; i < DIMENSIONS; i++) {
         sum += x[i] * x[i] - A * cos(2 * M_PI * x[i]);
     }
@@ -77,6 +79,7 @@ double rastrigin(double *x) {
 
 double min_sphere(double *x) {
     double sum = 0.0;
+    #pragma omp parallel for
     for (int i = 0; i < DIMENSIONS; i++) {
         sum += x[i] * x[i];
     }
@@ -85,6 +88,7 @@ double min_sphere(double *x) {
 
 double max_sphere(double *x) {
     double sum = 0.0;
+    #pragma omp parallel for
     for (int i = 0; i < DIMENSIONS; i++) {
         sum += -(x[i] * x[i]);
     }
@@ -94,6 +98,7 @@ double max_sphere(double *x) {
 double ackley(double *x){
     double sum1 = 0.0;
     double sum2 = 0.0;
+    #pragma omp parallel for
     for (int i = 0; i < DIMENSIONS; i++) {
         sum1 += x[i] * x[i];
         sum2 += cos(2 * M_PI * x[i]);
@@ -103,6 +108,7 @@ double ackley(double *x){
 
 double min_schwefel(double *x) {
     double sum = 0.0;
+    #pragma omp parallel for
     for (int i = 0; i < DIMENSIONS; i++) {
         sum += x[i] * sin(sqrt(fabs(x[i])));
     }
