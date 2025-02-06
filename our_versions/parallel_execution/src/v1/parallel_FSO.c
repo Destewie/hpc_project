@@ -18,7 +18,7 @@
 #define MAX_ITER 1000
 #define UPDATE_FREQUENCY 100 // Number of iterations after which an update of the collective variables all together
 
-#define FUNCTION "min_sphere"   //TODO: Capire se, al posto di fare un controllo su una stringa, possiamo passare alle funzioni direttamente un puntatore ad una funzione (in modo comodo, se no lasciamo perdere)
+#define FUNCTION "min_schwefel"   //TODO: Capire se, al posto di fare un controllo su una stringa, possiamo passare alle funzioni direttamente un puntatore ad una funzione (in modo comodo, se no lasciamo perdere)
 #define MULTIPLIER -1   // 1 in case of maximization, -1 in case of minimization
 
 #define BOUNDS_MIN -30.0   // Minimum bound of the search space
@@ -101,6 +101,15 @@ double ackley(double *x){
     return -20 * exp(-0.2 * sqrt(sum1 / DIMENSIONS)) - exp(sum2 / DIMENSIONS) + 20 + M_E;
 }
 
+double min_schwefel(double *x) {
+    double sum = 0.0;
+    for (int i = 0; i < DIMENSIONS; i++) {
+        sum += x[i] * sin(sqrt(fabs(x[i])));
+    }
+    return 418.9829 * DIMENSIONS - sum;
+}
+
+
 double objectiveFunction(double *x) {
     if (strcmp(FUNCTION, "min_rosenbrok") == 0) {
         return rosenbrok(x);
@@ -112,10 +121,11 @@ double objectiveFunction(double *x) {
         return rastrigin(x);
     } else if (strcmp(FUNCTION, "min_ackley") == 0) {
         return ackley(x);
+    } else if (strcmp(FUNCTION, "min_schwefel") == 0) {
+        return min_schwefel(x);
     }else{
         return 0.0;
     }
-}
 
 //-------------------------------------------------------------------------------------------
 //---------------------------- DEBUGGING ----------------------------------------------------

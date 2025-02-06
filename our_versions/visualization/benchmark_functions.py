@@ -1,14 +1,11 @@
 import numpy as np
 
-# TODO: Generalize in n dimensions
 def min_spherical_function(x, y=0):
     return x**2 + y**2
 
-# TODO: Generalize in n dimensions
 def max_spherical_function(x, y=0):
     return -(x**2 + y**2)
 
-# TODO: Generalize in n dimensions
 def min_rastrigin_function(*args):
     if len(args) == 1:
         x = args[0]
@@ -19,13 +16,14 @@ def min_rastrigin_function(*args):
     else:
         raise TypeError("Expected 1 or 2 arguments.")
 
-# TODO: Generalize in n dimensions
 def min_rosenbrock_function(x, y):
     return 100 * (y - x**2)**2 + (1 - x)**2
 
-# TODO: Generalize in n dimensions
 def min_ackley_function(x, y):
     return -20 * np.exp(-0.2 * np.sqrt(0.5 * (x**2 + y**2))) - np.exp(0.5 * (np.cos(2 * np.pi * x) + np.cos(2 * np.pi * y))) + np.e + 20
+
+def min_schwefel(x, y):
+    return 418.9829 * 2 - (x * np.sin(np.sqrt(np.abs(x))) + y * np.sin(np.sqrt(np.abs(y))))
 
 # def min_rastrigin_function(x, A=10):
 #     n = len(x)  # Number of dimensions
