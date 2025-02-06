@@ -159,7 +159,6 @@ void writeFishesToJson(Fish *fishes, int n_fishes, FILE* file, int first_iter, i
             all_fishes[i] = fishes[i];
         }
 
-        #pragma omp parallel for
         for (int i = 1; i < n_ranks; i++) {
             Fish received_fishes[n_fishes];
             MPI_Recv(received_fishes, n_fishes * sizeof(Fish), MPI_BYTE, i, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
@@ -176,7 +175,6 @@ void writeFishesToJson(Fish *fishes, int n_fishes, FILE* file, int first_iter, i
 
         fprintf(file, "\t[\n");
 
-        #pragma omp parallel for
         for (int i = 0; i < N_FISHES; i++) {
             fprintf(file, "\t\t{\"x\": [");
             for (int d = 0; d < DIMENSIONS; d++) {
@@ -281,6 +279,7 @@ void individualMovement(Fish *fish, float *local_tot_delta_fitness, float *local
         delta_fitness = 0.0;
     }
 
+    #pragma omp critical 
     *local_tot_delta_fitness += delta_fitness;
 
     #pragma omp parallel for
@@ -291,6 +290,7 @@ void individualMovement(Fish *fish, float *local_tot_delta_fitness, float *local
     }
 
     if (fabs(delta_fitness) > *local_max_delta_fitness_improvement) {
+        #pragma omp critical 
         *local_max_delta_fitness_improvement = delta_fitness;
     }
 
@@ -351,7 +351,6 @@ void collectiveMovement(Fish *fish, float *global_tot_delta_fitness, float *glob
 }
 
 void collectiveMovementArray(Fish *fishArray, int n_fishes, float *global_tot_delta_fitness, float *global_weighted_tot_delta_fitness) {
-    #pragma omp parallel for
     for (int i = 0; i < n_fishes; i++) {
         collectiveMovement(&fishArray[i], global_tot_delta_fitness, global_weighted_tot_delta_fitness);  // Inizializza ciascun pesce
     }
@@ -398,6 +397,7 @@ void calculateBarycenter(Fish *fishArray, int n_fishes, float *global_barycenter
 
     #pragma omp parallel for
     for (int i = 0; i < n_fishes; i++) {
+        #pragma omp critical
         local_denominator += fishArray[i].weight;
 
         #pragma omp parallel for
@@ -411,6 +411,7 @@ void calculateBarycenter(Fish *fishArray, int n_fishes, float *global_barycenter
     MPI_Allreduce(&local_denominator, &global_denominator, 1, MPI_FLOAT, MPI_SUM, MPI_COMM_WORLD);
     } else{
         //copio solo le variabili locali in quelle globali perchè guardo solo il mio sottogruppo
+        #pragma omp parallel for
         for (int d = 0; d<DIMENSIONS; d++){
             global_numerator[d] = local_numerator[d];
         }
@@ -433,7 +434,6 @@ void calculateSumWeights(Fish *fishArray, int n_fishes, int current_iteration, f
     float local_old_sum = 0.0;
     float local_new_sum = 0.0;
 
-    #pragma omp parallel for
     for (int i = 0; i < n_fishes; i++) {
         local_old_sum += fishArray[i].previous_cycle_weight;
         local_new_sum += fishArray[i].weight;
@@ -454,7 +454,6 @@ void volitivePositionUpdateArray(Fish *fishArray, int n_fishes, int shrink, floa
 
     // questo codice si può ottimizare mettendo shrink -1,1
     if (shrink==1) {
-        #pragma omp parallel for
         for (int i = 0; i < n_fishes; i++) {
             #pragma omp parallel for
             for (int d = 0; d < DIMENSIONS; d++) { 
@@ -476,7 +475,6 @@ void volitivePositionUpdateArray(Fish *fishArray, int n_fishes, int shrink, floa
             }
         }
     } else {
-        #pragma omp parallel for
         for (int i = 0; i < n_fishes; i++) {
             #pragma omp parallel for
             for (int d = 0; d < DIMENSIONS; d++){ 
