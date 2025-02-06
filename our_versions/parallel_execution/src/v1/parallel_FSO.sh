@@ -12,7 +12,7 @@
 #PBS -q short_cpuQ
 
 # expected timespan for execution
-#PBS -l walltime=00:05:00
+#PBS -l walltime=02:00:00
 
 # chunks (~nodes) : cores per chunk : shared memory per chunk (?)
 #PBS -l select=1:ncpus=5:mem=2gb

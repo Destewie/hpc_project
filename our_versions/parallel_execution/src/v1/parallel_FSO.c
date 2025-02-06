@@ -14,8 +14,8 @@
 
 
 #define N_FISHES 1000 // Numero di pesci totale
-#define DIMENSIONS 5 // Dimensione dello spazio
-#define MAX_ITER 1000
+#define DIMENSIONS 500 // Dimensione dello spazio
+#define MAX_ITER 10000
 #define UPDATE_FREQUENCY 100 // Number of iterations after which an update of the collective variables all together
 
 #define FUNCTION "min_schwefel"   //TODO: Capire se, al posto di fare un controllo su una stringa, possiamo passare alle funzioni direttamente un puntatore ad una funzione (in modo comodo, se no lasciamo perdere)
@@ -464,14 +464,14 @@ void volitivePositionUpdateArray(Fish *fishArray, int n_fishes, int shrink, floa
                 fishArray[i].position[d] -= fishArray[i].max_volitive_step * rand_mult * (fishArray[i].position[d] - global_barycenter[d]);
 
                 if (fishArray[i].position[d] > 1000.0 || fishArray[i].position[d] < -1000.0) {
-                    // printf("LAST STRANGE FISH: rand_mult: %f\n", rand_mult);
-                    // printf("dim= %d, pesce= %d\n", d, i);
-                    // printf("fishArray[%d].max_volitive_step: %f\n",i, fishArray[i].max_volitive_step);
-                    // printf("fishArray[%d].position[%d] before update: %f\n",i, d, temp);
-                    // printf("fishArray[%d].position[%d] after update: %f\n",i, d, fishArray[i].position[d]);
-                    // printf("global_barycenter: %f\n", global_barycenter[d]);
+                    printf("LAST STRANGE FISH: rand_mult: %f\n", rand_mult);
+                    printf("dim= %d, pesce= %d\n", d, i);
+                    printf("fishArray[%d].max_volitive_step: %f\n",i, fishArray[i].max_volitive_step);
+                    printf("fishArray[%d].position[%d] before update: %f\n",i, d, temp);
+                    printf("fishArray[%d].position[%d] after update: %f\n",i, d, fishArray[i].position[d]);
+                    printf("global_barycenter: %f\n", global_barycenter[d]);
                     printf("porco cane\n");
-                    exit(1);
+                    // exit(1);
                 }
             }
         }
@@ -486,14 +486,14 @@ void volitivePositionUpdateArray(Fish *fishArray, int n_fishes, int shrink, floa
                 fishArray[i].position[d] += fishArray[i].max_volitive_step * rand_mult * (fishArray[i].position[d] - global_barycenter[d]);
 
                 if (fishArray[i].position[d] > 1000.0 || fishArray[i].position[d] < -1000.0) {
-                    // printf("LAST STRANGE FISH: rand_mult: %f\n", rand_mult);
-                    // printf("dim= %d, pesce= %d\n", d, i);
-                    // printf("fishArray[%d].max_volitive_step: %f\n",i, fishArray[i].max_volitive_step);
-                    // printf("fishArray[%d].position[%d] before update: %f\n",i, d, temp);
-                    // printf("fishArray[%d].position[%d] after update: %f\n",i, d, fishArray[i].position[d]);
-                    // printf("global_barycenter: %f\n", global_barycenter[d]);
+                    printf("LAST STRANGE FISH: rand_mult: %f\n", rand_mult);
+                    printf("dim= %d, pesce= %d\n", d, i);
+                    printf("fishArray[%d].max_volitive_step: %f\n",i, fishArray[i].max_volitive_step);
+                    printf("fishArray[%d].position[%d] before update: %f\n",i, d, temp);
+                    printf("fishArray[%d].position[%d] after update: %f\n",i, d, fishArray[i].position[d]);
+                    printf("global_barycenter: %f\n", global_barycenter[d]);
                     printf("porco cane\n");
-                    exit(1);
+                    // exit(1);
                 }
             }
         }
