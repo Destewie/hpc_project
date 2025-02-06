@@ -21,8 +21,8 @@
 #define FUNCTION "min_rastrigin"   //TODO: Capire se, al posto di fare un controllo su una stringa, possiamo passare alle funzioni direttamente un puntatore ad una funzione (in modo comodo, se no lasciamo perdere)
 #define MULTIPLIER -1   // 1 in case of maximization, -1 in case of minimization
 
-#define BOUNDS_MIN 30.0   // Minimum bound of the search space
-#define BOUNDS_MAX -30.0    // Maximum bound of the search space
+#define BOUNDS_MIN -30.0   // Minimum bound of the search space
+#define BOUNDS_MAX 30.0    // Maximum bound of the search space
 #define MAX_INDIVIDUAL_STEP 1.7 // Maximum step for individual movement
 #define MAX_VOLITIVE_STEP 0.2 // Maximum step for collective movement
 

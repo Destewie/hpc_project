@@ -644,19 +644,20 @@ int main(int argc, char *argv[]) {
     //open file for logging
     FILE *file;
     char filename[200];
-    if (rank==0 && LOG == 1){
-        //file opening
-        sprintf(filename, "/home/federico.desanti/hpc_project/our_versions/evolution_logs/%s_%dd_log.json",FUNCTION, DIMENSIONS);
-        file = fopen(filename, "w");
-        if (file == NULL) {
-            perror("Error opening file");
-            MPI_Abort(MPI_COMM_WORLD, 1);
-            return 1;
+    if (rank==0){
+        if (LOG == 1) {
+            //file opening
+            sprintf(filename, "/home/federico.desanti/hpc_project/our_versions/evolution_logs/%s_%dd_log.json",FUNCTION, DIMENSIONS);
+            file = fopen(filename, "w");
+            if (file == NULL) {
+                perror("Error opening file");
+                MPI_Abort(MPI_COMM_WORLD, 1);
+                return 1;
+            }
         }
 
         //clock
         gettimeofday(&start_tot, NULL);
-
     }
 
     //variabili locali al sottogruppo di pesci
