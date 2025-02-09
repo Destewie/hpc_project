@@ -9,9 +9,12 @@ if [ $? -ne 0 ]; then
 fi
 
 # Esecuzione del programma
-echo "Esecuzione del programma...\n"
+echo "Esecuzione del programma..."
 ./main 10 10 3 100 1
-./main 100 100 100 100 1
+./main 20 10 3 100 1
+./main 40 10 3 100 1
+./main 80 10 3 100 1
+./main 160 10 3 100 1
 
 if [ $? -ne 0 ]; then
     echo "Errore durante l'esecuzione di main."
