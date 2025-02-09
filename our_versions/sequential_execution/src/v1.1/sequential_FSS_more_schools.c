@@ -223,7 +223,7 @@ void initFish(Fish *fish, int fish_index) {
         // Posizioni iniziali divise per banco
         if (d == 0) {
             fish->position[d] = ((double)rand() / RAND_MAX) * (upper_bound - lower_bound) + lower_bound;
-            printf("[D0] lower_bound: %f, upper_bound: %f\n, x: %f", lower_bound, upper_bound, fish->position[d]);
+            // printf("[D0] lower_bound: %f, upper_bound: %f\n, x: %f", lower_bound, upper_bound, fish->position[d]);
         } else {
             fish->position[d] = ((double)rand() / RAND_MAX) * (BOUNDS_MAX - BOUNDS_MIN) + BOUNDS_MIN;
         }
@@ -636,7 +636,7 @@ int main(int argc, char *argv[]) {
     MAX_ITER = atoi(argv[4]);
     UPDATE_FREQUENCY = atoi(argv[5]);
 
-    printf("RUNNING WITH: N-SCHOOLS %d - N_FISHES_PER_SCHOOL %d - DIMENSIONS %d - MAX_ITER %d - UPDATE_FREQUENCY %d\n",N_SCHOOLS, N_FISHES_PER_SCHOOL, DIMENSIONS, MAX_ITER, UPDATE_FREQUENCY);
+    printf("\nRUNNING WITH: N-SCHOOLS %d - N_FISHES_PER_SCHOOL %d - DIMENSIONS %d - MAX_ITER %d - UPDATE_FREQUENCY %d\n",N_SCHOOLS, N_FISHES_PER_SCHOOL, DIMENSIONS, MAX_ITER, UPDATE_FREQUENCY);
 
 
     //create a timer
@@ -650,6 +650,7 @@ int main(int argc, char *argv[]) {
     //     perror("Error opening file");
     //     return 1;
     // }
+
 
     //clock
     gettimeofday(&start_tot, NULL);
@@ -670,22 +671,22 @@ int main(int argc, char *argv[]) {
     // MAIN LOOP
     for (int iter = 1; iter < MAX_ITER; iter++) {
         //timer
-        if ((iter % (UPDATE_FREQUENCY)) == 0) {
-            printf("Il prossimo tempo che leggi comprende le MPI_AllReduce... \n");
-        }
-        if (iter < (MAX_ITER - 2) && (iter % 2) == 0) {
-            gettimeofday(&partial_a, NULL);
-            if (iter != 0) {
-                time_elapsed_partial = (partial_a.tv_sec - partial_b.tv_sec) * 1000.0 + (partial_a.tv_usec - partial_b.tv_usec) / 1000.0;
-                time_elapsed_tot = (partial_a.tv_sec - start_tot.tv_sec) * 1000.0 + (partial_a.tv_usec - start_tot.tv_usec) / 1000.0;
-                printf("[iter %d->%d] partial TIME of execution: %f ms - from the beginning: %f ms\n", iter - 1, iter, time_elapsed_partial, time_elapsed_tot);
-            }
-        } else if (iter < (MAX_ITER - 2) && (iter % 2) == 1) {
-            gettimeofday(&partial_b, NULL);
-            time_elapsed_partial = (partial_b.tv_sec - partial_a.tv_sec) * 1000.0 + (partial_b.tv_usec - partial_a.tv_usec) / 1000.0;
-            time_elapsed_tot = (partial_b.tv_sec - start_tot.tv_sec) * 1000.0 + (partial_b.tv_usec - start_tot.tv_usec) / 1000.0;
-            printf("[iter %d->%d] partial TIME of execution: %f ms - from the beginning: %f ms\n", iter - 1, iter, time_elapsed_partial, time_elapsed_tot);
-        } 
+        // if ((iter % (UPDATE_FREQUENCY)) == 0) {
+        //     printf("Il prossimo tempo che leggi comprende le MPI_AllReduce... \n");
+        // }
+        // if (iter < (MAX_ITER - 2) && (iter % 2) == 0) {
+        //     gettimeofday(&partial_a, NULL);
+        //     if (iter != 0) {
+        //         time_elapsed_partial = (partial_a.tv_sec - partial_b.tv_sec) * 1000.0 + (partial_a.tv_usec - partial_b.tv_usec) / 1000.0;
+        //         time_elapsed_tot = (partial_a.tv_sec - start_tot.tv_sec) * 1000.0 + (partial_a.tv_usec - start_tot.tv_usec) / 1000.0;
+        //         printf("[iter %d->%d] partial TIME of execution: %f ms - from the beginning: %f ms\n", iter - 1, iter, time_elapsed_partial, time_elapsed_tot);
+        //     }
+        // } else if (iter < (MAX_ITER - 2) && (iter % 2) == 1) {
+        //     gettimeofday(&partial_b, NULL);
+        //     time_elapsed_partial = (partial_b.tv_sec - partial_a.tv_sec) * 1000.0 + (partial_b.tv_usec - partial_a.tv_usec) / 1000.0;
+        //     time_elapsed_tot = (partial_b.tv_sec - start_tot.tv_sec) * 1000.0 + (partial_b.tv_usec - start_tot.tv_usec) / 1000.0;
+        //     printf("[iter %d->%d] partial TIME of execution: %f ms - from the beginning: %f ms\n", iter - 1, iter, time_elapsed_partial, time_elapsed_tot);
+        // } 
 
         variablesReset(total_fitness, weighted_total_fitness, max_improvement);
 
@@ -724,7 +725,6 @@ int main(int argc, char *argv[]) {
     time_elapsed_tot = (end_tot.tv_sec - start_tot.tv_sec) * 1000.0 + (end_tot.tv_usec - start_tot.tv_usec) / 1000.0;
     printf("TIME of execution: %f ms\n", time_elapsed_tot);
 
-
     // fclose(file);
 
 
@@ -736,11 +736,11 @@ int main(int argc, char *argv[]) {
     //     }
     // }
 
-    printf("Number of schools: %d\n", N_SCHOOLS);
-    printf("Number of fishes per school: %d\n", N_FISHES_PER_SCHOOL);
-    printf("Number of fishes: %d\n", N_FISHES_PER_SCHOOL*N_SCHOOLS);
-    printf("Dimensions: %d\n", DIMENSIONS);
-    printf("Epochs: %d\n", MAX_ITER);
+    // printf("Number of schools: %d\n", N_SCHOOLS);
+    // printf("Number of fishes per school: %d\n", N_FISHES_PER_SCHOOL);
+    // printf("Number of fishes: %d\n", N_FISHES_PER_SCHOOL*N_SCHOOLS);
+    // printf("Dimensions: %d\n", DIMENSIONS);
+    // printf("Epochs: %d\n", MAX_ITER);
     // printf("Best fitness: %f\n", best_fitness/DIMENSIONS);
 
     return 0;
