@@ -636,7 +636,7 @@ int main(int argc, char *argv[]) {
     MAX_ITER = atoi(argv[4]);
     UPDATE_FREQUENCY = atoi(argv[5]);
 
-    printf("\nRUNNING WITH: N-SCHOOLS %d - N_FISHES_PER_SCHOOL %d - DIMENSIONS %d - MAX_ITER %d - UPDATE_FREQUENCY %d\n",N_SCHOOLS, N_FISHES_PER_SCHOOL, DIMENSIONS, MAX_ITER, UPDATE_FREQUENCY);
+    // printf("\nRUNNING WITH: N-SCHOOLS %d - N_FISHES_PER_SCHOOL %d - DIMENSIONS %d - MAX_ITER %d - UPDATE_FREQUENCY %d\n",N_SCHOOLS, N_FISHES_PER_SCHOOL, DIMENSIONS, MAX_ITER, UPDATE_FREQUENCY);
 
 
     //create a timer
@@ -723,7 +723,8 @@ int main(int argc, char *argv[]) {
     //timer stop
     gettimeofday(&end_tot, NULL);
     time_elapsed_tot = (end_tot.tv_sec - start_tot.tv_sec) * 1000.0 + (end_tot.tv_usec - start_tot.tv_usec) / 1000.0;
-    printf("TIME of execution: %f ms\n", time_elapsed_tot);
+    // printf("TIME of execution: %f ms\n", time_elapsed_tot);
+    printf("%f\n", time_elapsed_tot);
 
     // fclose(file);
 
