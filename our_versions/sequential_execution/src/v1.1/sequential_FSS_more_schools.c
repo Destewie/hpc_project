@@ -623,7 +623,21 @@ void breeding(Fish *fishes, int current_iter) {
 //------------------------------- MAIN ------------------------------------------------------
 //-------------------------------------------------------------------------------------------
 
-int main() {
+int main(int argc, char *argv[]) {
+
+    if (argc != 6) {
+        printf("Usage: %s N_SCHOOLS N_FISHES_PER_SCHOOL DIMENSIONS MAX_ITER UPDATE_FREQUENCY\n", argv[0]);
+        return 1;
+    }
+
+    N_SCHOOLS = atoi(argv[1]);
+    N_FISHES_PER_SCHOOL = atoi(argv[2]);
+    DIMENSIONS = atoi(argv[3]);
+    MAX_ITER = atoi(argv[4]);
+    UPDATE_FREQUENCY = atoi(argv[5]);
+
+    printf("RUNNING WITH: N-SCHOOLS %d - N_FISHES_PER_SCHOOL %d - DIMENSIONS %d - MAX_ITER %d - UPDATE_FREQUENCY %d\n",N_SCHOOLS, N_FISHES_PER_SCHOOL, DIMENSIONS, MAX_ITER, UPDATE_FREQUENCY);
+
 
     //create a timer
     struct timeval start_tot, end_tot, partial_a, partial_b;
