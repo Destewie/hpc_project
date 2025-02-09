@@ -1,3 +1,7 @@
+
+// version with CLI commands to set important parameters
+
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -13,10 +17,10 @@
 #include <mpi.h>
 
 
-#define N_FISHES 1000 // Numero di pesci totale
-#define DIMENSIONS 500 // Dimensione dello spazio
-#define MAX_ITER 10000
-#define UPDATE_FREQUENCY 100 // Number of iterations after which an update of the collective variables all together
+// #define N_FISHES 1000 // Numero di pesci totale
+// #define DIMENSIONS 500 // Dimensione dello spazio
+// #define MAX_ITER 10000
+// #define UPDATE_FREQUENCY 100 // Number of iterations after which an update of the collective variables all together
 
 #define FUNCTION "min_schwefel"   //TODO: Capire se, al posto di fare un controllo su una stringa, possiamo passare alle funzioni direttamente un puntatore ad una funzione (in modo comodo, se no lasciamo perdere)
 #define MULTIPLIER -1   // 1 in case of maximization, -1 in case of minimization
@@ -38,6 +42,11 @@
 //10 very different colors that will be used by a python script to plot the results
 //based on the processor to which they belong
 const char *COLORS[] = {"#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf"};
+
+int DIMENSIONS;
+int N_FISHES;
+int MAX_ITER;
+int UPDATE_FREQUENCY;
 
 typedef struct {
     double position[DIMENSIONS];
@@ -333,6 +342,8 @@ void individualMovementArray (Fish *fishArray, int n_fishes, int current_iterati
         }
         *global_max_delta_fitness_improvement = *local_max_delta_fitness_improvement;
     }
+
+
 }
 
 
@@ -421,8 +432,6 @@ void calculateBarycenter(Fish *fishArray, int n_fishes, float *global_barycenter
     for (int d = 0; d<DIMENSIONS; d++){
         if (global_denominator != 0.0) {
             global_barycenter[d] = global_numerator[d] / global_denominator;
-        } else {
-            printf("Denominator is zero...\n");
         }
     }
 
@@ -657,6 +666,16 @@ void breeding(Fish *fishes, int n_fishes, int current_iteration, int rank, int n
 //-------------------------------------------------------------------------------------------
 
 int main(int argc, char *argv[]) {
+
+    if (argc!= 5){
+        printf("Too few arguments\n Usage DIMENSIONS N_FISHES MAX_ITER UPDATE_FREQUENCY");
+        exit(1);
+    }
+
+    DIMENSIONS = argv[1];
+    N_FISHES = argv[2];
+    MAX_ITER = argv[3];
+    UPDATE_FREQUENCY = argv[4];
 
     //variabili MPI
     MPI_Init(&argc, &argv);

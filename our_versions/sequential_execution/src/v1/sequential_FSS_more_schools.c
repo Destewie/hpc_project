@@ -14,8 +14,8 @@
 #define N_SCHOOLS 10
 #define N_FISHES_PER_SCHOOL 100
 #define N_FISHES (N_SCHOOLS*N_FISHES_PER_SCHOOL)
-#define DIMENSIONS 5
-#define MAX_ITER 1000
+#define DIMENSIONS 500
+#define MAX_ITER 10000
 #define UPDATE_FREQUENCY 100 // Iterations after which happens an update of the collective variables all together
 
 #define FUNCTION "min_schwefel"   //TODO: Capire se, al posto di fare un controllo su una stringa, possiamo passare alle funzioni direttamente un puntatore ad una funzione (in modo comodo, se no lasciamo perdere)
@@ -425,6 +425,8 @@ void calculateBarycenters(Fish *fishArray, float barycenter[N_SCHOOLS][DIMENSION
 
                 if (denominator[s][d] != 0.0) {
                     barycenter[s][d] = numerator[s][d] / denominator[s][d];
+                } else {
+                    printf("Denominator is zero...\n");
                 }
             }
         }
