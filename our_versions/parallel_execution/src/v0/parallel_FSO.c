@@ -14,19 +14,24 @@
 
 #define N_FISHES 30 // Numero di pesci
 #define DIMENSIONS 2 // Dimensione dello spazio
+#define MAX_ITER 100
+
+#define FUNCTION "min_sphere"   //TODO: Capire se, al posto di fare un controllo su una stringa, possiamo passare alle funzioni direttamente un puntatore ad una funzione (in modo comodo, se no lasciamo perdere)
+#define MULTIPLIER -1   // 1 in case of maximization, -1 in case of minimization
+
 #define BOUNDS_MIN 5.0   // Minimum bound of the search space
 #define BOUNDS_MAX 30.0    // Maximum bound of the search space
-#define BOUNDS_MIN_W 0.1   // Minimum bound of the search space
-#define BOUNDS_MAX_W 10.0    // Maximum bound of the search space
-#define MAX_ITER 100
 #define MAX_INDIVIDUAL_STEP 1.5 // Passo massimo del movimento individuale
 #define MAX_VOLITIVE_STEP 0.2 // Passo massimo del movimento volitivo
+
+#define BOUNDS_MIN_W 0.1   // Minimum bound of the search space
+#define BOUNDS_MAX_W 10.0    // Maximum bound of the search space
 #define W_SCALE_MIN 1.0
 #define W_SCALE_MAX 10.0
 #define BREEDING_THRESHOLD 7.0 // minimus threshold of weight to breedh new fishes
-#define FUNCTION "min_sphere"   //TODO: Capire se, al posto di fare un controllo su una stringa, possiamo passare alle funzioni direttamente un puntatore ad una funzione (in modo comodo, se no lasciamo perdere)
-#define MULTIPLIER -1   // 1 in case of maximization, -1 in case of minimization
 #define A 10.0 //rastrigin param
+
+#define LOG 1
 
 typedef struct {
     double position[DIMENSIONS];
@@ -119,6 +124,60 @@ void printFish(Fish *fish) {
 }
 
 
+void writeFishesToJson(Fish *fishes, int n_fishes, FILE* file, int first_iter, int last_iter, int rank, int n_ranks) {
+
+    if (rank != 0) {
+        // Gli altri rank mandano i loro pesci
+        MPI_Send(fishes, n_fishes * sizeof(Fish), MPI_BYTE, 0, 0, MPI_COMM_WORLD);
+    } else {
+        Fish all_fishes[N_FISHES];
+        #pragma omp parallel for
+        for (int i = 0; i < n_fishes; i++) {
+            all_fishes[i] = fishes[i];
+        }
+
+        for (int i = 1; i < n_ranks; i++) {
+            Fish received_fishes[n_fishes];
+            MPI_Recv(received_fishes, n_fishes * sizeof(Fish), MPI_BYTE, i, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+
+            for (int j = 0; j < n_fishes; j++) {
+                all_fishes[i * n_fishes + j] = received_fishes[j];
+            }
+        }
+
+        // Costruzione del JSON
+        if (first_iter) {
+            fprintf(file, "[\n");
+        }
+
+        fprintf(file, "\t[\n");
+
+        for (int i = 0; i < N_FISHES; i++) {
+            fprintf(file, "\t\t{\"x\": [");
+            for (int d = 0; d < DIMENSIONS; d++) {
+                fprintf(file, "%.6f", all_fishes[i].position[d]);
+                if (d < DIMENSIONS - 1) {
+                    fprintf(file, ", ");
+                }
+            }
+            fprintf(file, "], \"weight\": %.6f, \"color\": \"#7f7f7f\"}", all_fishes[i].weight);
+
+            if (i < N_FISHES - 1) {
+                fprintf(file, ",\n");
+            } else {
+                fprintf(file, "\n");
+            }
+        }
+
+        if (last_iter) {
+            fprintf(file, "\t]\n]\n");
+        } else {
+            fprintf(file, "\t],\n");
+        }
+    }
+}
+
+
 //-------------------------------------------------------------------------------------------
 //---------------------------- FISH ---------------------------------------------------------
 //-------------------------------------------------------------------------------------------
@@ -132,11 +191,11 @@ void initFish(Fish *fish) {
     fish->weight = W_SCALE_MAX / 2;   // Peso iniziale
     fish->previous_cycle_weight = fish->weight;
 
-    fish->fitness = objectiveFunction(fish->position)*MULTIPLIER;        // Fitness iniziale //TODO: capire qual è il valore migliore di inizializzazione
+    fish->fitness = objectiveFunction(fish->position)*MULTIPLIER;
     fish->new_fitness = fish->fitness;
 
-    fish->max_individual_step = MAX_INDIVIDUAL_STEP; //TODO: capire qual è il valore migliore di inizializzazione e come aggiornarlo dinamicamente
-    fish->max_volitive_step = MAX_VOLITIVE_STEP; //TODO: capire qual è il valore migliore di inizializzazione e come aggiornarlo dinamicamente
+    fish->max_individual_step = MAX_INDIVIDUAL_STEP; 
+    fish->max_volitive_step = MAX_VOLITIVE_STEP; 
 }
 
 // Funzione per inizializzare un array di pesci
@@ -180,7 +239,6 @@ void individualMovement(Fish *fish, float *local_tot_delta_fitness, float *local
         delta_fitness = 0.0;
     }
 
-    //TODO: da rimuovere in favore del calcolo parallelo
     *local_tot_delta_fitness += delta_fitness;
 
     #pragma omp parallel for
@@ -233,7 +291,7 @@ void collectiveMovement(Fish *fish, float *global_tot_delta_fitness, float *glob
     for (int d =0;d<DIMENSIONS; d++){
         fish->new_position[d] = fish->position[d] + global_weighted_tot_delta_fitness[d] / *global_tot_delta_fitness;
         // printf("Update for collective movement of %f\n", fish->new_position[d]-fish->position[d]);
-        fish->position[d] = fish->new_position[d]; //TODO: fa schifo, ma segue la logica dell'aggiornare prima la new position e poi quella current
+        fish->position[d] = fish->new_position[d]; 
     }
     fish->new_fitness = objectiveFunction(fish->position) * MULTIPLIER; // questo va fatto per forza!
 }
@@ -251,7 +309,7 @@ void updateWeights(Fish *fish, float *global_max_delta_fitness_improvement) {
     }    // fish->weight += (fish->new_fitness - fish->fitness);
 
     if (fish->weight<=W_SCALE_MIN) {
-        fish->weight = W_SCALE_MIN; //TODO: non siamo sicure di questa cosa...
+        fish->weight = W_SCALE_MIN; 
     } else if (fish->weight>W_SCALE_MAX) {
         fish->weight = W_SCALE_MAX;
     }
@@ -303,7 +361,7 @@ void calculateBarycenter(Fish *fishArray, int n_fishes, float *global_barycenter
         }
     }
 
-    printf("Barycenter: %f %f\n", global_barycenter[0], global_barycenter[1]);
+    // printf("Barycenter: %f %f\n", global_barycenter[0], global_barycenter[1]);
 }
 
 void calculateSumWeights(Fish *fishArray, int n_fishes, float *global_old_sum, float *global_new_sum){
@@ -329,7 +387,7 @@ void volitivePositionUpdateArray(Fish *fishArray, int n_fishes, int shrink, floa
         #pragma omp parallel for
         for (int i = 0; i < n_fishes; i++) {
             #pragma omp parallel for
-            for (int d = 0; d < DIMENSIONS; d++) { // TODO: change max individual step with another step in order to have the possibility to tune it
+            for (int d = 0; d < DIMENSIONS; d++) {
                 rand_mult= fmin(((double)rand() / (double)RAND_MAX) + 0.1, 1.0); //valore qualsiasi tra 0.1 e 1
 
                 double temp= fishArray[i].position[d];
@@ -351,7 +409,7 @@ void volitivePositionUpdateArray(Fish *fishArray, int n_fishes, int shrink, floa
         #pragma omp parallel for
         for (int i = 0; i < n_fishes; i++) {
             #pragma omp parallel for
-            for (int d = 0; d < DIMENSIONS; d++){ // TODO: change max individual step with another step in order to have the possibility to tune it
+            for (int d = 0; d < DIMENSIONS; d++){ 
                 rand_mult= fmin(((double)rand() / (double)RAND_MAX) + 0.1, 1.0); //valore qualsiasi tra 0.1 e 1
 
                 double temp= fishArray[i].position[d];
@@ -385,16 +443,12 @@ void collectiveVolitiveArray(Fish *fishes, int n_fishes) {
         // printf("MOVIMENTO YEAH -> IL BANCO SI È AVVICINATO\n");
         volitivePositionUpdateArray(fishes,n_fishes, 1, global_barycenter);
     } else if (global_old_sum_weights > global_new_sum_weights) {
-        //TODO: shrink = 0 -> il banco ha perso peso quindi si deve allargare in cerca di cibo
+        //shrink = 0 -> il banco ha perso peso quindi si deve allargare in cerca di cibo
         // printf("MOVIMENTO BLEAH -> IL BANCO SI È ALLONTANATO\n");
         volitivePositionUpdateArray(fishes,n_fishes, 0, global_barycenter);
     }else{
         // printf("EQUAL WEIGHTS, do nothing");
     }
-
-    // // for (int i = 0; i < N_FISHES; i++) {
-    // //     printFish(fishes[i]);
-    // // }
 
     // update previous_cycle_weight
     for (int i = 0; i < n_fishes; i++) {
@@ -523,7 +577,28 @@ int main(int argc, char *argv[]) {
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &size);
 
-    //TODO: pensiamo ad un modo per implementare un timer
+    //create a timer
+    struct timeval start_tot, end_tot, partial_a, partial_b;
+    double time_elapsed_tot, time_elapsed_partial;
+
+    //open file for logging
+    FILE *file;
+    char filename[200];
+    if (rank==0){
+        if (LOG == 1) {
+            //file opening
+            sprintf(filename, "/home/federico.desanti/hpc_project/our_versions/evolution_logs/%s_%dd_log.json",FUNCTION, DIMENSIONS);
+            file = fopen(filename, "w");
+            if (file == NULL) {
+                perror("Error opening file");
+                MPI_Abort(MPI_COMM_WORLD, 1);
+                return 1;
+            }
+        }
+
+        //clock
+        gettimeofday(&start_tot, NULL);
+    }
 
     //variabili locali al sottogruppo di pesci
     float local_best_fitness = -2000.0;
@@ -540,17 +615,52 @@ int main(int argc, char *argv[]) {
     int local_n = N_FISHES / size;
     Fish *local_school = malloc(local_n * sizeof(Fish));
     initFishArray(local_school, local_n);
+    if (LOG == 1) {
+        writeFishesToJson(local_school, local_n, file, 1, 0, rank, size);
+    }
 
     for (int iter = 0; iter < MAX_ITER; iter++) {
+        //timer
+        if (rank == 0 && iter < (MAX_ITER - 2) && (iter % 2) == 0) {
+            gettimeofday(&partial_a, NULL);
+            if (iter != 0) {
+                time_elapsed_partial = (partial_a.tv_sec - partial_b.tv_sec) * 1000.0 + (partial_a.tv_usec - partial_b.tv_usec) / 1000.0;
+                time_elapsed_tot = (partial_a.tv_sec - start_tot.tv_sec) * 1000.0 + (partial_a.tv_usec - start_tot.tv_usec) / 1000.0;
+                printf("[iter %d->%d] partial TIME of execution: %f ms - from the beginning: %f ms\n", iter - 1, iter, time_elapsed_partial, time_elapsed_tot);
+            }
+        } else if (rank == 0 && iter < (MAX_ITER - 2) && (iter % 2) == 1) {
+            gettimeofday(&partial_b, NULL);
+            time_elapsed_partial = (partial_b.tv_sec - partial_a.tv_sec) * 1000.0 + (partial_b.tv_usec - partial_a.tv_usec) / 1000.0;
+            time_elapsed_tot = (partial_b.tv_sec - start_tot.tv_sec) * 1000.0 + (partial_b.tv_usec - start_tot.tv_usec) / 1000.0;
+            printf("[iter %d->%d] partial TIME of execution: %f ms - from the beginning: %f ms\n", iter - 1, iter, time_elapsed_partial, time_elapsed_tot);
+        } 
+
         variablesReset(&local_total_fitness, local_weighted_total_fitness, &local_max_improvement);
         individualMovementArray(local_school, local_n, &local_total_fitness, &global_total_fitness, local_weighted_total_fitness, global_weighted_total_fitness, &local_max_improvement, &global_max_improvement);
         updateWeightsArray(local_school, local_n, &global_max_improvement);
         collectiveMovementArray(local_school, local_n, &global_total_fitness, global_weighted_total_fitness);
         collectiveVolitiveArray(local_school, local_n);
         breeding(local_school, local_n, rank, size);
+        if (LOG == 1) {
+            writeFishesToJson(local_school, local_n, file, 0, iter == MAX_ITER - 1, rank, size);
+        }
+    }
+
+    MPI_Finalize();
+
+    if (rank == 0){
+        //timer stop
+        gettimeofday(&end_tot, NULL);
+        time_elapsed_tot = (end_tot.tv_sec - start_tot.tv_sec) * 1000.0 + (end_tot.tv_usec - start_tot.tv_usec) / 1000.0;
+        printf("TIME of execution: %f ms\n", time_elapsed_tot);
+
+
+        //file closing
+        if (LOG == 1) {
+            fclose(file);
+        }
     }
 
     free(local_school);
-    MPI_Finalize();
     return 0;
 }
