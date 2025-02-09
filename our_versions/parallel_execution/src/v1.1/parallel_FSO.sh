@@ -26,3 +26,4 @@ module load mpich-3.2
 mpicc $C_PROGRAM_PATH -g -Wall -fopenmp -lm -std=c99 -o $EXECUTABLE_PATH_AND_NAME 
 # run
 mpirun.actual -n 5 $EXECUTABLE_PATH_AND_NAME 100 100 100 100
+mpirun.actual -n 1 $EXECUTABLE_PATH_AND_NAME 10 2 100 10

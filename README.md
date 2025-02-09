@@ -14,11 +14,8 @@ Io e Annina che facciamo muovere i pesci eheh
 - [X] Collective movement -> siamo sicur3 che stia funzionando correttamente? controlliamo i paper
 
 ## TODO
-
 - [X] Controllare che la scrittura del json funzioni per n dimensioni
-- [ ] Una volta che abbiamo una versione funzionante (con le cose base), provare ad aggiungere anche altre funzionalità
-- [ ] cambiamo la v1 parallela per usare mpi_reduce e mpi_broadcast
-- [ ] cambiamo la v1 sequenziale per far comunicare i banchi tra di loro ogni n iterazioni
+- [X] cambiamo la v1 sequenziale per far comunichre i banchi tra di loro ogni n iterazioni
 
 ## NOTE IMPORTANTI SULLE NOSTRE SCELTE IMPLEMENTATIVE 
 - Abbiamo deciso di aggiornare i pesi dei pesci solo dopo il loro individual movement. In ogni caso, questo non influisce negativamente perché ad ogni individual movement verrà incluso anche il collective movement del ciclo prima.
@@ -28,6 +25,9 @@ Io e Annina che facciamo muovere i pesci eheh
   Pesci con miglioramenti recenti ma con fitness assoluta più bassa possono avere pesi superiori.
 - Abbiamo trovato in varie altre implementazioni che il baricentro considera la media delle posizioni pesate sulla weight dei pesci, quindi va diviso per il peso e non la posizione (come invece scritto nel paper)
 
+## COSA POTER METTERE NEL REPORT
+- Differenze tra le nostre versioni (grafici)
+- Evoluzione delle tempistiche di ogni iterazione in un ambiente parallelo (vogliamo far vedere i picchi di tempo quando ci sono le mpi_allreduce)
 
 
 ## PARALLELIZZAZIONE

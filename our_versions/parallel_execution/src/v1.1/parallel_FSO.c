@@ -1,4 +1,3 @@
-
 // version with CLI commands to set important parameters
 
 #include <stdio.h>
@@ -43,8 +42,8 @@
 //based on the processor to which they belong
 const char *COLORS[] = {"#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf"};
 
-int N_FISHES; // Numero di pesci totale
-int DIMENSIONS;// Dimensione dello spazio
+int N_FISHES;   // Numero di pesci totale -> scegli sempre un multiplo del numero di processori!
+int DIMENSIONS; // Dimensione dello spazio
 int MAX_ITER;
 int UPDATE_FREQUENCY;
 
@@ -439,8 +438,7 @@ void calculateBarycenter(Fish *fishArray, int n_fishes, float *global_barycenter
             global_barycenter[d] = global_numerator[d] / global_denominator;
 
         } else {
-            printf("Denominator is zero...\n");
-
+            // printf("Denominator is zero...\n");
         }
     }
 
@@ -674,13 +672,11 @@ void breeding(Fish *fishes, int n_fishes, int current_iteration, int rank, int n
 //---------------------------- MAIN ---------------------------------------------------------
 //-------------------------------------------------------------------------------------------
 
-
-
 int main(int argc, char *argv[]) {
 
     // taking parameters from CLI
     if (argc<5){
-        printf("Usage: %s N_FISHES DIMENSIONS MAX_ITER UPDATE_FREQUENCY\n", argv[0]);
+        printf("Usage: %s <N_FISHES> <DIMENSIONS> <MAX_ITER> <UPDATE_FREQUENCY>\n", argv[0]);
         return 1;
     }
 
@@ -696,7 +692,6 @@ int main(int argc, char *argv[]) {
     MPI_Comm_size(MPI_COMM_WORLD, &size);
     if (rank==0){
         printf("RUNNING WITH: N-FISHES %d - DIMENSIONS %d - MAX_ITER %d - UPDATE_FREQUENCY %d\n", N_FISHES, DIMENSIONS, MAX_ITER, UPDATE_FREQUENCY);
-
     }
 
     //create a timer
@@ -743,22 +738,22 @@ int main(int argc, char *argv[]) {
 
     for (int iter = 1; iter < MAX_ITER; iter++) {
         //timer
-        if (rank == 0 && ((iter % (UPDATE_FREQUENCY)) == 0)) {
-            printf("Il prossimo tempo che leggi comprende le MPI_AllReduce... \n");
-        }
-        if (rank == 0 && iter < (MAX_ITER - 2) && (iter % 2) == 0) {
-            gettimeofday(&partial_a, NULL);
-            if (iter != 0) {
-                time_elapsed_partial = (partial_a.tv_sec - partial_b.tv_sec) * 1000.0 + (partial_a.tv_usec - partial_b.tv_usec) / 1000.0;
-                time_elapsed_tot = (partial_a.tv_sec - start_tot.tv_sec) * 1000.0 + (partial_a.tv_usec - start_tot.tv_usec) / 1000.0;
-                printf("[iter %d->%d] partial TIME of execution: %f ms - from the beginning: %f ms\n", iter - 1, iter, time_elapsed_partial, time_elapsed_tot);
-            }
-        } else if (rank == 0 && iter < (MAX_ITER - 2) && (iter % 2) == 1) {
-            gettimeofday(&partial_b, NULL);
-            time_elapsed_partial = (partial_b.tv_sec - partial_a.tv_sec) * 1000.0 + (partial_b.tv_usec - partial_a.tv_usec) / 1000.0;
-            time_elapsed_tot = (partial_b.tv_sec - start_tot.tv_sec) * 1000.0 + (partial_b.tv_usec - start_tot.tv_usec) / 1000.0;
-            printf("[iter %d->%d] partial TIME of execution: %f ms - from the beginning: %f ms\n", iter - 1, iter, time_elapsed_partial, time_elapsed_tot);
-        } 
+        // if (rank == 0 && ((iter % (UPDATE_FREQUENCY)) == 0)) {
+        //     printf("Il prossimo tempo che leggi comprende le MPI_AllReduce... \n");
+        // }
+        // if (rank == 0 && iter < (MAX_ITER - 2) && (iter % 2) == 0) {
+        //     gettimeofday(&partial_a, NULL);
+        //     if (iter != 0) {
+        //         time_elapsed_partial = (partial_a.tv_sec - partial_b.tv_sec) * 1000.0 + (partial_a.tv_usec - partial_b.tv_usec) / 1000.0;
+        //         time_elapsed_tot = (partial_a.tv_sec - start_tot.tv_sec) * 1000.0 + (partial_a.tv_usec - start_tot.tv_usec) / 1000.0;
+        //         printf("[iter %d->%d] partial TIME of execution: %f ms - from the beginning: %f ms\n", iter - 1, iter, time_elapsed_partial, time_elapsed_tot);
+        //     }
+        // } else if (rank == 0 && iter < (MAX_ITER - 2) && (iter % 2) == 1) {
+        //     gettimeofday(&partial_b, NULL);
+        //     time_elapsed_partial = (partial_b.tv_sec - partial_a.tv_sec) * 1000.0 + (partial_b.tv_usec - partial_a.tv_usec) / 1000.0;
+        //     time_elapsed_tot = (partial_b.tv_sec - start_tot.tv_sec) * 1000.0 + (partial_b.tv_usec - start_tot.tv_usec) / 1000.0;
+        //     printf("[iter %d->%d] partial TIME of execution: %f ms - from the beginning: %f ms\n", iter - 1, iter, time_elapsed_partial, time_elapsed_tot);
+        // } 
 
         variablesReset(&local_total_fitness, local_weighted_total_fitness, &local_max_improvement);
         individualMovementArray(local_school, local_n, iter, &local_total_fitness, &global_total_fitness, local_weighted_total_fitness, global_weighted_total_fitness, &local_max_improvement, &global_max_improvement);
@@ -777,7 +772,7 @@ int main(int argc, char *argv[]) {
         //timer stop
         gettimeofday(&end_tot, NULL);
         time_elapsed_tot = (end_tot.tv_sec - start_tot.tv_sec) * 1000.0 + (end_tot.tv_usec - start_tot.tv_usec) / 1000.0;
-        printf("TIME of execution: %f ms\n", time_elapsed_tot);
+        printf("TIME of execution: %f ms\n\n", time_elapsed_tot);
 
 
         //file closing
