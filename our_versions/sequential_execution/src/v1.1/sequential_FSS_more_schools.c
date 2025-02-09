@@ -223,7 +223,7 @@ void initFish(Fish *fish, int fish_index) {
         // Posizioni iniziali divise per banco
         if (d == 0) {
             fish->position[d] = ((double)rand() / RAND_MAX) * (upper_bound - lower_bound) + lower_bound;
-            printf("[D0] lower_bound: %f, upper_bound: %f\n, x: %f", lower_bound, upper_bound, fish->position[d]);
+            // printf("[D0] lower_bound: %f, upper_bound: %f\n, x: %f", lower_bound, upper_bound, fish->position[d]);
         } else {
             fish->position[d] = ((double)rand() / RAND_MAX) * (BOUNDS_MAX - BOUNDS_MIN) + BOUNDS_MIN;
         }
@@ -636,7 +636,7 @@ int main(int argc, char *argv[]) {
     MAX_ITER = atoi(argv[4]);
     UPDATE_FREQUENCY = atoi(argv[5]);
 
-    printf("RUNNING WITH: N-SCHOOLS %d - N_FISHES_PER_SCHOOL %d - DIMENSIONS %d - MAX_ITER %d - UPDATE_FREQUENCY %d\n",N_SCHOOLS, N_FISHES_PER_SCHOOL, DIMENSIONS, MAX_ITER, UPDATE_FREQUENCY);
+    printf("\nRUNNING WITH: N-SCHOOLS %d - N_FISHES_PER_SCHOOL %d - DIMENSIONS %d - MAX_ITER %d - UPDATE_FREQUENCY %d\n",N_SCHOOLS, N_FISHES_PER_SCHOOL, DIMENSIONS, MAX_ITER, UPDATE_FREQUENCY);
 
 
     //create a timer
@@ -727,7 +727,9 @@ int main(int argc, char *argv[]) {
     printf("TIME of execution: %f ms\n", time_elapsed_tot);
 
 
-    fclose(file);
+    if (LOG) {
+        fclose(file);
+    }
 
 
     // print all the fishes
@@ -738,11 +740,11 @@ int main(int argc, char *argv[]) {
     //     }
     // }
 
-    printf("Number of schools: %d\n", N_SCHOOLS);
-    printf("Number of fishes per school: %d\n", N_FISHES_PER_SCHOOL);
-    printf("Number of fishes: %d\n", N_FISHES_PER_SCHOOL*N_SCHOOLS);
-    printf("Dimensions: %d\n", DIMENSIONS);
-    printf("Epochs: %d\n", MAX_ITER);
+    // printf("Number of schools: %d\n", N_SCHOOLS);
+    // printf("Number of fishes per school: %d\n", N_FISHES_PER_SCHOOL);
+    // printf("Number of fishes: %d\n", N_FISHES_PER_SCHOOL*N_SCHOOLS);
+    // printf("Dimensions: %d\n", DIMENSIONS);
+    // printf("Epochs: %d\n", MAX_ITER);
     // printf("Best fitness: %f\n", best_fitness/DIMENSIONS);
 
     return 0;
