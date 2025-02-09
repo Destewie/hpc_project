@@ -643,13 +643,13 @@ int main(int argc, char *argv[]) {
     struct timeval start_tot, end_tot, partial_a, partial_b;
     double time_elapsed_tot, time_elapsed_partial;
 
-    char filename[50];
-    sprintf(filename, "../../../evolution_logs/%s_%dd_log.json",FUNCTION, DIMENSIONS);
-    FILE *file = fopen(filename, "w");
-    if (file == NULL) {
-        perror("Error opening file");
-        return 1;
-    }
+    // char filename[50];
+    // sprintf(filename, "../../../evolution_logs/%s_%dd_log.json",FUNCTION, DIMENSIONS);
+    // FILE *file = fopen(filename, "w");
+    // if (file == NULL) {
+    //     perror("Error opening file");
+    //     return 1;
+    // }
 
     //clock
     gettimeofday(&start_tot, NULL);
@@ -663,9 +663,9 @@ int main(int argc, char *argv[]) {
     // INITIALIZATION
     Fish *fishes = malloc(N_FISHES_PER_SCHOOL*N_SCHOOLS*sizeof(Fish)); //creiamo un vettore unico che sarà diviso in banchi di pesci in base agli indici
     initFishArray(fishes);
-    if (DIMENSIONS <= 2 && LOG) {
-        WriteFishesToJson(fishes, file, 1, 0);
-    }
+    // if (DIMENSIONS <= 2 && LOG) {
+    //     WriteFishesToJson(fishes, file, 1, 0);
+    // }
 
     // MAIN LOOP
     for (int iter = 1; iter < MAX_ITER; iter++) {
@@ -704,10 +704,10 @@ int main(int argc, char *argv[]) {
         // BREEDING
         breeding(fishes, iter);
 
-        // SAVE ON FILE
-        if (DIMENSIONS <= 2 && LOG) {
-            WriteFishesToJson(fishes, file, 0, iter==MAX_ITER-1?1:0);
-        }
+        // // SAVE ON FILE
+        // if (DIMENSIONS <= 2 && LOG) {
+        //     WriteFishesToJson(fishes, file, 0, iter==MAX_ITER-1?1:0);
+        // }
 
         // //calcolo la best fitness 
         // for (int i = 0; i < N_FISHES_PER_SCHOOL*N_SCHOOLS; i++) {
@@ -725,7 +725,7 @@ int main(int argc, char *argv[]) {
     printf("TIME of execution: %f ms\n", time_elapsed_tot);
 
 
-    fclose(file);
+    // fclose(file);
 
 
     // print all the fishes
