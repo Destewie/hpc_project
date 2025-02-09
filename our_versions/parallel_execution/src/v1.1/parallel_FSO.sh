@@ -17,12 +17,12 @@
 # chunks (~nodes) : cores per chunk : shared memory per chunk (?)
 #PBS -l select=1:ncpus=5:mem=2gb
 
-readonly C_PROGRAM_PATH=~/hpc_project/our_versions/parallel_execution/src/v1/parallel_FSO.c
-readonly EXECUTABLE_PATH_AND_NAME=~/hpc_project/our_versions/parallel_execution/src/v1/parallel_FSO
+readonly C_PROGRAM_PATH=~/hpc_project/our_versions/parallel_execution/src/v1.1/parallel_FSO.c
+readonly EXECUTABLE_PATH_AND_NAME=~/hpc_project/our_versions/parallel_execution/src/v1.1/parallel_FSO
 
 # get dependencies
 module load mpich-3.2
 # build
 mpicc $C_PROGRAM_PATH -g -Wall -fopenmp -lm -std=c99 -o $EXECUTABLE_PATH_AND_NAME 
 # run
-mpirun.actual -n 5 $EXECUTABLE_PATH_AND_NAME
+mpirun.actual -n 5 $EXECUTABLE_PATH_AND_NAME 100 100 100 100

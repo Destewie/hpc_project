@@ -1,7 +1,6 @@
 
 // version with CLI commands to set important parameters
 
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -18,8 +17,9 @@
 
 
 // #define N_FISHES 1000 // Numero di pesci totale
-// #define DIMENSIONS 500 // Dimensione dello spazio
-// #define MAX_ITER 10000
+
+// #define DIMENSIONS 5 // Dimensione dello spazio
+// #define MAX_ITER 1000
 // #define UPDATE_FREQUENCY 100 // Number of iterations after which an update of the collective variables all together
 
 #define FUNCTION "min_schwefel"   //TODO: Capire se, al posto di fare un controllo su una stringa, possiamo passare alle funzioni direttamente un puntatore ad una funzione (in modo comodo, se no lasciamo perdere)
@@ -43,14 +43,14 @@
 //based on the processor to which they belong
 const char *COLORS[] = {"#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf"};
 
-int DIMENSIONS;
-int N_FISHES;
+int N_FISHES; // Numero di pesci totale
+int DIMENSIONS;// Dimensione dello spazio
 int MAX_ITER;
 int UPDATE_FREQUENCY;
 
 typedef struct {
-    double position[DIMENSIONS];
-    double new_position[DIMENSIONS];
+    double *position;
+    double *new_position;
 
     double previous_cycle_weight;
     double weight;
@@ -223,6 +223,8 @@ void initFish(Fish *fish, int rank, int size) {
     double portion_bounds = (BOUNDS_MAX - BOUNDS_MIN) / size; // Calcola la porzione corretta per ciascun banco
     double lower_bound = BOUNDS_MIN + school_index * portion_bounds; // Limite inferiore per il banco
     double upper_bound = lower_bound + portion_bounds; // Limite superiore per il banco
+    fish->position = (double*)malloc(DIMENSIONS*sizeof(double));
+    fish->new_position = (double*)malloc(DIMENSIONS*sizeof(double));
 
     for (int d = 0; d < DIMENSIONS; d++) {
         // // Posizioni iniziali random
@@ -290,6 +292,8 @@ void individualMovement(Fish *fish, float *local_tot_delta_fitness, float *local
         delta_fitness = 0.0;
     }
 
+
+    #pragma omp critical 
     *local_tot_delta_fitness += delta_fitness;
 
     #pragma omp parallel for
@@ -300,6 +304,8 @@ void individualMovement(Fish *fish, float *local_tot_delta_fitness, float *local
     }
 
     if (fabs(delta_fitness) > *local_max_delta_fitness_improvement) {
+        #pragma omp critical 
+
         *local_max_delta_fitness_improvement = delta_fitness;
     }
 
@@ -342,8 +348,6 @@ void individualMovementArray (Fish *fishArray, int n_fishes, int current_iterati
         }
         *global_max_delta_fitness_improvement = *local_max_delta_fitness_improvement;
     }
-
-
 }
 
 
@@ -362,7 +366,6 @@ void collectiveMovement(Fish *fish, float *global_tot_delta_fitness, float *glob
 }
 
 void collectiveMovementArray(Fish *fishArray, int n_fishes, float *global_tot_delta_fitness, float *global_weighted_tot_delta_fitness) {
-    #pragma omp parallel for
     for (int i = 0; i < n_fishes; i++) {
         collectiveMovement(&fishArray[i], global_tot_delta_fitness, global_weighted_tot_delta_fitness);  // Inizializza ciascun pesce
     }
@@ -409,6 +412,7 @@ void calculateBarycenter(Fish *fishArray, int n_fishes, float *global_barycenter
 
     #pragma omp parallel for
     for (int i = 0; i < n_fishes; i++) {
+        #pragma omp critical
         local_denominator += fishArray[i].weight;
 
         #pragma omp parallel for
@@ -422,6 +426,7 @@ void calculateBarycenter(Fish *fishArray, int n_fishes, float *global_barycenter
     MPI_Allreduce(&local_denominator, &global_denominator, 1, MPI_FLOAT, MPI_SUM, MPI_COMM_WORLD);
     } else{
         //copio solo le variabili locali in quelle globali perchè guardo solo il mio sottogruppo
+        #pragma omp parallel for
         for (int d = 0; d<DIMENSIONS; d++){
             global_numerator[d] = local_numerator[d];
         }
@@ -432,6 +437,10 @@ void calculateBarycenter(Fish *fishArray, int n_fishes, float *global_barycenter
     for (int d = 0; d<DIMENSIONS; d++){
         if (global_denominator != 0.0) {
             global_barycenter[d] = global_numerator[d] / global_denominator;
+
+        } else {
+            printf("Denominator is zero...\n");
+
         }
     }
 
@@ -441,6 +450,7 @@ void calculateBarycenter(Fish *fishArray, int n_fishes, float *global_barycenter
 void calculateSumWeights(Fish *fishArray, int n_fishes, int current_iteration, float *global_old_sum, float *global_new_sum){
     float local_old_sum = 0.0;
     float local_new_sum = 0.0;
+
 
     #pragma omp parallel for
     for (int i = 0; i < n_fishes; i++) {
@@ -463,7 +473,6 @@ void volitivePositionUpdateArray(Fish *fishArray, int n_fishes, int shrink, floa
 
     // questo codice si può ottimizare mettendo shrink -1,1
     if (shrink==1) {
-        #pragma omp parallel for
         for (int i = 0; i < n_fishes; i++) {
             #pragma omp parallel for
             for (int d = 0; d < DIMENSIONS; d++) { 
@@ -480,7 +489,7 @@ void volitivePositionUpdateArray(Fish *fishArray, int n_fishes, int shrink, floa
                     printf("fishArray[%d].position[%d] after update: %f\n",i, d, fishArray[i].position[d]);
                     printf("global_barycenter: %f\n", global_barycenter[d]);
                     printf("porco cane\n");
-                    // exit(1);
+                    exit(1);
                 }
             }
         }
@@ -502,7 +511,7 @@ void volitivePositionUpdateArray(Fish *fishArray, int n_fishes, int shrink, floa
                     printf("fishArray[%d].position[%d] after update: %f\n",i, d, fishArray[i].position[d]);
                     printf("global_barycenter: %f\n", global_barycenter[d]);
                     printf("porco cane\n");
-                    // exit(1);
+                    exit(1);
                 }
             }
         }
@@ -665,23 +674,30 @@ void breeding(Fish *fishes, int n_fishes, int current_iteration, int rank, int n
 //---------------------------- MAIN ---------------------------------------------------------
 //-------------------------------------------------------------------------------------------
 
+
+
 int main(int argc, char *argv[]) {
 
-    if (argc!= 5){
-        printf("Too few arguments\n Usage DIMENSIONS N_FISHES MAX_ITER UPDATE_FREQUENCY");
-        exit(1);
+    // taking parameters from CLI
+    if (argc<5){
+        printf("Usage: %s N_FISHES DIMENSIONS MAX_ITER UPDATE_FREQUENCY\n", argv[0]);
+        return 1;
     }
 
-    DIMENSIONS = argv[1];
-    N_FISHES = argv[2];
-    MAX_ITER = argv[3];
-    UPDATE_FREQUENCY = argv[4];
+    N_FISHES = atoi(argv[1]);
+    DIMENSIONS = atoi(argv[2]);
+    MAX_ITER = atoi(argv[3]);
+    UPDATE_FREQUENCY = atoi(argv[4]);
 
     //variabili MPI
     MPI_Init(&argc, &argv);
     int rank, size;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &size);
+    if (rank==0){
+        printf("RUNNING WITH: N-FISHES %d - DIMENSIONS %d - MAX_ITER %d - UPDATE_FREQUENCY %d\n", N_FISHES, DIMENSIONS, MAX_ITER, UPDATE_FREQUENCY);
+
+    }
 
     //create a timer
     struct timeval start_tot, end_tot, partial_a, partial_b;
