@@ -12,7 +12,7 @@
 #PBS -q short_cpuQ
 
 # expected timespan for execution
-#PBS -l walltime=02:00:00
+#PBS -l walltime=06:00:00
 
 # chunks (~nodes) : cores per chunk : shared memory per chunk (?)
 #PBS -l select=1:ncpus=1:mem=2gb
@@ -25,5 +25,17 @@ module load mpich-3.2
 # build
 mpicc $C_PROGRAM_PATH -g -Wall -fopenmp -lm -std=c99 -o $EXECUTABLE_PATH_AND_NAME 
 # run
-mpirun.actual -n 1 $EXECUTABLE_PATH_AND_NAME 10 10 3 100 1
+for i in {1..7}; do
+    for ((i = 10; i <= 200; i=i*2)); do
+        mpirun.actual -n 1 $EXECUTABLE_PATH_AND_NAME $i 100 1000 100 1    
+    done
+        for ((i = 100; i <= 2000; i=i+100)); do
+        mpirun.actual -n 1 $EXECUTABLE_PATH_AND_NAME 20 $i 1000 100 1    
+    done
+done
 
+
+# keep the number of schools fixed but increase the number of fishes for each one
+for ((i = 1000; i <= 10000; i=i+1000)); do
+    mpirun.actual -n 1 $EXECUTABLE_PATH_AND_NAME 20 $i 1000 1000 1    
+done
