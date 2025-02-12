@@ -676,14 +676,9 @@ int main(int argc, char *argv[]) {
 
     // taking parameters from CLI
     if (argc<5){
-        printf("Usage: %s <N_FISHES> <DIMENSIONS> <MAX_ITER> <UPDATE_FREQUENCY>\n", argv[0]);
+        printf("Usage: %s <N_FISHES_PER_SCHOOL> <DIMENSIONS> <MAX_ITER> <UPDATE_FREQUENCY>\n", argv[0]);
         return 1;
     }
-
-    N_FISHES = atoi(argv[1]);
-    DIMENSIONS = atoi(argv[2]);
-    MAX_ITER = atoi(argv[3]);
-    UPDATE_FREQUENCY = atoi(argv[4]);
 
     //variabili MPI
     MPI_Init(&argc, &argv);
@@ -691,8 +686,13 @@ int main(int argc, char *argv[]) {
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &size);
     if (rank==0){
-        printf("RUNNING WITH: N-FISHES %d - DIMENSIONS %d - MAX_ITER %d - UPDATE_FREQUENCY %d\n", N_FISHES, DIMENSIONS, MAX_ITER, UPDATE_FREQUENCY);
+        printf("RUNNING WITH: N_SCHOOLS %d - N_FISHES_PER_SCHOOL %d - DIMENSIONS %d - MAX_ITER %d - UPDATE_FREQUENCY %d\n", size, N_FISHES/size,  DIMENSIONS, MAX_ITER, UPDATE_FREQUENCY);
     }
+
+    N_FISHES = atoi(argv[1])*size;
+    DIMENSIONS = atoi(argv[2]);
+    MAX_ITER = atoi(argv[3]);
+    UPDATE_FREQUENCY = atoi(argv[4]);
 
     //create a timer
     struct timeval start_tot, end_tot, partial_a, partial_b;
