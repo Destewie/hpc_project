@@ -29,9 +29,13 @@ mpicc $C_PROGRAM_PATH -g -Wall -fopenmp -lm -std=c99 -o $EXECUTABLE_PATH_AND_NAM
 # run
 
 # PLAN to MODIFY N_FISHES_PER_SCHOOL and N_SCHOOLS while maintaining the same N_FISHES
-# -n x -> x is the number of processes = number of 
+# -n x -> x is the number of processes = number of schools
+# first param   = number of fishes per school
+# second param  = number of dimensions
+# third param   = number of iterations
+# fourth param  = update frequency 
 
-# # 20.000 totale - update freq = 1
+# # 20.000 pesci totali - update freq = 1
 # for ((i = 4000; i <= 20000; i=i+4000)); do
 #     mpirun.actual -n 5 $EXECUTABLE_PATH_AND_NAME $i 1000 100 1    
 # done
@@ -48,7 +52,7 @@ for ((i = 500; i <= 2500; i=i+500)); do
     mpirun.actual -n 40 $EXECUTABLE_PATH_AND_NAME $i 1000 100 1    
 done
 
-# # 20.000 totale - update freq = 2
+# # 20.000 pesci totali - update freq = 2
 # for ((i = 4000; i <= 20000; i=i+4000)); do
 #     mpirun.actual -n 5 $EXECUTABLE_PATH_AND_NAME $i 1000 100 2   
 # done

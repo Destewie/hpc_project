@@ -10,6 +10,11 @@ fi
 
 # Esecuzione del programma
 echo "Esecuzione del programma..."
+# first param   = number of schools
+# second param  = number of fishes per school
+# third param   = number of dimensions
+# fourth param  = number of iterations
+# fifth param  = update frequency 
 
 ./main 10 10 3 100 1
 if [ $? -ne 0 ]; then

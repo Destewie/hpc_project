@@ -15,10 +15,10 @@
 #PBS -l walltime=00:10:00
 
 # chunks (~nodes) : cores per chunk : shared memory per chunk (?)
-#PBS -l select=1:ncpus=5:mem=2gb
+#PBS -l select=1:ncpus=1:mem=2gb
 
 readonly C_PROGRAM_PATH=~/hpc_project/our_versions/sequential_execution/src/sequential_FSS_simple.c
-readonly EXECUTABLE_PATH_AND_NAME=~/hpc_project/our_versions/sequential_execution/src/sequential
+readonly EXECUTABLE_PATH_AND_NAME=~/hpc_project/our_versions/sequential_execution/src/sequential_FSO
 
 # get dependencies
 module load mpich-3.2
