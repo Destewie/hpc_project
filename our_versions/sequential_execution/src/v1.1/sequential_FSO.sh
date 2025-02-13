@@ -22,22 +22,21 @@ readonly EXECUTABLE_PATH_AND_NAME=~/hpc_project/our_versions/sequential_executio
 
 # get dependencies
 module load mpich-3.2
+
 # build
 mpicc $C_PROGRAM_PATH -g -Wall -fopenmp -lm -std=c99 -o $EXECUTABLE_PATH_AND_NAME 
-# run
-# for i in {1..7}; do
-#     for ((i = 10; i <= 200; i=i*2)); do
-#         mpirun.actual -n 1 $EXECUTABLE_PATH_AND_NAME $i 100 1000 100 1    
-#     done
-#         for ((i = 100; i <= 2000; i=i+100)); do
-#         mpirun.actual -n 1 $EXECUTABLE_PATH_AND_NAME 20 $i 1000 100 1    
-#     done
-# done
 
+# run
+# first param   = number of schools
+# second param  = number of fishes per school
+# third param   = number of dimensions
+# fourth param  = number of iterations
+# fifth param  = update frequency 
 
 # PLAN to MODIFY N_FISHES_PER_SCHOOL and N_SCHOOLS while maintaining the same N_FISHES
 
-# # 20.000 totale
+# # 20.000 pesci totali - update freq = 1
+
 # for ((i = 4000; i <= 20000; i=i+4000)); do
 #     mpirun.actual -n 1 $EXECUTABLE_PATH_AND_NAME 5 $i 1000 100 1    
 # done
@@ -50,11 +49,13 @@ mpicc $C_PROGRAM_PATH -g -Wall -fopenmp -lm -std=c99 -o $EXECUTABLE_PATH_AND_NAM
 #     mpirun.actual -n 1 $EXECUTABLE_PATH_AND_NAME 20 $i 1000 100 1    
 # done
 
-# for ((i = 500; i <= 2500; i=i+500)); do
-#     mpirun.actual -n 1 $EXECUTABLE_PATH_AND_NAME 40 $i 1000 100 1    
-# done
+for ((i = 500; i <= 2500; i=i+500)); do
+    mpirun.actual -n 1 $EXECUTABLE_PATH_AND_NAME 40 $i 1000 100 1    
+done
 
-# # 20.000 totale
+
+# # 20.000 pesci totali - update freq = 2
+
 # for ((i = 4000; i <= 20000; i=i+4000)); do
 #     mpirun.actual -n 1 $EXECUTABLE_PATH_AND_NAME 5 $i 1000 100 2  
 # done
