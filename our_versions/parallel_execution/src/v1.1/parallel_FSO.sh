@@ -15,7 +15,7 @@
 #PBS -l walltime=06:00:00
 
 # chunks (~nodes) : cores per chunk : shared memory per chunk (?)
-#PBS -l select=10:ncpus=4:mem=2gb
+#PBS -l select=8:ncpus=5:mem=2gb
 
 readonly C_PROGRAM_PATH=~/hpc_project/our_versions/parallel_execution/src/v1.1/parallel_FSO.c
 readonly EXECUTABLE_PATH_AND_NAME=~/hpc_project/our_versions/parallel_execution/src/v1.1/parallel_FSO
@@ -46,22 +46,22 @@ mpicc $C_PROGRAM_PATH -g -Wall -fopenmp -lm -std=c99 -o $EXECUTABLE_PATH_AND_NAM
 
 # PLAN to MODIFY N_FISHES_PER_SCHOOL and N_SCHOOLS while maintaining the same N_FISHES
 
-# # 20.000 totale
-# for ((i = 4000; i <= 20000; i=i+4000)); do
-#     mpirun.actual -n 5 $EXECUTABLE_PATH_AND_NAME $i 1000 100 1    
-# done
+# 20.000 totale
+for ((i = 4000; i <= 20000; i=i+4000)); do
+    mpirun.actual -n 5 $EXECUTABLE_PATH_AND_NAME $i 1000 100 1    
+done
 
-# for ((i = 2000; i <= 10000; i=i+2000)); do
-#     mpirun.actual -n 10 $EXECUTABLE_PATH_AND_NAME $i 1000 100 1    
-# done
+for ((i = 2000; i <= 10000; i=i+2000)); do
+    mpirun.actual -n 10 $EXECUTABLE_PATH_AND_NAME $i 1000 100 1    
+done
 
-# for ((i = 1000; i <= 5000; i=i+1000)); do
-#     mpirun.actual -n 20 $EXECUTABLE_PATH_AND_NAME $i 1000 100 1    
-# done
+for ((i = 1000; i <= 5000; i=i+1000)); do
+    mpirun.actual -n 20 $EXECUTABLE_PATH_AND_NAME $i 1000 100 1    
+done
 
-# for ((i = 500; i <= 2500; i=i+500)); do
-#     mpirun.actual -n 40 $EXECUTABLE_PATH_AND_NAME $i 1000 100 1    
-# done
+for ((i = 500; i <= 2500; i=i+500)); do
+    mpirun.actual -n 40 $EXECUTABLE_PATH_AND_NAME $i 1000 100 1    
+done
 
 # # 20.000 totale
 # for ((i = 4000; i <= 20000; i=i+4000)); do
