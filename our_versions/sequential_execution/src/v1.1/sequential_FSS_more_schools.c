@@ -641,8 +641,10 @@ int main(int argc, char *argv[]) {
 
 
     //create a timer
-    struct timeval start_tot, end_tot, partial_a, partial_b;
-    double time_elapsed_tot, time_elapsed_partial;
+    float start = MPI_Wtime(); 
+    float end = 0.0;
+    // struct timeval start_tot, end_tot, partial_a, partial_b;
+    // double time_elapsed_tot, time_elapsed_partial;
 
     // char filename[50];
     // sprintf(filename, "../../../evolution_logs/%s_%dd_log.json",FUNCTION, DIMENSIONS);
@@ -654,7 +656,7 @@ int main(int argc, char *argv[]) {
 
 
     //clock
-    gettimeofday(&start_tot, NULL);
+    // gettimeofday(&start_tot, NULL);
 
     // float best_fitness[N_SCHOOLS];
     float total_fitness[N_SCHOOLS];
@@ -722,10 +724,12 @@ int main(int argc, char *argv[]) {
 
 
     //timer stop
-    gettimeofday(&end_tot, NULL);
-    time_elapsed_tot = (end_tot.tv_sec - start_tot.tv_sec) * 1000.0 + (end_tot.tv_usec - start_tot.tv_usec) / 1000.0;
-    // printf("TIME of execution: %f ms\n", time_elapsed_tot);
-    printf("%f\n", time_elapsed_tot);
+    // gettimeofday(&end_tot, NULL);
+    // time_elapsed_tot = (end_tot.tv_sec - start_tot.tv_sec) * 1000.0 + (end_tot.tv_usec - start_tot.tv_usec) / 1000.0;
+    // // printf("TIME of execution: %f ms\n", time_elapsed_tot);
+    // printf("%f\n", time_elapsed_tot);
+    end = MPI_Wtime();
+    printf("%f\n", end-start);
 
     // fclose(file);
 

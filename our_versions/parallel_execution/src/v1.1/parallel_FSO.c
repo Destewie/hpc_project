@@ -695,8 +695,10 @@ int main(int argc, char *argv[]) {
     UPDATE_FREQUENCY = atoi(argv[4]);
 
     //create a timer
-    struct timeval start_tot, end_tot, partial_a, partial_b;
-    double time_elapsed_tot, time_elapsed_partial;
+    // struct timeval start_tot, end_tot, partial_a, partial_b;
+    // double time_elapsed_tot, time_elapsed_partial;
+    float start = MPI_Wtime();
+    float end = 0.0;
 
     //open file for logging
     FILE *file;
@@ -766,13 +768,16 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    MPI_Finalize();
+    
+
+    end = MPI_Wtime();
+
 
     if (rank == 0){
         //timer stop
-        gettimeofday(&end_tot, NULL);
-        time_elapsed_tot = (end_tot.tv_sec - start_tot.tv_sec) * 1000.0 + (end_tot.tv_usec - start_tot.tv_usec) / 1000.0;
-        printf("TIME of execution: %f ms\n\n", time_elapsed_tot);
+        // gettimeofday(&end_tot, NULL);
+        // time_elapsed_tot = (end_tot.tv_sec - start_tot.tv_sec) * 1000.0 + (end_tot.tv_usec - start_tot.tv_usec) / 1000.0;
+        printf("%f\n", start-end);
 
 
         //file closing
@@ -780,6 +785,7 @@ int main(int argc, char *argv[]) {
             fclose(file);
         }
     }
+    MPI_Finalize();
 
     free(local_school);
 
