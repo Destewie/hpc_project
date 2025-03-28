@@ -31,6 +31,8 @@ Io e Annina che facciamo muovere i pesci eheh
 In ogni caso, vogliamo mantenere la comunicazione tra i vari sottobanchi: proprio a causa dell'overhead della comunicazione MPI, ogni N epoche ogni sottobanco condividerà il proprio stato affinchè sia comunque possibile il collective ed il volitive movement tra tutti i pesci.
 ATTENZIONE però: se la comunicazione avviene troppo sporadicamente, l'aggiornamento causato dal collective e dal volitive movement generale non avrà un impatto significativo. iPensiamo sia il caso di svolgere la comunicazione collettiva ogni 5 epoche circa.
 
+- Mettere sempre l'end del MPI_Wtime DOPO MPI_finalize() altrimenti da 0
+
 ## COSA POTER METTERE NEL REPORT
 - Differenze tra le nostre versioni (grafici)
 - Evoluzione delle tempistiche di ogni iterazione in un ambiente parallelo (vogliamo far vedere i picchi di tempo quando ci sono le mpi_allreduce)

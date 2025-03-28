@@ -8,6 +8,7 @@
 #define M_E 2.71828182845904523536
 #endif
 #include <time.h>
+#include <unistd.h>
 #include <sys/time.h>
 #include <string.h> // Include for strcmp
 #include <omp.h>
@@ -626,6 +627,12 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
+    // MPI initialization
+    MPI_Init(&argc, &argv);
+    int rank, size;
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
+
     N_SCHOOLS = atoi(argv[1]);
     N_FISHES_PER_SCHOOL = atoi(argv[2]);
     DIMENSIONS = atoi(argv[3]);
@@ -635,8 +642,8 @@ int main(int argc, char *argv[]) {
     printf("\nRUNNING WITH: N-SCHOOLS %d - N_FISHES_PER_SCHOOL %d - DIMENSIONS %d - MAX_ITER %d - UPDATE_FREQUENCY %d\n",N_SCHOOLS, N_FISHES_PER_SCHOOL, DIMENSIONS, MAX_ITER, UPDATE_FREQUENCY);
 
     //create a timer
-    // float start = MPI_Wtime(); 
-    // float end = 0.0;
+    double start = MPI_Wtime(); 
+    double end = 0.0;
 
     char filename[50];
     // sprintf(filename, "/home/federico.desanti/hpc_project/our_versions/evolution_logs/%s_%dd_log.json",FUNCTION, DIMENSIONS);
@@ -659,7 +666,6 @@ int main(int argc, char *argv[]) {
     if (DIMENSIONS <= 2 && LOG) {
         WriteFishesToJson(fishes, file, 1, 0);
     }
-
 
     // MAIN LOOP
     for (int iter = 1; iter < MAX_ITER; iter++) {
@@ -698,13 +704,14 @@ int main(int argc, char *argv[]) {
         // }
     }
 
-
     //timer stop
-    // end = MPI_Wtime();
-    // printf("%f\n", end-start);
-
+    end = MPI_Wtime();
+ 
     fclose(file);
+    MPI_Finalize();
 
+    printf("END: %f\n", end-start);
+  
 
     // print all the fishes
     // for (int s = 0; s < N_SCHOOLS; s++) {
