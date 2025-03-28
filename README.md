@@ -10,20 +10,26 @@ Io e Annina che facciamo muovere i pesci eheh
 
 ## CRITICITÀ
 
-- [X] Gestione dell'aggiornamento del peso -> divisione per il max_improvement: abbiamo visto che si comporta meglio senza quella divisione. Spesso infatti sono valori piccoli e quando quel valore è 0 non dividiamo per nulla.
-- [X] Collective movement -> siamo sicur3 che stia funzionando correttamente? controlliamo i paper
+- Gestione dell'aggiornamento del peso -> divisione per il max_improvement: abbiamo visto che si comporta meglio senza quella divisione. Spesso infatti sono valori piccoli e quando quel valore è 0 non dividiamo per nulla. [SOLVED]
 
 ## TODO
 - [X] Controllare che la scrittura del json funzioni per n dimensioni
 - [X] cambiamo la v1 sequenziale per far comunichre i banchi tra di loro ogni n iterazioni
 
 ## NOTE IMPORTANTI SULLE NOSTRE SCELTE IMPLEMENTATIVE 
-- Abbiamo deciso di aggiornare i pesi dei pesci solo dopo il loro individual movement. In ogni caso, questo non influisce negativamente perché ad ogni individual movement verrà incluso anche il collective movement del ciclo prima.
+- Abbiamo deciso di aggiornare i pesi dei pesci solo dopo il loro individual movement.
+  In ogni caso, questo non influisce negativamente perché ad ogni individual movement verrà incluso anche il collective movement del ciclo prima.
+
 - Il peso di un pesce non è direttamente correlabile alla sua posizione nella funzione (non è vero che un pesce più vicino al minimo abbia sempre un peso più grande di quello di un pesce distante), ma tuttavia è direttamente correlabile al suo miglioramento all'interno della funzione. 
   Se un pesce migliora costantemente la sua fitness, il suo peso aumenta. Tuttavia:
   Se la sua fitness si stabilizza o peggiora, il peso rimane invariato o diminuisce.
   Pesci con miglioramenti recenti ma con fitness assoluta più bassa possono avere pesi superiori.
-- Abbiamo trovato in varie altre implementazioni che il baricentro considera la media delle posizioni pesate sulla weight dei pesci, quindi va diviso per il peso e non la posizione (come invece scritto nel paper)
+
+- Abbiamo trovato in varie altre implementazioni che il baricentro considera la media delle posizioni pesate sulla weight dei pesci, quindi va diviso per il peso e non la posizione (come invece scritto nel paper2)
+
+- Abbiamo notato che, per cercare di arginare l'overhead di comunicazione tra processi con MPI, possiamo dividere il baco in sottobanchi autonomi.
+In ogni caso, vogliamo mantenere la comunicazione tra i vari sottobanchi: proprio a causa dell'overhead della comunicazione MPI, ogni N epoche ogni sottobanco condividerà il proprio stato affinchè sia comunque possibile il collective ed il volitive movement tra tutti i pesci.
+ATTENZIONE però: se la comunicazione avviene troppo sporadicamente, l'aggiornamento causato dal collective e dal volitive movement generale non avrà un impatto significativo. iPensiamo sia il caso di svolgere la comunicazione collettiva ogni 5 epoche circa.
 
 ## COSA POTER METTERE NEL REPORT
 - Differenze tra le nostre versioni (grafici)
@@ -46,3 +52,36 @@ Diverse possibilità (by chatgpt):
 
 - ibrido, unione di più soluzioni
 
+
+# Nostre versioni
+
+
+## Sequenziali
+### v0
+La versione più semplice possibile.
+
+
+Abbiamo un solo banco e tutti i pesci si aggiornano dopo ogni epoca.
+
+### v1
+ATTENZIONE: calcolo tempo non con MPI_Wtime
+Versione più semplice che ha l'intento di essere corrispondente alle v1 parallela, quindi il banco non è unico ma ci sono più banchi definibili. Ciò implica che ogni banco si aggiorna internamente ad ongi iterazione e tutti i banchi si aggiornano insieme secondo l'UPDATE_FREQUENCY.
+
+### v1.1
+Equivalente alla v1, ma il tempo viene misurato correttamete e la versione è fatta per accettare parametri in input dal runner dello scheuduler del cluster, in modo da poter runnare le metriche in modo veloce e pratico direttamente da li. Per questo stesso motivo viene scritto su file il risultato in questo formato RUNNING WITH: N-SCHOOLS 20 - N_FISHES_PER_SCHOOL 200 - DIMENSIONS 1000 - MAX_ITER 100 - UPDATE_FREQUENCY 1
+56903.189000
+
+## Parallele
+### v0
+Come v0 sequenziale, con qualche MPI_allReduce e OMP parallel for un pò a caso. 
+ATTENZIONE: tempo calcolato male non con MPI_Wtime ma con gettimeofday()
+### v1
+come V1 sequanziale, idea di affidare ogni banco a un core diverso e farli comunicare ogni UPDATE_FREQUENCY iterazioni
+ATTENZIONE: tempo calcolato male non con MPI_Wtime ma con gettimeofday()
+
+### v1.1
+Stessa idea di V1.1 con tempo calcolato correttamente
+
+### v2_multithreaded only
+Idea di usare SOLO multithreading per parallelizzare le cose
+DUBBIO: sarebbe forse da fare un unica versione in cui si può fare sia multithreading sia parallelizzazione ibrida?
