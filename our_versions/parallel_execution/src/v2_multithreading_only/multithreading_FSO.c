@@ -29,7 +29,7 @@
 #define BREEDING_THRESHOLD 7.0 // minimus threshold of weight to breedh new fishes
 #define A 10.0 //rastrigin param
 
-#define LOG 0 // 1 to log the results, 0 otherwise
+#define LOG 1 // 1 to log the results, 0 otherwise
 
 //10 very different colors that will be used by a python script to plot the results
 const char *COLORS[] = {"#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf"};
@@ -635,13 +635,13 @@ int main(int argc, char *argv[]) {
     printf("\nRUNNING WITH: N-SCHOOLS %d - N_FISHES_PER_SCHOOL %d - DIMENSIONS %d - MAX_ITER %d - UPDATE_FREQUENCY %d\n",N_SCHOOLS, N_FISHES_PER_SCHOOL, DIMENSIONS, MAX_ITER, UPDATE_FREQUENCY);
 
     //create a timer
-    float start = MPI_Wtime(); 
-    float end = 0.0;
+    // float start = MPI_Wtime(); 
+    // float end = 0.0;
 
     char filename[50];
-    sprintf(filename, "/home/federico.desanti/hpc_project/our_versions/evolution_logs/%s_%dd_log.json",FUNCTION, DIMENSIONS);
-    // sprintf(filename, "/home/annachiara.fortuna/hpc_project/our_versions/evolution_logs/%s_%dd_log.json",FUNCTION, DIMENSIONS);
-    file = fopen(filename, "w");
+    // sprintf(filename, "/home/federico.desanti/hpc_project/our_versions/evolution_logs/%s_%dd_log.json",FUNCTION, DIMENSIONS);
+    sprintf(filename, "/home/annachiara.fortuna/hpc_project/our_versions/evolution_logs/%s_%dd_log.json",FUNCTION, DIMENSIONS);
+    FILE* file = fopen(filename, "w");
     if (file == NULL) {
         perror("Error opening file");
         return 1;
@@ -656,11 +656,11 @@ int main(int argc, char *argv[]) {
     // INITIALIZATION
     Fish *fishes = malloc(N_FISHES_PER_SCHOOL*N_SCHOOLS*sizeof(Fish)); //creiamo un vettore unico che sarà diviso in banchi di pesci in base agli indici
     initFishArray(fishes);
-    // if (DIMENSIONS <= 2 && LOG) {
-    //     WriteFishesToJson(fishes, file, 1, 0);
-    // }
+    if (DIMENSIONS <= 2 && LOG) {
+        WriteFishesToJson(fishes, file, 1, 0);
+    }
 
-    writeFishesToJson(local_school, local_n, file, 1, 0, rank, size);
+
     // MAIN LOOP
     for (int iter = 1; iter < MAX_ITER; iter++) {
 
@@ -685,6 +685,8 @@ int main(int argc, char *argv[]) {
         // SAVE ON FILE
         if (DIMENSIONS <= 2 && LOG) {
             WriteFishesToJson(fishes, file, 0, iter==MAX_ITER-1?1:0);
+        }else{
+            printf("not writing");
         }
 
         // //calcolo la best fitness 
@@ -698,8 +700,8 @@ int main(int argc, char *argv[]) {
 
 
     //timer stop
-    end = MPI_Wtime();
-    printf("%f\n", end-start);
+    // end = MPI_Wtime();
+    // printf("%f\n", end-start);
 
     fclose(file);
 
