@@ -685,14 +685,21 @@ int main(int argc, char *argv[]) {
     int rank, size;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &size);
-    if (rank==0){
-        printf("RUNNING WITH: N_SCHOOLS %d - N_FISHES_PER_SCHOOL %d - DIMENSIONS %d - MAX_ITER %d - UPDATE_FREQUENCY %d\n", size, N_FISHES/size,  DIMENSIONS, MAX_ITER, UPDATE_FREQUENCY);
-    }
+
 
     N_FISHES = atoi(argv[1])*size;
     DIMENSIONS = atoi(argv[2]);
     MAX_ITER = atoi(argv[3]);
     UPDATE_FREQUENCY = atoi(argv[4]);
+
+    if (rank==0){
+        printf("parameters taken: %d %d %d %d\n", N_FISHES, DIMENSIONS, MAX_ITER, UPDATE_FREQUENCY);
+    }
+    if (rank==0){
+        printf("RUNNING WITH: N_SCHOOLS %d - N_FISHES_PER_SCHOOL %d - DIMENSIONS %d - MAX_ITER %d - UPDATE_FREQUENCY %d\n", size, N_FISHES/size,  DIMENSIONS, MAX_ITER, UPDATE_FREQUENCY);
+    }
+
+
 
     //create a timer
     // struct timeval start_tot, end_tot, partial_a, partial_b;
@@ -700,24 +707,24 @@ int main(int argc, char *argv[]) {
     float start = MPI_Wtime();
     float end = 0.0;
 
-    //open file for logging
-    FILE *file;
-    char filename[200];
-    if (rank==0){
-        if (LOG == 1) {
-            //file opening
-            sprintf(filename, "/home/federico.desanti/hpc_project/our_versions/evolution_logs/%s_%dd_log.json",FUNCTION, DIMENSIONS);
-            file = fopen(filename, "w");
-            if (file == NULL) {
-                perror("Error opening file");
-                MPI_Abort(MPI_COMM_WORLD, 1);
-                return 1;
-            }
-        }
+    // //open file for logging
+    // FILE *file;
+    // char filename[200];
+    // if (rank==0){
+    //     if (LOG == 1) {
+    //         //file opening
+    //         sprintf(filename, "/home/federico.desanti/hpc_project/our_versions/evolution_logs/%s_%dd_log.json",FUNCTION, DIMENSIONS);
+    //         file = fopen(filename, "w");
+    //         if (file == NULL) {
+    //             perror("Error opening file");
+    //             MPI_Abort(MPI_COMM_WORLD, 1);
+    //             return 1;
+    //         }
+    //     }
 
-        //clock
-        gettimeofday(&start_tot, NULL);
-    }
+    //     //clock
+    //     gettimeofday(&start_tot, NULL);
+    // }
 
     //variabili locali al sottogruppo di pesci
     float local_best_fitness = -2000.0;
@@ -734,9 +741,9 @@ int main(int argc, char *argv[]) {
     int local_n = N_FISHES / size;
     Fish *local_school = malloc(local_n * sizeof(Fish));
     initFishArray(local_school, local_n, rank, size);
-    if (LOG == 1) {
-        writeFishesToJson(local_school, local_n, file, 1, 0, rank, size);
-    }
+    // if (LOG == 1) {
+    //     writeFishesToJson(local_school, local_n, file, 1, 0, rank, size);
+    // }
 
     for (int iter = 1; iter < MAX_ITER; iter++) {
         //timer
@@ -758,32 +765,45 @@ int main(int argc, char *argv[]) {
         // } 
 
         variablesReset(&local_total_fitness, local_weighted_total_fitness, &local_max_improvement);
+
         individualMovementArray(local_school, local_n, iter, &local_total_fitness, &global_total_fitness, local_weighted_total_fitness, global_weighted_total_fitness, &local_max_improvement, &global_max_improvement);
+        
+        // printf("Finised individual update %d\n", iter);
         updateWeightsArray(local_school, local_n, &global_max_improvement);
         collectiveMovementArray(local_school, local_n, &global_total_fitness, global_weighted_total_fitness);
         collectiveVolitiveArray(local_school, local_n, iter);
+        // printf("Finised collective volitive %d\n", iter);
         breeding(local_school, local_n, iter, rank, size);
-        if (LOG == 1) {
-            writeFishesToJson(local_school, local_n, file, 0, iter == MAX_ITER - 1, rank, size);
-        }
+        // printf("Finised breeding %d\n", iter);
+        // if (LOG == 1) {
+        //     writeFishesToJson(local_school, local_n, file, 0, iter == MAX_ITER - 1, rank, size);
+        // }
     }
+    // printf("Ending loop\n");
 
     
+    // MPI_Barrier(MPI_COMM_WORLD);
+    // end = MPI_Wtime();
 
-    end = MPI_Wtime();
+
 
 
     if (rank == 0){
         //timer stop
         // gettimeofday(&end_tot, NULL);
         // time_elapsed_tot = (end_tot.tv_sec - start_tot.tv_sec) * 1000.0 + (end_tot.tv_usec - start_tot.tv_usec) / 1000.0;
-        printf("%f\n", start-end);
+        
+        
+        
+        printf("Start %f\n", start);
+        // printf("End %f\n", MPI_Wtime());
+        printf(" TOTAL: %f s\n", MPI_Wtime()-start);
 
 
-        //file closing
-        if (LOG == 1) {
-            fclose(file);
-        }
+        // //file closing
+        // if (LOG == 1) {
+        //     fclose(file);
+        // }
     }
     MPI_Finalize();
 
