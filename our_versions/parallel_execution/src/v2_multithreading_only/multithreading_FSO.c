@@ -103,10 +103,12 @@ double clamp(double value, double min, double max) {
 
 // Per resettare le variabili all'inizio di ogni epoca
 void variablesReset(float *tot_fitness, float weighted_tot_fitness[N_SCHOOLS][DIMENSIONS], float *max_improvement) {
+
+    # pragma omp parallel for default(none) shared(tot_fitness, weighted_tot_fitness, max_improvement) private(i, d) // volendo si potrebbe mettere il modo per schedulare
     for (int i = 0; i < N_SCHOOLS; i++) {
         tot_fitness[i] = 0.0;
 
-        for (int d = 0; d<DIMENSIONS; d++ ){
+        for (int d = 0; d < DIMENSIONS; d++) {
             weighted_tot_fitness[i][d] = 0.0;
         }
         max_improvement[i] = 0.0;
@@ -119,6 +121,7 @@ void variablesReset(float *tot_fitness, float weighted_tot_fitness[N_SCHOOLS][DI
 
 double rosenbrok(double *x) {
     double sum = 0.0;
+    #pragma omp parallel for default(none) shared(x, DIMENSIONS) reduction(+:sum) private(term1, term2, i) // volendo si potrebbe mettere il modo per schedular
     for (int i = 0; i < DIMENSIONS - 1; i++) {
         double term1 = 100.0 * pow(x[i + 1] - x[i] * x[i], 2);
         double term2 = pow(1.0 - x[i], 2);
@@ -129,6 +132,7 @@ double rosenbrok(double *x) {
 
 double rastrigin(double *x) {
     double sum = A * DIMENSIONS; // Start with A * DIM
+    #pragma omp parallel for default(none) shared(x, DIMENSIONS) reduction(+:sum) private(i)
     for (int i = 0; i < DIMENSIONS; i++) {
         sum += x[i] * x[i] - A * cos(2 * M_PI * x[i]);
     }
@@ -137,6 +141,7 @@ double rastrigin(double *x) {
 
 double min_sphere(double *x) {
     double sum = 0.0;
+    #pragma omp parallel for default(none) shared(x, DIMENSIONS) reduction(+:sum) private(i)
     for (int i = 0; i < DIMENSIONS; i++) {
         sum += x[i] * x[i];
     }
@@ -145,6 +150,7 @@ double min_sphere(double *x) {
 
 double max_sphere(double *x) {
     double sum = 0.0;
+    #pragma omp parallel for default(none) shared(x, DIMENSIONS) reduction(+:sum) private(i)
     for (int i = 0; i < DIMENSIONS; i++) {
         sum += -(x[i] * x[i]);
     }
@@ -154,6 +160,7 @@ double max_sphere(double *x) {
 double ackley(double *x){
     double sum1 = 0.0;
     double sum2 = 0.0;
+    #pragma omp parallel for default(none) shared(x, DIMENSIONS) reduction(+:sum1) reduction(+:sum2) private(i)
     for (int i = 0; i < DIMENSIONS; i++) {
         sum1 += x[i] * x[i];
         sum2 += cos(2 * M_PI * x[i]);
@@ -163,6 +170,7 @@ double ackley(double *x){
 
 double min_schwefel(double *x) {
     double sum = 0.0;
+    #pragma omp parallel for default(none) shared(x, DIMENSIONS) reduction(+:sum) private(i)
     for (int i = 0; i < DIMENSIONS; i++) {
         sum += x[i] * sin(sqrt(fabs(x[i])));
     }
@@ -213,6 +221,7 @@ void initFish(Fish *fish, int fish_index) {
     fish->position = malloc(DIMENSIONS*sizeof(double));
     fish->new_position = malloc(DIMENSIONS*sizeof(double));
 
+    // NON PARALLELIZZATO PER EVITARE MICRO-PARALLELIZZAZIONE INNESTATA, parallelizzato in: void initFishArray(Fish* fishArray) 
     for (int d = 0; d < DIMENSIONS; d++) {
         // // Posizioni iniziali random
         // fish->position[d] = ((double)rand() / RAND_MAX) * (BOUNDS_MAX - BOUNDS_MIN) + BOUNDS_MIN;
@@ -240,6 +249,7 @@ void initFish(Fish *fish, int fish_index) {
 
 // Funzione per inizializzare un array di pesci
 void initFishArray(Fish* fishArray) {
+    #pragma omp parallel for default(none) shared(fishArray, N_SCHOOLS, N_FISHES_PER_SCHOOL) private(i)
     for (int i = 0; i < N_FISHES_PER_SCHOOL*N_SCHOOLS; i++) {
         initFish(&fishArray[i], i);  // Inizializza ciascun pesce
         // printFish(fishArray[i]);
@@ -300,7 +310,10 @@ void individualMovement(Fish *fish, float *tot_delta_fitness, float *weighted_to
 
 
 void individualMovementArray (Fish *fishArray, float *tot_delta_fitness, float weighted_tot_delta_fitness[N_SCHOOLS][DIMENSIONS], float *max_delta_fitness_improvement, int current_iter) {
+    // DA TESTARE se è meglio farlo sul ciclo esterno oppure interno
+    // idea parallelizzazione interna è farlo su tutti i pesci
     for (int s = 0; s < N_SCHOOLS; s++) {
+        #pragma omp parallel for default(none) shared(fishArray, tot_delta_fitness, weighted_tot_delta_fitness, max_delta_fitness_improvement, s) private(i)
         for (int i = 0; i < N_FISHES_PER_SCHOOL; i++) {
             individualMovement(&fishArray[s*N_FISHES_PER_SCHOOL+i], &tot_delta_fitness[s], weighted_tot_delta_fitness[s], &max_delta_fitness_improvement[s]);  // Inizializza ciascun pesce
         }
@@ -315,6 +328,7 @@ void individualMovementArray (Fish *fishArray, float *tot_delta_fitness, float w
             complete_weighted_tot_delta_fitness[d] = 0.0;
         }
         // calculus of complete values
+        // TODO: è una micro-ottimizzazione? Capire se e come parallelizzare
         for (int s = 0; s < N_SCHOOLS; s++) {
             complete_tot_delta_fitness += tot_delta_fitness[s];
             for (int d = 0; d<DIMENSIONS; d++){
@@ -325,6 +339,7 @@ void individualMovementArray (Fish *fishArray, float *tot_delta_fitness, float w
             }
         }
         // update the values for each school
+        // TODO: è una micro-ottimizzazione? Capire se e come parallelizzare
         for (int s = 0; s < N_SCHOOLS; s++) {
             tot_delta_fitness[s] = complete_tot_delta_fitness;
             for (int d = 0; d<DIMENSIONS; d++){
@@ -668,7 +683,8 @@ int main(int argc, char *argv[]) {
     }
 
     // MAIN LOOP
-    for (int iter = 1; iter < MAX_ITER; iter++) {
+    // le iterazioni devono essere sequenziali quindi non le possiamo parallelizzare
+    for (int iter = 1; iter < MAX_ITER; iter++) { 
 
         variablesReset(total_fitness, weighted_total_fitness, max_improvement);
 
