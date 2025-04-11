@@ -738,7 +738,8 @@ int main(int argc, char *argv[]) {
     }
 
  
-    #pragma omp single {
+    #pragma omp single 
+    {
         printf("fuori 1\n");
 
         //timer stop
@@ -753,6 +754,8 @@ int main(int argc, char *argv[]) {
         printf("fuori 4\n");
 
         printf("END: %f\n", end-start);
+
+        #pragma omp barrier
     }
 
   
