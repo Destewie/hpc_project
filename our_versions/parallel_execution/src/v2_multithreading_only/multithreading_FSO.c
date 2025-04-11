@@ -737,11 +737,17 @@ int main(int argc, char *argv[]) {
         // }
     }
 
+    printf("fuori 1\n");
+
     //timer stop
     end = MPI_Wtime();
+
+    printf("fuori 2\n");
  
     fclose(file);
     MPI_Finalize();
+
+    printf("fuori 3\n");
 
     printf("END: %f\n", end-start);
   
