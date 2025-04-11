@@ -683,8 +683,6 @@ int main(int argc, char *argv[]) {
         //         time_elapsed_partial = (partial_a.tv_sec - partial_b.tv_sec) * 1000.0 + (partial_a.tv_usec - partial_b.tv_usec) / 1000.0;
         //         time_elapsed_tot = (partial_a.tv_sec - start_tot.tv_sec) * 1000.0 + (partial_a.tv_usec - start_tot.tv_usec) / 1000.0;
         //         printf("[iter %d->%d] partial TIME of execution: %f ms - from the beginning: %f ms\n", iter - 1, iter, time_elapsed_partial, time_elapsed_tot);
-        //     }
-        // } else if (iter < (MAX_ITER - 2) && (iter % 2) == 1) {
         //     gettimeofday(&partial_b, NULL);
         //     time_elapsed_partial = (partial_b.tv_sec - partial_a.tv_sec) * 1000.0 + (partial_b.tv_usec - partial_a.tv_usec) / 1000.0;
         //     time_elapsed_tot = (partial_b.tv_sec - start_tot.tv_sec) * 1000.0 + (partial_b.tv_usec - start_tot.tv_usec) / 1000.0;

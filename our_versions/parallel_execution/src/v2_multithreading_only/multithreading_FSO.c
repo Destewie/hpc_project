@@ -391,8 +391,8 @@ void collectiveMovementArray(Fish *fishArray, float *tot_delta_fitness, float we
     }
 }
 
-void calculateBarycenters(Fish *fishArray, float barycenter[N_SCHOOLS][DIMENSIONS], int current_iter, int UPDATE_FREQUENCY, int DIMENSIONS, int N_SCHOOLS, int N_FISHES_PER_SCHOOL){
-    
+void calculateBarycenters(Fish *fishArray, float** barycenter, int current_iter, int UPDATE_FREQUENCY, int DIMENSIONS, int N_SCHOOLS, int N_FISHES_PER_SCHOOL){
+
     if (current_iter%UPDATE_FREQUENCY==0){
         float common_numerator[DIMENSIONS];
         float common_denominator[DIMENSIONS];
@@ -524,7 +524,8 @@ void volitivePositionUpdateArray(Fish *fishArray, int school_index, int shrink, 
 }
 
 void collectiveVolitiveArray(Fish *fishes, int current_iter, int N_SCHOOLS, int DIMENSIONS, int N_FISHES_PER_SCHOOL, int UPDATE_FREQUENCY) {
-    float barycenter[N_SCHOOLS][DIMENSIONS];
+    // float barycenter[N_SCHOOLS][DIMENSIONS];
+    float **barycenter = malloc(N_SCHOOLS * sizeof(float*));
     calculateBarycenters(fishes, barycenter, current_iter, UPDATE_FREQUENCY, DIMENSIONS, N_SCHOOLS, N_FISHES_PER_SCHOOL);
 
     float old_sum_weights[N_SCHOOLS];
