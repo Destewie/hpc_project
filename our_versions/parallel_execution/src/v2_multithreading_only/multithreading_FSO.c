@@ -759,21 +759,5 @@ int main(int argc, char *argv[]) {
     // printf("Number of fishes: %d\n", N_FISHES_PER_SCHOOL*N_SCHOOLS);
     // printf("Dimensions: %d\n", DIMENSIONS);
 
-    // Free allocated memory for barycenter
-    for (int i = 0; i < N_SCHOOLS; i++) {
-        free(barycenter[i]);
-    }
-    free(barycenter);
-
-    // Free allocated memory for fishes
-    for (int i = 0; i < N_SCHOOLS*N_FISHES_PER_SCHOOL; i++) {
-        free(fishes[i].position);
-        free(fishes[i].new_position);
-    }
-    free(fishes);
-    free(weighted_total_fitness);
-    free(total_fitness);
-    free(max_improvement);
-
     return 0;
 }
