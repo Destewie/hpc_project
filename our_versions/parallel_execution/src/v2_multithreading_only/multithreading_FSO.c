@@ -683,25 +683,32 @@ int main(int argc, char *argv[]) {
     // le iterazioni devono essere sequenziali quindi non le possiamo parallelizzare
     for (int iter = 1; iter < MAX_ITER; iter++) { 
 
+        printf("1 - iteration %d\n", iter);
         variablesReset(total_fitness, weighted_total_fitness, max_improvement, N_SCHOOLS, DIMENSIONS);
 
         // INDIVIDUAL MOVEMENT
+        printf("2 - iteration %d\n", iter);
         individualMovementArray(fishes, total_fitness, weighted_total_fitness, max_improvement, iter, N_SCHOOLS, DIMENSIONS, N_FISHES_PER_SCHOOL, UPDATE_FREQUENCY);
 
         // UPDATE WEIGHTS
+        printf("3 - iteration %d\n", iter);
         updateWeightsArray(fishes, max_improvement, N_SCHOOLS, N_FISHES_PER_SCHOOL);
 
         // COLLECTIVE MOVEMENT
+        printf("4 - iteration %d\n", iter);
         collectiveMovementArray(fishes, total_fitness, weighted_total_fitness, N_SCHOOLS, N_FISHES_PER_SCHOOL, DIMENSIONS);
 
         // COLLECTIVE VOLITIVE MOVEMENT
+        printf("5 - iteration %d\n", iter);
         collectiveVolitiveArray(fishes, iter, N_SCHOOLS, DIMENSIONS, N_FISHES_PER_SCHOOL, UPDATE_FREQUENCY);
 
         // BREEDING
+        printf("6 - iteration %d\n", iter);
         breeding(fishes, iter, UPDATE_FREQUENCY, N_FISHES_PER_SCHOOL, N_SCHOOLS, DIMENSIONS);
 
        
         // SAVE ON FILE
+        printf("7 - iteration %d\n", iter);
         if (DIMENSIONS <= 2 && LOG) {
             WriteFishesToJson(fishes, file, 0, iter==MAX_ITER-1?1:0,  N_FISHES_PER_SCHOOL, N_SCHOOLS, DIMENSIONS);
         }else{
