@@ -744,7 +744,9 @@ int main(int argc, char *argv[]) {
 
     printf("fuori 2\n");
  
-    fclose(file);
+    if (file != NULL) {
+        fclose(file);
+    }
     printf("fuori 3\n");
     MPI_Finalize();
 
