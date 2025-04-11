@@ -755,8 +755,8 @@ int main(int argc, char *argv[]) {
 
         printf("END: %f\n", end-start);
 
-        #pragma omp barrier
     }
+    #pragma omp barrier
 
   
 
