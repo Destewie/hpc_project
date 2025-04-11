@@ -383,10 +383,10 @@ void collectiveMovement(Fish *fish, float *tot_delta_fitness, float *weighted_to
     fish->new_fitness = objectiveFunction(fish->position, DIMENSIONS) * MULTIPLIER; // questo va fatto per forza!
 }
 
-void collectiveMovementArray(Fish *fishArray, float *tot_delta_fitness, float weighted_tot_delta_fitness[N_SCHOOLS][DIMENSIONS], const int N_SCHOOLS, const int N_FISHES_PER_SCHOOL) {
+void collectiveMovementArray(Fish *fishArray, float *tot_delta_fitness, float** weighted_tot_delta_fitness, const int N_SCHOOLS, const int N_FISHES_PER_SCHOOL, const int DIMENSIONS) {
     for (int s = 0; s < N_SCHOOLS; s++) {
         for (int i = 0; i < N_FISHES_PER_SCHOOL; i++) {
-            collectiveMovement(&fishArray[s*N_FISHES_PER_SCHOOL+i], &tot_delta_fitness[s], weighted_tot_delta_fitness[s]);  // Inizializza ciascun pesce
+            collectiveMovement(&fishArray[s*N_FISHES_PER_SCHOOL+i], &tot_delta_fitness[s], weighted_tot_delta_fitness[s], DIMENSIONS);  // Inizializza ciascun pesce
         }
     }
 }
@@ -692,7 +692,7 @@ int main(int argc, char *argv[]) {
         updateWeightsArray(fishes, max_improvement, N_SCHOOLS, N_FISHES_PER_SCHOOL);
 
         // COLLECTIVE MOVEMENT
-        collectiveMovementArray(fishes, total_fitness, weighted_total_fitness, N_SCHOOLS, N_FISHES_PER_SCHOOL);
+        collectiveMovementArray(fishes, total_fitness, weighted_total_fitness, N_SCHOOLS, N_FISHES_PER_SCHOOL, DIMENSIONS);
 
         // COLLECTIVE VOLITIVE MOVEMENT
         collectiveVolitiveArray(fishes, iter, N_SCHOOLS, DIMENSIONS, N_FISHES_PER_SCHOOL, UPDATE_FREQUENCY);
