@@ -393,6 +393,7 @@ void collectiveMovementArray(Fish *fishArray, float *tot_delta_fitness, float** 
 
 void calculateBarycenters(Fish *fishArray, float** barycenter, int current_iter, const int UPDATE_FREQUENCY, const int DIMENSIONS, const int N_SCHOOLS, const int N_FISHES_PER_SCHOOL){
 
+    printf("entro nella funz\n");
     if (current_iter%UPDATE_FREQUENCY==0){
         float common_numerator[DIMENSIONS];
         float common_denominator[DIMENSIONS];
@@ -410,6 +411,8 @@ void calculateBarycenters(Fish *fishArray, float** barycenter, int current_iter,
                 }
             }
         }
+
+        printf("argargarg\n");
 
         for (int s = 0; s < N_SCHOOLS; s++) {
             for (int d = 0; d < DIMENSIONS; d++) {
