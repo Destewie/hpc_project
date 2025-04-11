@@ -96,9 +96,9 @@ double clamp(double value, double min, double max) {
 }
 
 // Per resettare le variabili all'inizio di ogni epoca
-void variablesReset(float *tot_fitness, float weighted_tot_fitness[N_SCHOOLS][DIMENSIONS], float *max_improvement,const int N_SCHOOLS,const int DIMENSIONS) {
+void variablesReset(float *tot_fitness, float** weighted_tot_fitness, float *max_improvement,const int N_SCHOOLS,const int DIMENSIONS) {
 
-    # pragma omp parallel for default(none) shared(tot_fitness, weighted_tot_fitness, max_improvement, N_SCHOOLS, DIMENSIONS) // volendo si potrebbe mettere il modo per schedulare
+    # pragma omp parallel for default(none) shared(tot_fitness, weighted_tot_fitness, max_improvement) // volendo si potrebbe mettere il modo per schedulare
     for (int i = 0; i < N_SCHOOLS; i++) {
         tot_fitness[i] = 0.0;
 
@@ -668,7 +668,7 @@ int main(int argc, char *argv[]) {
 
     // float best_fitness[N_SCHOOLS];
     float total_fitness[N_SCHOOLS];
-    float weighted_total_fitness[N_SCHOOLS][DIMENSIONS];
+    float **weighted_total_fitness = malloc(N_SCHOOLS*sizeof(float));
     float max_improvement[N_SCHOOLS];
     srand(time(NULL));  // Seed for random number generation
 
