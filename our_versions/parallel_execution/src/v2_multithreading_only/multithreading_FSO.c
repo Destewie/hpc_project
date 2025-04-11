@@ -744,7 +744,7 @@ int main(int argc, char *argv[]) {
 
     printf("fuori 2\n");
  
-    if (file != NULL) {
+    if (file != NULL || file != nullptr) {
         fclose(file);
     }
     printf("fuori 3\n");
