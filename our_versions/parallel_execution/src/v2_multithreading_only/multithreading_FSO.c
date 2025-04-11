@@ -526,11 +526,15 @@ void volitivePositionUpdateArray(Fish *fishArray, int school_index, int shrink, 
 void collectiveVolitiveArray(Fish *fishes, int current_iter, const int N_SCHOOLS, const int DIMENSIONS, const int N_FISHES_PER_SCHOOL, const int UPDATE_FREQUENCY) {
     // float barycenter[N_SCHOOLS][DIMENSIONS];
     float **barycenter = malloc(N_SCHOOLS * sizeof(float*));
+    printf("qui ci arrivo\n");
     calculateBarycenters(fishes, barycenter, current_iter, UPDATE_FREQUENCY, DIMENSIONS, N_SCHOOLS, N_FISHES_PER_SCHOOL);
 
+    printf("calculate barycenter andatoh\n");
+    
     float old_sum_weights[N_SCHOOLS];
     float new_sum_weights[N_SCHOOLS];
     calculateSumWeights(fishes, old_sum_weights, new_sum_weights, current_iter, UPDATE_FREQUENCY, N_FISHES_PER_SCHOOL, N_SCHOOLS);
+    printf("calculate sum weights\n");
 
     for (int s = 0; s < N_SCHOOLS; s++) {
         if (old_sum_weights[s] < new_sum_weights[s]) {
