@@ -35,12 +35,6 @@
 //10 very different colors that will be used by a python script to plot the results
 const char *COLORS[] = {"#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf"};
 
-int N_SCHOOLS;
-int N_FISHES_PER_SCHOOL;
-int DIMENSIONS;
-int MAX_ITER;
-int UPDATE_FREQUENCY;
-
 typedef struct {
     double *position;
     double *new_position;
@@ -59,7 +53,7 @@ typedef struct {
 //----------------------------- UTILS -------------------------------------------------------
 //-------------------------------------------------------------------------------------------
 
-void WriteFishesToJson(Fish *fishes, FILE *file, int first, int last) {
+void WriteFishesToJson(Fish *fishes, FILE *file, int first, int last, int N_FISHES_PER_SCHOOL, int N_SCHOOLS, int DIMENSIONS) {
 
     if (first) {
         // Scrive l'apertura dell'array principale solo se è la prima chiamata
@@ -102,9 +96,9 @@ double clamp(double value, double min, double max) {
 }
 
 // Per resettare le variabili all'inizio di ogni epoca
-void variablesReset(float *tot_fitness, float weighted_tot_fitness[N_SCHOOLS][DIMENSIONS], float *max_improvement) {
+void variablesReset(float *tot_fitness, float weighted_tot_fitness[N_SCHOOLS][DIMENSIONS], float *max_improvement, int N_SCHOOLS, int DIMENSIONS) {
 
-    # pragma omp parallel for default(none) shared(tot_fitness, weighted_tot_fitness, max_improvement) private(i, d) // volendo si potrebbe mettere il modo per schedulare
+    # pragma omp parallel for default(none) shared(tot_fitness, weighted_tot_fitness, max_improvement, N_SCHOOLS, DIMENSIONS) // volendo si potrebbe mettere il modo per schedulare
     for (int i = 0; i < N_SCHOOLS; i++) {
         tot_fitness[i] = 0.0;
 
@@ -119,9 +113,9 @@ void variablesReset(float *tot_fitness, float weighted_tot_fitness[N_SCHOOLS][DI
 //---------------------------- MATH FUNCTIONS -----------------------------------------------
 //-------------------------------------------------------------------------------------------
 
-double rosenbrok(double *x) {
+double rosenbrok(double *x,int DIMENSIONS) {
     double sum = 0.0;
-    #pragma omp parallel for default(none) shared(x, DIMENSIONS) reduction(+:sum) private(term1, term2, i) // volendo si potrebbe mettere il modo per schedular
+    #pragma omp parallel for default(none) shared(x, DIMENSIONS) reduction(+:sum) // volendo si potrebbe mettere il modo per schedular
     for (int i = 0; i < DIMENSIONS - 1; i++) {
         double term1 = 100.0 * pow(x[i + 1] - x[i] * x[i], 2);
         double term2 = pow(1.0 - x[i], 2);
@@ -130,37 +124,37 @@ double rosenbrok(double *x) {
     return sum;
 }
 
-double rastrigin(double *x) {
+double rastrigin(double *x,int DIMENSIONS) {
     double sum = A * DIMENSIONS; // Start with A * DIM
-    #pragma omp parallel for default(none) shared(x, DIMENSIONS) reduction(+:sum) private(i)
+    #pragma omp parallel for default(none) shared(x, DIMENSIONS) reduction(+:sum)
     for (int i = 0; i < DIMENSIONS; i++) {
         sum += x[i] * x[i] - A * cos(2 * M_PI * x[i]);
     }
     return sum;
 }
 
-double min_sphere(double *x) {
+double min_sphere(double *x, int DIMENSIONS) {
     double sum = 0.0;
-    #pragma omp parallel for default(none) shared(x, DIMENSIONS) reduction(+:sum) private(i)
+    #pragma omp parallel for default(none) shared(x, DIMENSIONS) reduction(+:sum)
     for (int i = 0; i < DIMENSIONS; i++) {
         sum += x[i] * x[i];
     }
     return sum;
 }
 
-double max_sphere(double *x) {
+double max_sphere(double *x, int DIMENSIONS) {
     double sum = 0.0;
-    #pragma omp parallel for default(none) shared(x, DIMENSIONS) reduction(+:sum) private(i)
+    #pragma omp parallel for default(none) shared(x, DIMENSIONS) reduction(+:sum) 
     for (int i = 0; i < DIMENSIONS; i++) {
         sum += -(x[i] * x[i]);
     }
     return sum;
 }
 
-double ackley(double *x){
+double ackley(double *x, int DIMENSIONS){
     double sum1 = 0.0;
     double sum2 = 0.0;
-    #pragma omp parallel for default(none) shared(x, DIMENSIONS) reduction(+:sum1) reduction(+:sum2) private(i)
+    #pragma omp parallel for default(none) shared(x, DIMENSIONS) reduction(+:sum1) reduction(+:sum2) 
     for (int i = 0; i < DIMENSIONS; i++) {
         sum1 += x[i] * x[i];
         sum2 += cos(2 * M_PI * x[i]);
@@ -168,9 +162,9 @@ double ackley(double *x){
     return -20 * exp(-0.2 * sqrt(sum1 / DIMENSIONS)) - exp(sum2 / DIMENSIONS) + 20 + M_E;
 }
 
-double min_schwefel(double *x) {
+double min_schwefel(double *x, int DIMENSIONS) {
     double sum = 0.0;
-    #pragma omp parallel for default(none) shared(x, DIMENSIONS) reduction(+:sum) private(i)
+    #pragma omp parallel for default(none) shared(x, DIMENSIONS) reduction(+:sum)
     for (int i = 0; i < DIMENSIONS; i++) {
         sum += x[i] * sin(sqrt(fabs(x[i])));
     }
@@ -178,19 +172,19 @@ double min_schwefel(double *x) {
 }
 
 
-double objectiveFunction(double *x) {
+double objectiveFunction(double *x, int DIMENSIONS) {
     if (strcmp(FUNCTION, "min_rosenbrok") == 0) {
-        return rosenbrok(x);
+        return rosenbrok(x, DIMENSIONS);
     } else if (strcmp(FUNCTION, "min_sphere") == 0) {
-        return min_sphere(x);
+        return min_sphere(x, DIMENSIONS);
     } else if (strcmp(FUNCTION, "max_sphere") == 0) {
-        return max_sphere(x);
+        return max_sphere(x, DIMENSIONS);
     } else if (strcmp(FUNCTION, "min_rastrigin") == 0) {
-        return rastrigin(x);
+        return rastrigin(x, DIMENSIONS);
     } else if (strcmp(FUNCTION, "min_ackley") == 0) {
-        return ackley(x);
+        return ackley(x, DIMENSIONS);
     } else if (strcmp(FUNCTION, "min_schwefel") == 0) {
-        return min_schwefel(x);
+        return min_schwefel(x, DIMENSIONS);
     }else{
         return 0.0;
     }
@@ -202,7 +196,7 @@ double objectiveFunction(double *x) {
 
 
 
-void printFish(Fish fish){
+void printFish(Fish fish, int DIMENSIONS){
     printf("Fish: ");
     for(int i=0; i<DIMENSIONS; i++){
         printf("pos: %f - ", fish.position[i]);
@@ -211,7 +205,7 @@ void printFish(Fish fish){
 }
 
 // Funzione per inizializzare un singolo pesce
-void initFish(Fish *fish, int fish_index) {
+void initFish(Fish *fish, int fish_index, int DIMENSIONS, int N_FISHES_PER_SCHOOL) {
 
     // Posizioni iniziali divise per banco
     int school_index = fish_index / N_FISHES_PER_SCHOOL; // Calcola il banco
@@ -240,7 +234,7 @@ void initFish(Fish *fish, int fish_index) {
     fish->weight = W_SCALE_MAX / 2;   // Peso iniziale
     fish->previous_cycle_weight = fish->weight;
 
-    fish->fitness = objectiveFunction(fish->position)*MULTIPLIER;        // Fitness iniziale //TODO: capire qual è il valore migliore di inizializzazione
+    fish->fitness = objectiveFunction(fish->position, DIMENSIONS)*MULTIPLIER;        // Fitness iniziale //TODO: capire qual è il valore migliore di inizializzazione
     fish->new_fitness = fish->fitness;
 
     fish->max_individual_step = MAX_INDIVIDUAL_STEP; //TODO: capire qual è il valore migliore di inizializzazione e come aggiornarlo dinamicamente
@@ -248,8 +242,8 @@ void initFish(Fish *fish, int fish_index) {
 }
 
 // Funzione per inizializzare un array di pesci
-void initFishArray(Fish* fishArray) {
-    #pragma omp parallel for default(none) shared(fishArray, N_SCHOOLS, N_FISHES_PER_SCHOOL) private(i)
+void initFishArray(Fish* fishArray, int N_FISHES_PER_SCHOOL, int N_SCHOOLS) {
+    #pragma omp parallel for default(none) shared(fishArray, N_FISHES_PER_SCHOOL, N_SCHOOLS)
     for (int i = 0; i < N_FISHES_PER_SCHOOL*N_SCHOOLS; i++) {
         initFish(&fishArray[i], i);  // Inizializza ciascun pesce
         // printFish(fishArray[i]);
@@ -257,7 +251,7 @@ void initFishArray(Fish* fishArray) {
 }
 
 // Movimento individuale
-void individualMovement(Fish *fish, float *tot_delta_fitness, float *weighted_tot_delta_fitness, float *max_delta_fitness_improvement) {
+void individualMovement(Fish *fish, float *tot_delta_fitness, float *weighted_tot_delta_fitness, float *max_delta_fitness_improvement, int DIMENSIONS) {
 
     // Movimento casuale per ogni dimensione
     for (int d = 0; d < DIMENSIONS; d++)
@@ -269,7 +263,7 @@ void individualMovement(Fish *fish, float *tot_delta_fitness, float *weighted_to
     }
 
     // Aggiorno la fitness
-    fish->new_fitness = objectiveFunction(fish->new_position)*MULTIPLIER;
+    fish->new_fitness = objectiveFunction(fish->new_position, DIMENSIONS)*MULTIPLIER;
 
 
 
@@ -309,13 +303,13 @@ void individualMovement(Fish *fish, float *tot_delta_fitness, float *weighted_to
 }
 
 
-void individualMovementArray (Fish *fishArray, float *tot_delta_fitness, float weighted_tot_delta_fitness[N_SCHOOLS][DIMENSIONS], float *max_delta_fitness_improvement, int current_iter) {
+void individualMovementArray (Fish *fishArray, float *tot_delta_fitness, float** weighted_tot_delta_fitness, float *max_delta_fitness_improvement, int current_iter, const int N_SCHOOLS, const int DIMENSIONS,const int N_FISHES_PER_SCHOOL,const int UPDATE_FREQUENCY) {
     // DA TESTARE se è meglio farlo sul ciclo esterno oppure interno
     // idea parallelizzazione interna è farlo su tutti i pesci
     for (int s = 0; s < N_SCHOOLS; s++) {
-        #pragma omp parallel for default(none) shared(fishArray, tot_delta_fitness, weighted_tot_delta_fitness, max_delta_fitness_improvement, s) private(i)
+        #pragma omp parallel for default(none) shared(fishArray, tot_delta_fitness, weighted_tot_delta_fitness, max_delta_fitness_improvement, s, N_FISHES_PER_SCHOOL, DIMENSIONS)
         for (int i = 0; i < N_FISHES_PER_SCHOOL; i++) {
-            individualMovement(&fishArray[s*N_FISHES_PER_SCHOOL+i], &tot_delta_fitness[s], weighted_tot_delta_fitness[s], &max_delta_fitness_improvement[s]);  // Inizializza ciascun pesce
+            individualMovement(&fishArray[s*N_FISHES_PER_SCHOOL+i], &tot_delta_fitness[s], weighted_tot_delta_fitness[s], &max_delta_fitness_improvement[s], DIMENSIONS);  // Inizializza ciascun pesce
         }
     }
 
@@ -367,7 +361,7 @@ void updateWeights(Fish *fish, float *max_delta_fitness_improvement) {
     fish->fitness = fish->new_fitness;
 }
 
-void updateWeightsArray(Fish *fishArray,  float *max_delta_fitness_improvement) {
+void updateWeightsArray(Fish *fishArray,  float *max_delta_fitness_improvement, int N_SCHOOLS, int N_FISHES_PER_SCHOOL) {
     for (int s = 0; s < N_SCHOOLS; s++) {
         for (int i = 0; i < N_FISHES_PER_SCHOOL; i++) {
             updateWeights(&fishArray[s*N_FISHES_PER_SCHOOL+i], &max_delta_fitness_improvement[s]);
@@ -376,7 +370,7 @@ void updateWeightsArray(Fish *fishArray,  float *max_delta_fitness_improvement) 
 }
 
 
-void collectiveMovement(Fish *fish, float *tot_delta_fitness, float *weighted_tot_delta_fitness) {
+void collectiveMovement(Fish *fish, float *tot_delta_fitness, float *weighted_tot_delta_fitness, int DIMENSIONS) {
     if (*tot_delta_fitness == 0.0) {
         *tot_delta_fitness = 1;
     }
@@ -386,10 +380,10 @@ void collectiveMovement(Fish *fish, float *tot_delta_fitness, float *weighted_to
         // printf("Update for collective movement of %f\n", fish->new_position[d]-fish->position[d]);
         fish->position[d] = fish->new_position[d]; //TODO: fa schifo, ma segue la logica dell'aggiornare prima la new position e poi quella current
     }
-    fish->new_fitness = objectiveFunction(fish->position) * MULTIPLIER; // questo va fatto per forza!
+    fish->new_fitness = objectiveFunction(fish->position, DIMENSIONS) * MULTIPLIER; // questo va fatto per forza!
 }
 
-void collectiveMovementArray(Fish *fishArray, float *tot_delta_fitness, float weighted_tot_delta_fitness[N_SCHOOLS][DIMENSIONS]) {
+void collectiveMovementArray(Fish *fishArray, float *tot_delta_fitness, float weighted_tot_delta_fitness[N_SCHOOLS][DIMENSIONS], int N_SCHOOLS, int N_FISHES_PER_SCHOOL) {
     for (int s = 0; s < N_SCHOOLS; s++) {
         for (int i = 0; i < N_FISHES_PER_SCHOOL; i++) {
             collectiveMovement(&fishArray[s*N_FISHES_PER_SCHOOL+i], &tot_delta_fitness[s], weighted_tot_delta_fitness[s]);  // Inizializza ciascun pesce
@@ -397,7 +391,7 @@ void collectiveMovementArray(Fish *fishArray, float *tot_delta_fitness, float we
     }
 }
 
-void calculateBarycenters(Fish *fishArray, float barycenter[N_SCHOOLS][DIMENSIONS], int current_iter){
+void calculateBarycenters(Fish *fishArray, float barycenter[N_SCHOOLS][DIMENSIONS], int current_iter, int UPDATE_FREQUENCY, int DIMENSIONS, int N_SCHOOLS, int N_FISHES_PER_SCHOOL){
     
     if (current_iter%UPDATE_FREQUENCY==0){
         float common_numerator[DIMENSIONS];
@@ -454,7 +448,7 @@ void calculateBarycenters(Fish *fishArray, float barycenter[N_SCHOOLS][DIMENSION
 
 }
 
-void calculateSumWeights(Fish *fishArray, float *old_sum, float *new_sum, int current_iter){
+void calculateSumWeights(Fish *fishArray, float *old_sum, float *new_sum, int current_iter, int UPDATE_FREQUENCY, int N_FISHES_PER_SCHOOL, int N_SCHOOLS){
 
     if (current_iter%UPDATE_FREQUENCY==0){
         float complete_old_sum = 0.0;
@@ -483,7 +477,7 @@ void calculateSumWeights(Fish *fishArray, float *old_sum, float *new_sum, int cu
     }
 }
 
-void volitivePositionUpdateArray(Fish *fishArray, int school_index, int shrink, float *barycenter){
+void volitivePositionUpdateArray(Fish *fishArray, int school_index, int shrink, float *barycenter, int N_FISHES_PER_SCHOOL, int DIMENSIONS){
     double rand_mult = 0.0;
 
     // questo codice si può ottimizare mettendo shrink -1,1
@@ -529,21 +523,21 @@ void volitivePositionUpdateArray(Fish *fishArray, int school_index, int shrink, 
     }
 }
 
-void collectiveVolitiveArray(Fish *fishes, int current_iter) {
+void collectiveVolitiveArray(Fish *fishes, int current_iter, int N_SCHOOLS, int DIMENSIONS, int N_FISHES_PER_SCHOOL, int UPDATE_FREQUENCY) {
     float barycenter[N_SCHOOLS][DIMENSIONS];
-    calculateBarycenters(fishes, barycenter, current_iter);
+    calculateBarycenters(fishes, barycenter, current_iter, UPDATE_FREQUENCY, DIMENSIONS, N_SCHOOLS, N_FISHES_PER_SCHOOL);
 
     float old_sum_weights[N_SCHOOLS];
     float new_sum_weights[N_SCHOOLS];
-    calculateSumWeights(fishes, old_sum_weights, new_sum_weights, current_iter);
+    calculateSumWeights(fishes, old_sum_weights, new_sum_weights, current_iter, UPDATE_FREQUENCY, N_FISHES_PER_SCHOOL, N_SCHOOLS);
 
     for (int s = 0; s < N_SCHOOLS; s++) {
         if (old_sum_weights[s] < new_sum_weights[s]) {
             //shrink = 1 -> il banco ha guadagnato peso quindi si deve avvicinare al baricentro
-            volitivePositionUpdateArray(fishes, s, 1, barycenter[s]);
+            volitivePositionUpdateArray(fishes, s, 1, barycenter[s], N_FISHES_PER_SCHOOL, DIMENSIONS);
         } else if (old_sum_weights[s] > new_sum_weights[s]) {
             //shrink = 0 -> il banco ha perso peso quindi si deve allargare in cerca di cibo
-            volitivePositionUpdateArray(fishes, s, 0, barycenter[s]);
+            volitivePositionUpdateArray(fishes, s, 0, barycenter[s], N_FISHES_PER_SCHOOL, DIMENSIONS);
         }else{
             // printf("EQUAL WEIGHTS, do nothing");
         }
@@ -555,7 +549,7 @@ void collectiveVolitiveArray(Fish *fishes, int current_iter) {
     }
 }
 
-void breeding(Fish *fishes, int current_iter) {
+void breeding(Fish *fishes, int current_iter, int UPDATE_FREQUENCY, int N_FISHES_PER_SCHOOL, int N_SCHOOLS, int DIMENSIONS) {
 
     if (current_iter%UPDATE_FREQUENCY==0){
         // Indici del miglior, secondo miglior e peggiore pesce del banco
@@ -587,7 +581,7 @@ void breeding(Fish *fishes, int current_iter) {
                 fishes[worst_index].position[d] = (fishes[first_index].position[d] + fishes[second_index].position[d]) / 2;
             }
             fishes[worst_index].weight = (fishes[first_index].weight + fishes[second_index].weight) / 2;
-            fishes[worst_index].fitness = objectiveFunction(fishes[worst_index].position) * MULTIPLIER;
+            fishes[worst_index].fitness = objectiveFunction(fishes[worst_index].position, DIMENSIONS) * MULTIPLIER;
 
         }
 
@@ -623,7 +617,7 @@ void breeding(Fish *fishes, int current_iter) {
                     fishes[worst_index].position[d] = (fishes[first_index].position[d] + fishes[second_index].position[d]) / 2;
                 }
                 fishes[worst_index].weight = (fishes[first_index].weight + fishes[second_index].weight) / 2;
-                fishes[worst_index].fitness = objectiveFunction(fishes[worst_index].position) * MULTIPLIER;
+                fishes[worst_index].fitness = objectiveFunction(fishes[worst_index].position, DIMENSIONS) * MULTIPLIER;
 
             }
         }
@@ -648,11 +642,13 @@ int main(int argc, char *argv[]) {
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &size);
 
-    N_SCHOOLS = atoi(argv[1]);
-    N_FISHES_PER_SCHOOL = atoi(argv[2]);
-    DIMENSIONS = atoi(argv[3]);
-    MAX_ITER = atoi(argv[4]);
-    UPDATE_FREQUENCY = atoi(argv[5]);
+
+
+    const int N_SCHOOLS = atoi(argv[1]);
+    const int N_FISHES_PER_SCHOOL = atoi(argv[2]);
+    const int DIMENSIONS = atoi(argv[3]);
+    const int MAX_ITER = atoi(argv[4]);
+    const int UPDATE_FREQUENCY = atoi(argv[5]);
 
     printf("\nRUNNING WITH: N-SCHOOLS %d - N_FISHES_PER_SCHOOL %d - DIMENSIONS %d - MAX_ITER %d - UPDATE_FREQUENCY %d\n",N_SCHOOLS, N_FISHES_PER_SCHOOL, DIMENSIONS, MAX_ITER, UPDATE_FREQUENCY);
 
@@ -677,36 +673,36 @@ int main(int argc, char *argv[]) {
 
     // INITIALIZATION
     Fish *fishes = malloc(N_FISHES_PER_SCHOOL*N_SCHOOLS*sizeof(Fish)); //creiamo un vettore unico che sarà diviso in banchi di pesci in base agli indici
-    initFishArray(fishes);
+    initFishArray(fishes, N_FISHES_PER_SCHOOL, N_SCHOOLS);
     if (DIMENSIONS <= 2 && LOG) {
-        WriteFishesToJson(fishes, file, 1, 0);
+        WriteFishesToJson(fishes, file, 1, 0, N_FISHES_PER_SCHOOL, N_SCHOOLS, DIMENSIONS);
     }
 
     // MAIN LOOP
     // le iterazioni devono essere sequenziali quindi non le possiamo parallelizzare
     for (int iter = 1; iter < MAX_ITER; iter++) { 
 
-        variablesReset(total_fitness, weighted_total_fitness, max_improvement);
+        variablesReset(total_fitness, weighted_total_fitness, max_improvement, N_SCHOOLS, DIMENSIONS);
 
         // INDIVIDUAL MOVEMENT
-        individualMovementArray(fishes, total_fitness, weighted_total_fitness, max_improvement, iter);
+        individualMovementArray(fishes, total_fitness, weighted_total_fitness, max_improvement, iter, N_SCHOOLS, DIMENSIONS, N_FISHES_PER_SCHOOL, UPDATE_FREQUENCY);
 
         // UPDATE WEIGHTS
-        updateWeightsArray(fishes, max_improvement);
+        updateWeightsArray(fishes, max_improvement, N_SCHOOLS, N_FISHES_PER_SCHOOL);
 
         // COLLECTIVE MOVEMENT
-        collectiveMovementArray(fishes, total_fitness, weighted_total_fitness);
+        collectiveMovementArray(fishes, total_fitness, weighted_total_fitness, N_SCHOOLS, N_FISHES_PER_SCHOOL);
 
         // COLLECTIVE VOLITIVE MOVEMENT
-        collectiveVolitiveArray(fishes, iter);
+        collectiveVolitiveArray(fishes, iter, N_SCHOOLS, DIMENSIONS, N_FISHES_PER_SCHOOL, UPDATE_FREQUENCY);
 
         // BREEDING
-        breeding(fishes, iter);
+        breeding(fishes, iter, UPDATE_FREQUENCY, N_FISHES_PER_SCHOOL, N_SCHOOLS, DIMENSIONS);
 
        
         // SAVE ON FILE
         if (DIMENSIONS <= 2 && LOG) {
-            WriteFishesToJson(fishes, file, 0, iter==MAX_ITER-1?1:0);
+            WriteFishesToJson(fishes, file, 0, iter==MAX_ITER-1?1:0,  N_FISHES_PER_SCHOOL, N_SCHOOLS, DIMENSIONS);
         }else{
             printf("not writing");
         }
