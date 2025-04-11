@@ -745,9 +745,9 @@ int main(int argc, char *argv[]) {
     printf("fuori 2\n");
  
     // Close the file and check for errors
-    if (fclose(file) != 0) {
-        perror("Error closing file");
-    }
+    // if (fclose(file) != 0) {
+    //     perror("Error closing file");
+    // }
     printf("fuori 3\n");
     MPI_Finalize();
 
