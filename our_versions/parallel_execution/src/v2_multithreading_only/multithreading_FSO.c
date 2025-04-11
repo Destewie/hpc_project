@@ -415,9 +415,11 @@ void calculateBarycenters(Fish *fishArray, float** barycenter, int current_iter,
             for (int d = 0; d < DIMENSIONS; d++) {
                 if (common_denominator[d] != 0.0) {
                     barycenter[s][d] = common_numerator[d] / common_denominator[d];
+                    printf("accesso al baricentro[%d][%d]\n", s, d);
                 }
             }
         }
+        printf("common barycenter written w UF=0\n");
     }else{
 
         float numerator[N_SCHOOLS][DIMENSIONS];
@@ -444,6 +446,7 @@ void calculateBarycenters(Fish *fishArray, float** barycenter, int current_iter,
                 }
             }
         }
+        printf("common barycenter written w UF=1\n");
     }
 
 }
