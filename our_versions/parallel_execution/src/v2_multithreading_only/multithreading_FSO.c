@@ -744,14 +744,14 @@ int main(int argc, char *argv[]) {
 
     printf("fuori 2\n");
  
-    // Close the file and check for errors
-    // if (fclose(file) != 0) {
-    //     perror("Error closing file");
-    // }
-    printf("fuori 3\n");
-    MPI_Finalize();
+    #pragma omp single {
+        fclose(file);
+        printf("fuori 3\n");
 
-    printf("fuori 4\n");
+        MPI_Finalize();
+
+        printf("fuori 4\n");
+    }
 
     printf("END: %f\n", end-start);
   
