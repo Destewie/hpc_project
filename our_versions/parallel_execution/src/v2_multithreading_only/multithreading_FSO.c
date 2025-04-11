@@ -744,10 +744,10 @@ int main(int argc, char *argv[]) {
     end = MPI_Wtime();
 
     printf("fuori 2\n");
+    
     #pragma omp barrier 
-    {
-        fclose(file);
-    }
+    fclose(file);
+    
     printf("fuori 3\n");
 
     #pragma omp barrier
