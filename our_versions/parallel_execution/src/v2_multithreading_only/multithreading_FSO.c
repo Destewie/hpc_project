@@ -673,7 +673,7 @@ int main(int argc, char *argv[]) {
     char filename[50];
     // sprintf(filename, "/home/federico.desanti/hpc_project/our_versions/evolution_logs/%s_%dd_log.json",FUNCTION, DIMENSIONS);
     sprintf(filename, "/home/annachiara.fortuna/hpc_project/our_versions/evolution_logs/%s_%dd_log.json",FUNCTION, DIMENSIONS);
-    FILE* file = fopen(filename, "w");
+    FILE *file = fopen(filename, "w");
     if (file == NULL) {
         perror("Error opening file");
         return 1;
@@ -745,8 +745,7 @@ int main(int argc, char *argv[]) {
 
     printf("fuori 2\n");
     
-    #pragma omp barrier 
-    fclose(file);
+    // fclose(file);
     
     printf("fuori 3\n");
 
