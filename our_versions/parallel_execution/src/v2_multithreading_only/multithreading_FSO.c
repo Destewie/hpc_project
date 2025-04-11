@@ -737,23 +737,24 @@ int main(int argc, char *argv[]) {
         // }
     }
 
-    printf("fuori 1\n");
-
-    //timer stop
-    end = MPI_Wtime();
-
-    printf("fuori 2\n");
  
     #pragma omp single {
+        printf("fuori 1\n");
+
+        //timer stop
+        end = MPI_Wtime();
+
+        printf("fuori 2\n");
         fclose(file);
         printf("fuori 3\n");
 
         MPI_Finalize();
 
         printf("fuori 4\n");
+
+        printf("END: %f\n", end-start);
     }
 
-    printf("END: %f\n", end-start);
   
 
     // print all the fishes
