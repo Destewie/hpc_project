@@ -87,3 +87,9 @@ Stessa idea di V1.1 con tempo calcolato correttamente
 ### v2_multithreaded only
 Idea di usare SOLO multithreading per parallelizzare le cose
 DUBBIO: sarebbe forse da fare un unica versione in cui si può fare sia multithreading sia parallelizzazione ibrida?
+
+Nei pragma, non serve specificare le variabili const e globali come shared.
+Tuttavia, abbiamo avuto dei problemi quando dichiaravamo delle variabili come globali per poi inizializzarle nel main. 
+Per ovviare a questo problema, abbiamo dovuto ripiegare sul passare le variabili precedentemente globali come parametri delle funzioni.
+
+
