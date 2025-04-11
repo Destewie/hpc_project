@@ -744,8 +744,11 @@ int main(int argc, char *argv[]) {
 
     printf("fuori 2\n");
  
-    if (file != NULL || file != nullptr) {
+    try {
+        // Close the file
         fclose(file);
+    } catch (const std::exception& e) {
+        printf("Error closing file: %s\n", e.what());
     }
     printf("fuori 3\n");
     MPI_Finalize();
