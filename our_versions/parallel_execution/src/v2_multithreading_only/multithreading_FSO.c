@@ -393,7 +393,6 @@ void collectiveMovementArray(Fish *fishArray, float *tot_delta_fitness, float** 
 
 void calculateBarycenters(Fish *fishArray, float** barycenter, int current_iter, const int UPDATE_FREQUENCY, const int DIMENSIONS, const int N_SCHOOLS, const int N_FISHES_PER_SCHOOL){
 
-    printf("entro nella funz\n");
     if (current_iter%UPDATE_FREQUENCY==0){
         float common_numerator[DIMENSIONS];
         float common_denominator[DIMENSIONS];
@@ -412,17 +411,13 @@ void calculateBarycenters(Fish *fishArray, float** barycenter, int current_iter,
             }
         }
 
-        printf("argargarg\n");
-
         for (int s = 0; s < N_SCHOOLS; s++) {
             for (int d = 0; d < DIMENSIONS; d++) {
                 if (common_denominator[d] != 0.0) {
                     barycenter[s][d] = common_numerator[d] / common_denominator[d];
-                    printf("accesso al baricentro[%d][%d]\n", s, d);
                 }
             }
         }
-        printf("common barycenter written w UF=0\n");
     }else{
 
         float numerator[N_SCHOOLS][DIMENSIONS];
@@ -449,7 +444,6 @@ void calculateBarycenters(Fish *fishArray, float** barycenter, int current_iter,
                 }
             }
         }
-        printf("common barycenter written w UF=1\n");
     }
 
 }
@@ -535,15 +529,12 @@ void collectiveVolitiveArray(Fish *fishes, int current_iter, const int N_SCHOOLS
     for (int i = 0; i < N_SCHOOLS; i++) {
         barycenter[i] = malloc(DIMENSIONS * sizeof(float));
     }
-    printf("qui ci arrivo\n");
-    calculateBarycenters(fishes, barycenter, current_iter, UPDATE_FREQUENCY, DIMENSIONS, N_SCHOOLS, N_FISHES_PER_SCHOOL);
 
-    printf("calculate barycenter andatoh\n");
+    calculateBarycenters(fishes, barycenter, current_iter, UPDATE_FREQUENCY, DIMENSIONS, N_SCHOOLS, N_FISHES_PER_SCHOOL);
     
     float old_sum_weights[N_SCHOOLS];
     float new_sum_weights[N_SCHOOLS];
     calculateSumWeights(fishes, old_sum_weights, new_sum_weights, current_iter, UPDATE_FREQUENCY, N_FISHES_PER_SCHOOL, N_SCHOOLS);
-    printf("calculate sum weights\n");
 
     for (int s = 0; s < N_SCHOOLS; s++) {
         if (old_sum_weights[s] < new_sum_weights[s]) {
@@ -705,32 +696,32 @@ int main(int argc, char *argv[]) {
     // le iterazioni devono essere sequenziali quindi non le possiamo parallelizzare
     for (int iter = 1; iter < MAX_ITER; iter++) { 
 
-        printf("1 - iteration %d\n", iter);
+        // printf("1 - iteration %d\n", iter);
         variablesReset(total_fitness, weighted_total_fitness, max_improvement, N_SCHOOLS, DIMENSIONS);
 
         // INDIVIDUAL MOVEMENT
-        printf("2 - iteration %d\n", iter);
+        // printf("2 - iteration %d\n", iter);
         individualMovementArray(fishes, total_fitness, weighted_total_fitness, max_improvement, iter, N_SCHOOLS, DIMENSIONS, N_FISHES_PER_SCHOOL, UPDATE_FREQUENCY);
 
         // UPDATE WEIGHTS
-        printf("3 - iteration %d\n", iter);
+        // printf("3 - iteration %d\n", iter);
         updateWeightsArray(fishes, max_improvement, N_SCHOOLS, N_FISHES_PER_SCHOOL);
 
         // COLLECTIVE MOVEMENT
-        printf("4 - iteration %d\n", iter);
+        // printf("4 - iteration %d\n", iter);
         collectiveMovementArray(fishes, total_fitness, weighted_total_fitness, N_SCHOOLS, N_FISHES_PER_SCHOOL, DIMENSIONS);
 
         // COLLECTIVE VOLITIVE MOVEMENT
-        printf("5 - iteration %d\n", iter);
+        // printf("5 - iteration %d\n", iter);
         collectiveVolitiveArray(fishes, iter, N_SCHOOLS, DIMENSIONS, N_FISHES_PER_SCHOOL, UPDATE_FREQUENCY);
 
         // BREEDING
-        printf("6 - iteration %d\n", iter);
+        // printf("6 - iteration %d\n", iter);
         breeding(fishes, iter, UPDATE_FREQUENCY, N_FISHES_PER_SCHOOL, N_SCHOOLS, DIMENSIONS);
 
        
         // SAVE ON FILE
-        printf("7 - iteration %d\n", iter);
+        // printf("7 - iteration %d\n", iter);
         if (DIMENSIONS <= 2 && LOG) {
             WriteFishesToJson(fishes, file, 0, iter==MAX_ITER-1?1:0,  N_FISHES_PER_SCHOOL, N_SCHOOLS, DIMENSIONS);
         }else{
@@ -746,22 +737,15 @@ int main(int argc, char *argv[]) {
         // }
     }
 
- 
-    printf("fuori 1\n");
-
     //timer stop
     end = MPI_Wtime();
 
-    printf("fuori 2\n");
-    
-    // fclose(file);
-    
-    printf("fuori 3\n");
+    fclose(file);
 
     #pragma omp barrier
     MPI_Finalize();
 
-    printf("fuori 4\n");
+    // printf("fuori 4\n");
 
     printf("END: %f\n", end-start);
 
