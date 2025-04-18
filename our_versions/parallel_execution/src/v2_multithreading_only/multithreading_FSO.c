@@ -681,7 +681,16 @@ int main(int argc, char *argv[]) {
 
     // float best_fitness[N_SCHOOLS];
     float total_fitness[N_SCHOOLS];
-    float **weighted_total_fitness = malloc(N_SCHOOLS*sizeof(float));
+    float **weighted_total_fitness = malloc(N_SCHOOLS*sizeof(float*));
+    if (weighted_total_fitness==NULL){
+        exit(2);
+    }
+    for (int i = 0; i < N_SCHOOLS; i++) {
+        weighted_total_fitness[i] = malloc(DIMENSIONS*sizeof(float));
+        if (weighted_total_fitness[i]==NULL){
+            exit(2);
+        }
+    }
     float max_improvement[N_SCHOOLS];
     srand(time(NULL));  // Seed for random number generation
 
