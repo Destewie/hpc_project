@@ -709,25 +709,39 @@ int main(int argc, char *argv[]) {
     }
 
     // MAIN LOOP
+    float a, b, c, d, e, f, g, h, i, j, k, l, m, n;
     // le iterazioni devono essere sequenziali quindi non le possiamo parallelizzare
     for (int iter = 1; iter < MAX_ITER; iter++) { 
 
+        a = MPI_Wtime();
         variablesReset(total_fitness, weighted_total_fitness, max_improvement, N_SCHOOLS, DIMENSIONS);
+        b = MPI_Wtime();
 
+        
         // INDIVIDUAL MOVEMENT
+        c = MPI_Wtime();
         individualMovementArray(fishes, total_fitness, weighted_total_fitness, max_improvement, iter, N_SCHOOLS, DIMENSIONS, N_FISHES_PER_SCHOOL, UPDATE_FREQUENCY);
+        d = MPI_Wtime();
 
         // UPDATE WEIGHTS
+        e = MPI_Wtime();
         updateWeightsArray(fishes, max_improvement, N_SCHOOLS, N_FISHES_PER_SCHOOL);
+        f = MPI_Wtime();
 
         // COLLECTIVE MOVEMENT
+        g = MPI_Wtime();
         collectiveMovementArray(fishes, total_fitness, weighted_total_fitness, N_SCHOOLS, N_FISHES_PER_SCHOOL, DIMENSIONS);
+        h = MPI_Wtime();
 
         // COLLECTIVE VOLITIVE MOVEMENT
+        i = MPI_Wtime();
         collectiveVolitiveArray(fishes, iter, N_SCHOOLS, DIMENSIONS, N_FISHES_PER_SCHOOL, UPDATE_FREQUENCY);
+        l = MPI_Wtime();
 
         // BREEDING
+        m = MPI_Wtime();
         breeding(fishes, iter, UPDATE_FREQUENCY, N_FISHES_PER_SCHOOL, N_SCHOOLS, DIMENSIONS);
+        n = MPI_Wtime();
 
        
         // SAVE ON FILE
@@ -750,6 +764,14 @@ int main(int argc, char *argv[]) {
 
     #pragma omp barrier
     MPI_Finalize();
+
+    printf("Variablee reset- %f\n", b-a);
+    printf("Individual movement- %f\n", d-c);
+    printf("Update weights- %f\n", f-e);
+    printf("Collective movement- %f\n", h-g); 
+    printf("Collective volitive- %f\n", l-i); 
+    printf("Breeding- %f\n", n-m); 
+    
 
     printf("END: %f\n", end-start);
 
