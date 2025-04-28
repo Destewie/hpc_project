@@ -36,7 +36,7 @@ mpicc $C_PROGRAM_PATH -g -Wall -lm -std=c99 -o $EXECUTABLE_PATH_AND_NAME
 
 ### Comparison Test
 
-mpirun.actual -n 1 $EXECUTABLE_PATH_AND_NAME 1 500 100 100 1    
+mpirun.actual -n 1 $EXECUTABLE_PATH_AND_NAME 1 5000 100 100 1    
 
 ###
 

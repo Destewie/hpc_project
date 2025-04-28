@@ -15,9 +15,10 @@
 #PBS -l walltime=06:00:00
 
 # chunks (~nodes) : cores per chunk : shared memory per chunk (?)
-#PBS -l select=1:ncpus=10:mem=2gb
-export OMP_NUM_THREADS=10
+#PBS -l select=1:ncpus=8:mem=2gb
+export OMP_NUM_THREADS=8
 export OMP_PROC_BIND=close
+export OMP_PLACES=cores
 
 
 readonly C_PROGRAM_PATH=~/hpc_project/our_versions/parallel_execution/src/v2_multithreading_only/multithreading_FSO.c
@@ -31,7 +32,7 @@ mpicc $C_PROGRAM_PATH -g -Wall -fopenmp -lm -std=c99 -o $EXECUTABLE_PATH_AND_NAM
 
 # run
 # <"Usage: N_SCHOOLS N_FISHES_PER_SCHOOL DIMENSIONS MAX_ITER UPDATE_FREQUENCY">
-mpirun.actual -n 1 $EXECUTABLE_PATH_AND_NAME 1 200 2 100 1
+mpirun.actual -n 1 $EXECUTABLE_PATH_AND_NAME 1 5000 1000 100 1
 
 # PLAN to MODIFY N_FISHES_PER_SCHOOL and N_SCHOOLS while maintaining the same N_FISHES
 # -n x -> x is the number of processes = number of schools
