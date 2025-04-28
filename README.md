@@ -114,3 +114,9 @@ Con 8 core e 8 thread
 247.77s
 
 Qui c'è qualcosa che ci puzza. Noi ci aspettavamo questi tempi proporzionalmente decrescenti al numero di core che usiamo.
+Non stiamo ben capendo qual è il motivo dietro a tutto questo, ma troviamo che la combinazione tra omp_places=cores e omp_proc_bind=close sembra dare buoni risultati.
+
+Abbiamo poi aggiunto omp_scheule="dynamic" e "dynamic,1"
+
+Forse ci starebbe usare la clausola di omp "collapse(2)" per parallelizzare due loop nestati in modo furbo.
+

@@ -19,7 +19,7 @@
 export OMP_NUM_THREADS=8
 export OMP_PROC_BIND=close
 export OMP_PLACES=cores
-export OMP_SCHEDULE="dynamic,1"
+export OMP_SCHEDULE="dynamic"
 
 
 readonly C_PROGRAM_PATH=~/hpc_project/our_versions/parallel_execution/src/v2_multithreading_only/multithreading_FSO.c

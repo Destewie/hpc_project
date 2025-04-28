@@ -306,6 +306,7 @@ void individualMovement(Fish *fish, float *tot_delta_fitness, float *weighted_to
 void individualMovementArray (Fish *fishArray, float *tot_delta_fitness, float** weighted_tot_delta_fitness, float *max_delta_fitness_improvement, int current_iter, const int N_SCHOOLS, const int DIMENSIONS, const int N_FISHES_PER_SCHOOL, const int UPDATE_FREQUENCY) {
     // DA TESTARE se è meglio farlo sul ciclo esterno oppure interno
     // idea parallelizzazione interna è farlo su tutti i pesci
+
     // #pragma omp parallel for collapse(2) default(none) shared(fishArray, tot_delta_fitness, weighted_tot_delta_fitness, max_delta_fitness_improvement)
     for (int s = 0; s < N_SCHOOLS; s++) {
         #pragma omp parallel for default(none) shared(fishArray, tot_delta_fitness, weighted_tot_delta_fitness, max_delta_fitness_improvement, s)
