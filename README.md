@@ -93,3 +93,24 @@ Tuttavia, abbiamo avuto dei problemi quando dichiaravamo delle variabili come gl
 Per ovviare a questo problema, abbiamo dovuto ripiegare sul passare le variabili precedentemente globali come parametri delle funzioni.
 
 
+# TEST 28/04/2025
+Vogliamo capire più o meno quanto i tempi di esecuzione si rimpiccioliscano all'aumentare dei thread (senza mulutiprocessing... per ora).
+Per fare questi test, usiamo unicamente la versione solo multithreading andando a tweakare il numero di thread ed il numero di core che richiediamo.
+
+STIAMO SEMPRE ANDANDO AD OPERARE CON UN SOLO PROCESSO
+N_SCHOOLS - N_FISHES_PER_SCHOOL - DIMENSIONS - MAX_ITER - UPDATE-_FREQUENCY
+1 - 5000 - 1000 - 100 - 1
+
+Con 1 core e 1 thread (sequenziale)
+91.32s
+
+Con 2 core e 2 thread
+83.02s
+
+Con 4 core e 4 thread
+156.00s
+
+Con 8 core e 8 thread
+247.77s
+
+Qui c'è qualcosa che ci puzza. Noi ci aspettavamo questi tempi proporzionalmente decrescenti al numero di core che usiamo.
