@@ -15,11 +15,11 @@
 #PBS -l walltime=06:00:00
 
 # chunks (~nodes) : cores per chunk : shared memory per chunk (?)
-#PBS -l select=1:ncpus=8:mem=2gb
-export OMP_NUM_THREADS=8
+#PBS -l select=1:ncpus=4:mem=2gb
+export OMP_NUM_THREADS=4
 export OMP_PROC_BIND=close
 export OMP_PLACES=cores
-export OMP_SCHEDULE="dynamic"
+# export OMP_SCHEDULE="dynamic"
 
 
 readonly C_PROGRAM_PATH=~/hpc_project/our_versions/parallel_execution/src/v2_multithreading_only/multithreading_FSO.c
