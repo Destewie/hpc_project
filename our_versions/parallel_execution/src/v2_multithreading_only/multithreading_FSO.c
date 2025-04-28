@@ -98,11 +98,16 @@ double clamp(double value, double min, double max) {
 // Per resettare le variabili all'inizio di ogni epoca
 void variablesReset(float *tot_fitness, float** weighted_tot_fitness, float *max_improvement,const int N_SCHOOLS,const int DIMENSIONS) {
 
-    # pragma omp parallel for default(none) shared(tot_fitness, weighted_tot_fitness, max_improvement) // volendo si potrebbe mettere il modo per schedulare
-    for (int i = 0; i < N_SCHOOLS; i++) {
+
+    int i, d;
+
+    //TODO: vale veramente la pena parallelizzare questa funzione??
+    // # pragma omp parallel for default(none) shared(tot_fitness, weighted_tot_fitness, max_improvement) // volendo si potrebbe mettere il modo per schedulare
+    // # pragma omp parallel for collapse(2) default(none) private(i,d) shared(tot_fitness, weighted_tot_fitness, max_improvement) // volendo si potrebbe mettere il modo per schedulare
+    for (i = 0; i < N_SCHOOLS; i++) {
         tot_fitness[i] = 0.0;
 
-        for (int d = 0; d < DIMENSIONS; d++) {
+        for (d = 0; d < DIMENSIONS; d++) {
             weighted_tot_fitness[i][d] = 0.0;
         }
         max_improvement[i] = 0.0;
@@ -115,7 +120,7 @@ void variablesReset(float *tot_fitness, float** weighted_tot_fitness, float *max
 
 double rosenbrok(double *x,int DIMENSIONS) {
     double sum = 0.0;
-    #pragma omp parallel for default(none) shared(x, DIMENSIONS) reduction(+:sum) // volendo si potrebbe mettere il modo per schedular
+    // #pragma omp parallel for default(none) shared(x, DIMENSIONS) reduction(+:sum) // volendo si potrebbe mettere il modo per schedular
     for (int i = 0; i < DIMENSIONS - 1; i++) {
         double term1 = 100.0 * pow(x[i + 1] - x[i] * x[i], 2);
         double term2 = pow(1.0 - x[i], 2);
@@ -126,7 +131,7 @@ double rosenbrok(double *x,int DIMENSIONS) {
 
 double rastrigin(double *x,const int DIMENSIONS) {
     double sum = A * DIMENSIONS; // Start with A * DIM
-    #pragma omp parallel for default(none) shared(x) reduction(+:sum)
+    // #pragma omp parallel for default(none) shared(x) reduction(+:sum)
     for (int i = 0; i < DIMENSIONS; i++) {
         sum += x[i] * x[i] - A * cos(2 * M_PI * x[i]);
     }
@@ -135,7 +140,7 @@ double rastrigin(double *x,const int DIMENSIONS) {
 
 double min_sphere(double *x,const int DIMENSIONS) {
     double sum = 0.0;
-    #pragma omp parallel for default(none) shared(x) reduction(+:sum)
+    // #pragma omp parallel for default(none) shared(x) reduction(+:sum)
     for (int i = 0; i < DIMENSIONS; i++) {
         sum += x[i] * x[i];
     }
@@ -144,7 +149,7 @@ double min_sphere(double *x,const int DIMENSIONS) {
 
 double max_sphere(double *x,const int DIMENSIONS) {
     double sum = 0.0;
-    #pragma omp parallel for default(none) shared(x) reduction(+:sum) 
+    // #pragma omp parallel for default(none) shared(x) reduction(+:sum) 
     for (int i = 0; i < DIMENSIONS; i++) {
         sum += -(x[i] * x[i]);
     }
@@ -154,7 +159,7 @@ double max_sphere(double *x,const int DIMENSIONS) {
 double ackley(double *x,const int DIMENSIONS){
     double sum1 = 0.0;
     double sum2 = 0.0;
-    #pragma omp parallel for default(none) shared(x) reduction(+:sum1) reduction(+:sum2) 
+    // #pragma omp parallel for default(none) shared(x) reduction(+:sum1) reduction(+:sum2) 
     for (int i = 0; i < DIMENSIONS; i++) {
         sum1 += x[i] * x[i];
         sum2 += cos(2 * M_PI * x[i]);
@@ -164,7 +169,7 @@ double ackley(double *x,const int DIMENSIONS){
 
 double min_schwefel(double *x,const int DIMENSIONS) {
     double sum = 0.0;
-    #pragma omp parallel for default(none) shared(x) reduction(+:sum)
+    // #pragma omp parallel for default(none) shared(x) reduction(+:sum)
     for (int i = 0; i < DIMENSIONS; i++) {
         sum += x[i] * sin(sqrt(fabs(x[i])));
     }
