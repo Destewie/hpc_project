@@ -728,14 +728,10 @@ int main(int argc, char *argv[]) {
 
 
     //timer stop
-    // gettimeofday(&end_tot, NULL);
-    // time_elapsed_tot = (end_tot.tv_sec - start_tot.tv_sec) * 1000.0 + (end_tot.tv_usec - start_tot.tv_usec) / 1000.0;
-    // // printf("TIME of execution: %f ms\n", time_elapsed_tot);
-    // printf("%f\n", time_elapsed_tot);
     end = MPI_Wtime();
-    printf("%f\n", end-start);
 
     MPI_Finalize();
+    printf("%f\n", end-start);
 
     // fclose(file);
 
