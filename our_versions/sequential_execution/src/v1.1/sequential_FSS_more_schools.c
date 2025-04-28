@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <mpi.h>
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
 #endif
@@ -639,6 +640,11 @@ int main(int argc, char *argv[]) {
     // printf("\nRUNNING WITH: N-SCHOOLS %d - N_FISHES_PER_SCHOOL %d - DIMENSIONS %d - MAX_ITER %d - UPDATE_FREQUENCY %d\n",N_SCHOOLS, N_FISHES_PER_SCHOOL, DIMENSIONS, MAX_ITER, UPDATE_FREQUENCY);
     printf("\nRUNNING WITH: N-SCHOOLS %d - N_FISHES_PER_SCHOOL %d - DIMENSIONS %d - MAX_ITER %d - UPDATE_FREQUENCY %d\n",N_SCHOOLS, N_FISHES_PER_SCHOOL, DIMENSIONS, MAX_ITER, UPDATE_FREQUENCY);
 
+    // MPI initialization
+    MPI_Init(&argc, &argv);
+    int rank, size;
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
 
     //create a timer
     float start = MPI_Wtime(); 
@@ -728,6 +734,8 @@ int main(int argc, char *argv[]) {
     // printf("%f\n", time_elapsed_tot);
     end = MPI_Wtime();
     printf("%f\n", end-start);
+
+    MPI_Finalize();
 
     // fclose(file);
 

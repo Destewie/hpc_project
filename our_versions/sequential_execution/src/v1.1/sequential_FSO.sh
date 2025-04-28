@@ -24,7 +24,7 @@ readonly EXECUTABLE_PATH_AND_NAME=~/hpc_project/our_versions/sequential_executio
 module load mpich-3.2
 
 # build
-mpicc $C_PROGRAM_PATH -g -Wall -fopenmp -lm -std=c99 -o $EXECUTABLE_PATH_AND_NAME 
+mpicc $C_PROGRAM_PATH -g -Wall -lm -std=c99 -o $EXECUTABLE_PATH_AND_NAME 
 
 # run guidelines
 # first param   = number of schools
