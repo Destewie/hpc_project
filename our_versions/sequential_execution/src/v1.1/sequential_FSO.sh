@@ -26,12 +26,20 @@ module load mpich-3.2
 # build
 mpicc $C_PROGRAM_PATH -g -Wall -fopenmp -lm -std=c99 -o $EXECUTABLE_PATH_AND_NAME 
 
-# run
+# run guidelines
 # first param   = number of schools
 # second param  = number of fishes per school
 # third param   = number of dimensions
 # fourth param  = number of iterations
 # fifth param  = update frequency 
+
+
+### Comparison Test
+
+mpirun.actual -n 1 $EXECUTABLE_PATH_AND_NAME 1 500 100 100 1    
+
+###
+
 
 # PLAN to MODIFY N_FISHES_PER_SCHOOL and N_SCHOOLS while maintaining the same N_FISHES
 
@@ -49,9 +57,9 @@ mpicc $C_PROGRAM_PATH -g -Wall -fopenmp -lm -std=c99 -o $EXECUTABLE_PATH_AND_NAM
 #     mpirun.actual -n 1 $EXECUTABLE_PATH_AND_NAME 20 $i 1000 100 1    
 # done
 
-for ((i = 500; i <= 2500; i=i+500)); do
-    mpirun.actual -n 1 $EXECUTABLE_PATH_AND_NAME 40 $i 1000 100 1    
-done
+# for ((i = 500; i <= 2500; i=i+500)); do
+#     mpirun.actual -n 1 $EXECUTABLE_PATH_AND_NAME 40 $i 1000 100 1    
+# done
 
 
 # # 20.000 pesci totali - update freq = 2
