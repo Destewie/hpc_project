@@ -709,7 +709,7 @@ int main(int argc, char *argv[]) {
     }
 
     // MAIN LOOP
-    float a, b, c, d, e, f, g, h, i, j, k, l, m, n;
+    double a, b, c, d, e, f, g, h, i, j, k, l, m, n;
     // le iterazioni devono essere sequenziali quindi non le possiamo parallelizzare
     for (int iter = 1; iter < MAX_ITER; iter++) { 
 
