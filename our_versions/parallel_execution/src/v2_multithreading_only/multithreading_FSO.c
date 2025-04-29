@@ -32,6 +32,14 @@
 
 #define LOG 1 // 1 to log the results, 0 otherwise
 
+// è una struct per fare in modo che la cache dei thread non subisca del false sharing e conseguenti race conditions
+// Seed da usare in combo con rand_r() 
+typedef struct { 
+    unsigned int seed; 
+    char pad[64 - sizeof(unsigned int)]; 
+} padded_seed_t;
+
+
 //10 very different colors that will be used by a python script to plot the results
 const char *COLORS[] = {"#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf"};
 
@@ -256,12 +264,12 @@ void initFishArray(Fish* fishArray, const int DIMENSIONS, const int N_FISHES_PER
 }
 
 // Movimento individuale
-void individualMovement(Fish *fish, float *tot_delta_fitness, float *weighted_tot_delta_fitness, float *max_delta_fitness_improvement, const int DIMENSIONS) {
+void individualMovement(Fish *fish, float *tot_delta_fitness, float *weighted_tot_delta_fitness, float *max_delta_fitness_improvement, unsigned int *thread_seed, const int DIMENSIONS) {
 
     // Movimento casuale per ogni dimensione
     for (int d = 0; d < DIMENSIONS; d++)
     {
-        double normalized_movement = (rand() / (double)RAND_MAX) * 2 - 1; //valore qualsiasi tra -1 e 1
+        double normalized_movement = (rand_r(thread_seed) / (double)RAND_MAX) * 2 - 1; //valore qualsiasi tra -1 e 1
         double individual_step = normalized_movement * fish->max_individual_step;
 
         fish->new_position[d] = fish->position[d] + individual_step;
@@ -308,17 +316,23 @@ void individualMovement(Fish *fish, float *tot_delta_fitness, float *weighted_to
 }
 
 
-void individualMovementArray (Fish *fishArray, float *tot_delta_fitness, float** weighted_tot_delta_fitness, float *max_delta_fitness_improvement, int current_iter, const int N_SCHOOLS, const int DIMENSIONS, const int N_FISHES_PER_SCHOOL, const int UPDATE_FREQUENCY) {
+void individualMovementArray (Fish *fishArray, float *tot_delta_fitness, float** weighted_tot_delta_fitness, float *max_delta_fitness_improvement, int current_iter, padded_seed_t *seeds, const int N_SCHOOLS, const int DIMENSIONS, const int N_FISHES_PER_SCHOOL, const int UPDATE_FREQUENCY) {
     // DA TESTARE se è meglio farlo sul ciclo esterno oppure interno
     // idea parallelizzazione interna è farlo su tutti i pesci
 
     int s, i;
+    
+    #pragma omp parallel default(none) private(s,i) shared(fishArray, tot_delta_fitness, weighted_tot_delta_fitness, max_delta_fitness_improvement, seeds) {
 
-    #pragma omp parallel for collapse(2) default(none) private(s,i) shared(fishArray, tot_delta_fitness, weighted_tot_delta_fitness, max_delta_fitness_improvement)
-    for (s = 0; s < N_SCHOOLS; s++) {
-        // #pragma omp parallel for default(none) private(s,i) shared(fishArray, tot_delta_fitness, weighted_tot_delta_fitness, max_delta_fitness_improvement)
-        for (i = 0; i < N_FISHES_PER_SCHOOL; i++) {
-            individualMovement(&fishArray[s*N_FISHES_PER_SCHOOL+i], &tot_delta_fitness[s], weighted_tot_delta_fitness[s], &max_delta_fitness_improvement[s], DIMENSIONS);  // Inizializza ciascun pesce
+        int thread_id = omp_get_thread_num();  // thread-local id
+        unsigned int *my_seed = &seeds[thread_id].seed;
+
+        #pragma omp parallel for collapse(2) schedule(dynamic,1) 
+        for (s = 0; s < N_SCHOOLS; s++) {
+            // #pragma omp parallel for default(none) private(s,i) shared(fishArray, tot_delta_fitness, weighted_tot_delta_fitness, max_delta_fitness_improvement)
+            for (i = 0; i < N_FISHES_PER_SCHOOL; i++) {
+                individualMovement(&fishArray[s*N_FISHES_PER_SCHOOL+i], &tot_delta_fitness[s], weighted_tot_delta_fitness[s], &max_delta_fitness_improvement[s], my_seed, DIMENSIONS);  // Inizializza ciascun pesce
+            }
         }
     }
 
@@ -678,11 +692,7 @@ int main(int argc, char *argv[]) {
     }
 
     // Vettore contenente un seed diverso per ogni thread. 
-    // Seed da usare in combo con rand_r() 
-    typedef struct { unsigned int seed; char pad[64 - sizeof(unsigned int)]; }
-      padded_seed_t;
-
-    padded_seed_t *seeds = malloc(n_threads * sizeof *seeds);
+    padded_seed_t *seeds = malloc(n_threads * sizeof(padded_seed_t));
 
     // inizializziamo i seeds
     for (int i = 0; i < n_threads; i++) {
@@ -736,7 +746,7 @@ int main(int argc, char *argv[]) {
         
         // INDIVIDUAL MOVEMENT
         c = MPI_Wtime();
-        individualMovementArray(fishes, total_fitness, weighted_total_fitness, max_improvement, iter, N_SCHOOLS, DIMENSIONS, N_FISHES_PER_SCHOOL, UPDATE_FREQUENCY);
+        individualMovementArray(fishes, total_fitness, weighted_total_fitness, max_improvement, iter, seeds, N_SCHOOLS, DIMENSIONS, N_FISHES_PER_SCHOOL, UPDATE_FREQUENCY);
         d = MPI_Wtime();
 
         // UPDATE WEIGHTS
