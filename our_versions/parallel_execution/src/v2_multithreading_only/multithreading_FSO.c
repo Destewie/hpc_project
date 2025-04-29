@@ -716,6 +716,7 @@ int main(int argc, char *argv[]) {
         a = MPI_Wtime();
         variablesReset(total_fitness, weighted_total_fitness, max_improvement, N_SCHOOLS, DIMENSIONS);
         b = MPI_Wtime();
+        //delete me
 
         
         // INDIVIDUAL MOVEMENT
