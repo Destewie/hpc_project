@@ -672,7 +672,7 @@ int main(int argc, char *argv[]) {
         int thread_id = omp_get_thread_num();
         int core_id = sched_getcpu();  // Ottiene il core in cui sta girando il thread
         printf("MPI Process %d - OpenMP Thread %d out of %d running on core %d\n",
-               rank, thread_id, n_threads(), core_id);
+               rank, thread_id, n_threads, core_id);
         fflush(stdout);
     }
 
