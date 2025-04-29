@@ -322,8 +322,8 @@ void individualMovementArray (Fish *fishArray, float *tot_delta_fitness, float**
 
     int s, i;
     
-    #pragma omp parallel default(none) private(s,i) shared(fishArray, tot_delta_fitness, weighted_tot_delta_fitness, max_delta_fitness_improvement, seeds) {
-
+    #pragma omp parallel default(none) private(s,i) shared(fishArray, tot_delta_fitness, weighted_tot_delta_fitness, max_delta_fitness_improvement, seeds) 
+    {
         int thread_id = omp_get_thread_num();  // thread-local id
         unsigned int *my_seed = &seeds[thread_id].seed;
 
