@@ -665,16 +665,30 @@ int main(int argc, char *argv[]) {
     printf("\nRUNNING WITH: N-SCHOOLS %d - N_FISHES_PER_SCHOOL %d - DIMENSIONS %d - MAX_ITER %d - UPDATE_FREQUENCY %d\n",N_SCHOOLS, N_FISHES_PER_SCHOOL, DIMENSIONS, MAX_ITER, UPDATE_FREQUENCY);
 
     int n_threads;
+
     #pragma omp parallel
     {
         n_threads = omp_get_num_threads();
 
         int thread_id = omp_get_thread_num();
         int core_id = sched_getcpu();  // Ottiene il core in cui sta girando il thread
-        printf("MPI Process %d - OpenMP Thread %d out of %d running on core %d\n",
+        printf("MPI Process %d - OpenMP Thread %d out of %d_g running on core %d\n",
                rank, thread_id, n_threads, core_id);
         fflush(stdout);
     }
+
+    // Vettore contenente un seed diverso per ogni thread. 
+    // Seed da usare in combo con rand_r() 
+    typedef struct { unsigned int seed; char pad[64 - sizeof(unsigned int)]; }
+      padded_seed_t;
+
+    padded_seed_t *seeds = malloc(n_threads * sizeof *seeds);
+
+    // inizializziamo i seeds
+    for (int i = 0; i < n_threads; i++) {
+        seeds[i].seed = (unsigned int)time(NULL) + i;
+    }
+
 
     //create a timer
     double start = MPI_Wtime(); 
@@ -712,7 +726,7 @@ int main(int argc, char *argv[]) {
     }
 
     // MAIN LOOP
-    double a, b, c, d, e, f, g, h, i, j, k, l, m, n;
+    double a, b, c, d, e, f, g, h, i, l, m, n;
     // le iterazioni devono essere sequenziali quindi non le possiamo parallelizzare
     for (int iter = 1; iter < MAX_ITER; iter++) { 
 
