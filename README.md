@@ -122,10 +122,14 @@ Forse ci starebbe usare la clausola di omp "collapse(2)" per parallelizzare due 
 
 
 # TEST 29/04/2025
-Abbiamo visto che l'individual_movement è la parte più lenta di tutto il processo. A seguire collective movement e volitive movement. Un'idea potrebbe essere controllare bene dove parallelizziamo e in caso capire quanti threads ha senso far spawnare.
+Abbiamo visto che l'individual_movement è la parte più lenta di tutto il processo. A seguire collective movement e volitive movement. 
 
 C'è la possibilità che le chiamate a rand() che facciamo serializzino le chiamate in quanto vanno ad agire su una variabile condivisa.
 Per ovviare a questo, pensiamo sia il caso di usare rand_r() con un seed diverso per ogni thread.
 
 Poi, per velocizzare, potremmo usare delle strutture dati locali e poi, solo alla fine, andare a scriverle su quelle condivise tra i thread.
+
+Un'idea potrebbe essere controllare bene dove parallelizziamo e in caso capire quanti threads ha senso far spawnare.
+
+Forse, in modo un po' più radicale, stiamo pensando di riscrivere la logica in modo che sia tutto più efficiente (evitando mille loop che ora servono solo ad avere codice più leggibile)
 
