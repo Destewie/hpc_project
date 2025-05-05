@@ -192,6 +192,9 @@ With usign a local structure in the individual movement we reached a better resu
 (12) Individual movement- 0.033476
 (16) Individual movement- 0.026439
 (20) Individual movement- 0.021122
+(24) Individual movement- 0.023564 <- inizia a crescere leggermente, COME MAI?
+(30) Individual movement- 0.027301
+
 
 Ora proviamo a rendere locali anche le variabili del collective:
 
@@ -199,7 +202,7 @@ Ora proviamo a rendere locali anche le variabili del collective:
 (2)  
 (4)  
 (8) 
-(12)
+(12)Individual movement- 0.027301
 (16)
 
 ... e del collective volitive:

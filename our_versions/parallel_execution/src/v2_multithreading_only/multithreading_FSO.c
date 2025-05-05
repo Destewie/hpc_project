@@ -420,26 +420,88 @@ void updateWeightsArray(Fish *fishArray,  float *max_delta_fitness_improvement, 
 }
 
 
-void collectiveMovement(Fish *fish, float *tot_delta_fitness, float *weighted_tot_delta_fitness, const int DIMENSIONS) {
-    if (*tot_delta_fitness == 0.0) {
-        *tot_delta_fitness = 1;
-    }
+// Revised Fish Swarm parallel collective movement in C
+#include <omp.h>
+#include <stdlib.h>
+#include <math.h>
+#include <stdio.h>
 
-    for (int d =0;d<DIMENSIONS; d++){
-        fish->new_position[d] = fish->position[d] + weighted_tot_delta_fitness[d] / *tot_delta_fitness;
-        // printf("Update for collective movement of %f\n", fish->new_position[d]-fish->position[d]);
-        fish->position[d] = fish->new_position[d]; //TODO: fa schifo, ma segue la logica dell'aggiornare prima la new position e poi quella current
+// Assumes Fish defined elsewhere, and objectiveFunction, MULTIPLIER available
+
+// Local-version of collective movement: uses thread-local tot and weighted arrays
+static inline void collectiveMovementLocal(Fish *fish,
+                                           float tot_delta,
+                                           float *weighted_delta,
+                                           int DIMENSIONS) {
+    // Avoid division by zero
+    if (tot_delta == 0.0f) {
+        tot_delta = 1.0f;
     }
-    fish->new_fitness = objectiveFunction(fish->position, DIMENSIONS) * MULTIPLIER; // questo va fatto per forza!
+    // Update each dimension
+    for (int d = 0; d < DIMENSIONS; ++d) {
+        float move = weighted_delta[d] / tot_delta;
+        fish->new_position[d] = fish->position[d] + move;
+        fish->position[d] = fish->new_position[d];
+    }
+    // Recompute fitness after collective move
+    fish->new_fitness = objectiveFunction(fish->position, DIMENSIONS) * MULTIPLIER;
 }
 
-void collectiveMovementArray(Fish *fishArray, float *tot_delta_fitness, float** weighted_tot_delta_fitness, const int N_SCHOOLS, const int N_FISHES_PER_SCHOOL, const int DIMENSIONS) {
-    for (int s = 0; s < N_SCHOOLS; s++) {
-        for (int i = 0; i < N_FISHES_PER_SCHOOL; i++) {
-            collectiveMovement(&fishArray[s*N_FISHES_PER_SCHOOL+i], &tot_delta_fitness[s], weighted_tot_delta_fitness[s], DIMENSIONS);  // Inizializza ciascun pesce
+void collectiveMovementArray(Fish *fishArray,
+                             float *tot_delta_fitness,
+                             float **weighted_tot_delta_fitness,
+                             int N_SCHOOLS,
+                             int N_FISHES_PER_SCHOOL,
+                             int DIMENSIONS) {
+    #pragma omp parallel default(none) \
+        shared(fishArray, tot_delta_fitness, weighted_tot_delta_fitness) \
+        private(tid)
+    {
+        int tid = omp_get_thread_num();
+        // Allocate thread-local copies of shared arrays
+        float *local_tot = (float *)malloc(N_SCHOOLS * sizeof(float));
+        float *local_weight = (float *)malloc(N_SCHOOLS * DIMENSIONS * sizeof(float));
+        if (!local_tot || !local_weight) {
+            free(local_tot); free(local_weight);
+            return;
         }
+        // Copy global values into local
+        for (int s = 0; s < N_SCHOOLS; ++s) {
+            local_tot[s] = tot_delta_fitness[s];
+            for (int d = 0; d < DIMENSIONS; ++d) {
+                local_weight[s * DIMENSIONS + d] = weighted_tot_delta_fitness[s][d];
+            }
+        }
+
+        // Parallel update of fish positions using local buffers
+        #pragma omp for collapse(2) schedule(static)
+        for (int s = 0; s < N_SCHOOLS; ++s) {
+            for (int i = 0; i < N_FISHES_PER_SCHOOL; ++i) {
+                Fish *fish = &fishArray[s * N_FISHES_PER_SCHOOL + i];
+                collectiveMovementLocal(fish,
+                                        local_tot[s],
+                                        &local_weight[s * DIMENSIONS],
+                                        DIMENSIONS);
+            }
+        }
+
+        // Barrier before merging local back to shared
+        #pragma omp barrier
+        #pragma omp single
+        {
+            for (int s = 0; s < N_SCHOOLS; ++s) {
+                tot_delta_fitness[s] = local_tot[s];
+                for (int d = 0; d < DIMENSIONS; ++d) {
+                    weighted_tot_delta_fitness[s][d] = local_weight[s * DIMENSIONS + d];
+                }
+            }
+        }
+
+        free(local_tot);
+        free(local_weight);
     }
 }
+
 
 void calculateBarycenters(Fish *fishArray, float** barycenter, int current_iter, const int UPDATE_FREQUENCY, const int DIMENSIONS, const int N_SCHOOLS, const int N_FISHES_PER_SCHOOL){
 
