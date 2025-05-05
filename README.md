@@ -191,6 +191,7 @@ With usign a local structure in the individual movement we reached a better resu
 (8)  Individual movement- 0.070397
 (12) Individual movement- 0.033476
 (16) Individual movement- 0.026439
+(20) Individual movement- 0.021122
 
 Ora proviamo a rendere locali anche le variabili del collective:
 
