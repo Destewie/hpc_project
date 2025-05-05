@@ -133,3 +133,54 @@ Un'idea potrebbe essere controllare bene dove parallelizziamo e in caso capire q
 
 Forse, in modo un po' più radicale, stiamo pensando di riscrivere la logica in modo che sia tutto più efficiente (evitando mille loop che ora servono solo ad avere codice più leggibile)
 
+
+
+# TEST 05/05/2025
+Il rand_t() ora sembra funzionare ma, tra i test con un processo e 1/2/4/8/12 thread, vince sempre il test ccon 1 thread. Qui qualche risultato.
+
+(1)
+Variablee reset- 0.000004
+Individual movement- 0.312136
+Update weights- 0.000066
+Collective movement- 0.238642
+Collective volitive- 0.170157
+Breeding- 0.000067
+END: 72.790821
+
+(2)
+Variablee reset- 0.000005
+Individual movement- 0.349881
+Update weights- 0.000099
+Collective movement- 0.275390
+Collective volitive- 0.269453
+Breeding- 0.000078
+END: 137.138517
+
+(4)
+Variablee reset- 0.000003
+Individual movement- 0.340076
+Update weights- 0.000071
+Collective movement- 0.256104
+Collective volitive- 0.218467
+Breeding- 0.000069
+END: 80.549758
+
+(8)
+Variablee reset- 0.000004
+Individual movement- 0.425280
+Update weights- 0.000339
+Collective movement- 0.326726
+Collective volitive- 0.290037
+Breeding- 0.000080
+END: 98.749366
+
+(12)
+Variablee reset- 0.000006
+Individual movement- 0.773514
+Update weights- 0.000111
+Collective movement- 0.608344
+Collective volitive- 0.554615
+Breeding- 0.000115
+END: 145.290174
+
+

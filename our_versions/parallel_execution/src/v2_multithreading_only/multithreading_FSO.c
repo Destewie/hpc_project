@@ -263,108 +263,141 @@ void initFishArray(Fish* fishArray, const int DIMENSIONS, const int N_FISHES_PER
     }
 }
 
-// Movimento individuale
-void individualMovement(Fish *fish, float *tot_delta_fitness, float *weighted_tot_delta_fitness, float *max_delta_fitness_improvement, unsigned int *thread_seed, const int DIMENSIONS) {
+// Revised Fish Swarm parallel individual movement in C
+#include <omp.h>
+#include <stdlib.h>
+#include <math.h>
+#include <stdio.h>
 
-    // Movimento casuale per ogni dimensione
-    for (int d = 0; d < DIMENSIONS; d++)
-    {
-        double normalized_movement = (rand_r(thread_seed) / (double)RAND_MAX) * 2 - 1; //valore qualsiasi tra -1 e 1
-        double individual_step = normalized_movement * fish->max_individual_step;
+// Assumes Fish and padded_seed_t defined elsewhere
 
-        fish->new_position[d] = fish->position[d] + individual_step;
+void individualMovement(Fish *fish,
+                        float *delta_fitness_out,
+                        float *weighted_move_out,
+                        float *max_improve_out,
+                        unsigned int *seed,
+                        int DIMENSIONS) {
+    // Allocate local arrays
+    double *new_pos = (double *)malloc(DIMENSIONS * sizeof(double));
+    if (!new_pos) return; // handle alloc failure
+
+    // Compute new position and fitness
+    for (int d = 0; d < DIMENSIONS; ++d) {
+        double norm_move = ((double)rand_r(seed) / (double)RAND_MAX) * 2.0 - 1.0;
+        new_pos[d] = fish->position[d] + norm_move * fish->max_individual_step;
+    }
+    double new_fit = objectiveFunction(new_pos, DIMENSIONS) * MULTIPLIER;
+    double delta = new_fit - fish->fitness;
+
+    // Initialize outputs
+    *delta_fitness_out = 0.0f;
+    *max_improve_out = 0.0f;
+    for (int d = 0; d < DIMENSIONS; ++d) {
+        weighted_move_out[d] = 0.0f;
     }
 
-    // Aggiorno la fitness
-    fish->new_fitness = objectiveFunction(fish->new_position, DIMENSIONS)*MULTIPLIER;
-
-
-
-    // -------------- Update the collective variables
-    double delta_fitness = fish->new_fitness - fish->fitness;
-
-    // CI INTERESSANO SOLO I MOVIMENTI CHE VANNO AD AUMENTARE LA FITNESS DEL PESCE
-    if (delta_fitness > 0) {
-
-        *tot_delta_fitness += delta_fitness;
-
-        for (int d = 0; d < DIMENSIONS; d++)
-        {
-            // La delta_fitness farà in modo che pesci che si muovono "meglio" influenzino il movimento collettivo più degli altri
-            weighted_tot_delta_fitness[d] += (fish->new_position[d] - fish->position[d]) * delta_fitness;
+    // If improvement, update outputs and fish
+    if (delta > 0.0) {
+        *delta_fitness_out = (float)delta;
+        *max_improve_out = (float)delta;
+        for (int d = 0; d < DIMENSIONS; ++d) {
+            weighted_move_out[d] = (float)((new_pos[d] - fish->position[d]) * delta);
+            fish->position[d] = new_pos[d];
         }
-
-
-        if (fabs(delta_fitness) > *max_delta_fitness_improvement) {
-            *max_delta_fitness_improvement = delta_fitness;
-        }
+        fish->fitness = (float)new_fit;
     }
-    // -------------- Finish update the collective variables
-
-    // Update fish position considering only its individual movement
-    for (int d = 0; d < DIMENSIONS; d++)
-    {
-        if (delta_fitness > 0) {
-            // printf("Update for individual movement of %f, because of delta fitness %f  ", fish->new_position[d]-fish->position[d], delta_fitness);
-            // printf("new_fitness: %f , old_fitness: %f\n ", fish->new_fitness, fish->fitness);
-            fish->position[d] = fish->new_position[d];
-        } else {
-            // per sicurezza, se la delta_fitness non è positiva, non aggiorniamo la posizione
-            fish->new_position[d] = fish->position[d];
-        }
-    }
+    free(new_pos);
 }
 
+void individualMovementArray(Fish *fishArray,
+                             int N_SCHOOLS,
+                             int N_FISHES_PER_SCHOOL,
+                             int DIMENSIONS,
+                             int current_iter,
+                             int UPDATE_FREQUENCY,
+                             padded_seed_t *seeds) {
+    // Shared arrays: dynamically allocated
+    float *tot_delta = (float *)calloc(N_SCHOOLS, sizeof(float));
+    float *max_improve = (float *)calloc(N_SCHOOLS, sizeof(float));
+    float *weighted_delta = (float *)calloc(N_SCHOOLS * DIMENSIONS, sizeof(float));
+    if (!tot_delta || !max_improve || !weighted_delta) return;
 
-void individualMovementArray (Fish *fishArray, float *tot_delta_fitness, float** weighted_tot_delta_fitness, float *max_delta_fitness_improvement, int current_iter, padded_seed_t *seeds, const int N_SCHOOLS, const int DIMENSIONS, const int N_FISHES_PER_SCHOOL, const int UPDATE_FREQUENCY) {
-    // DA TESTARE se è meglio farlo sul ciclo esterno oppure interno
-    // idea parallelizzazione interna è farlo su tutti i pesci
-
-    int s, i;
-    
-    #pragma omp parallel default(none) private(s,i) shared(fishArray, tot_delta_fitness, weighted_tot_delta_fitness, max_delta_fitness_improvement, seeds) 
+    #pragma omp parallel
     {
-        int thread_id = omp_get_thread_num();  // thread-local id
-        unsigned int *my_seed = &seeds[thread_id].seed;
+        int tid = omp_get_thread_num();
+        unsigned int seed = seeds[tid].seed;
 
-        #pragma omp parallel for collapse(2) schedule(dynamic,1) 
-        for (s = 0; s < N_SCHOOLS; s++) {
-            // #pragma omp parallel for default(none) private(s,i) shared(fishArray, tot_delta_fitness, weighted_tot_delta_fitness, max_delta_fitness_improvement)
-            for (i = 0; i < N_FISHES_PER_SCHOOL; i++) {
-                individualMovement(&fishArray[s*N_FISHES_PER_SCHOOL+i], &tot_delta_fitness[s], weighted_tot_delta_fitness[s], &max_delta_fitness_improvement[s], my_seed, DIMENSIONS);  // Inizializza ciascun pesce
+        // Thread-local accumulators
+        float *local_tot = (float *)calloc(N_SCHOOLS, sizeof(float));
+        float *local_max = (float *)calloc(N_SCHOOLS, sizeof(float));
+        float *local_weighted = (float *)calloc(N_SCHOOLS * DIMENSIONS, sizeof(float));
+        if (!local_tot || !local_max || !local_weighted) return;
+
+        #pragma omp for schedule(dynamic)
+        for (int idx = 0; idx < N_SCHOOLS * N_FISHES_PER_SCHOOL; ++idx) {
+            int s = idx / N_FISHES_PER_SCHOOL;
+            Fish *fish = &fishArray[idx];
+            float dfit;
+            float *wmove = (float *)malloc(DIMENSIONS * sizeof(float));
+            float improve;
+            if (!wmove) continue;
+
+            individualMovement(fish, &dfit, wmove, &improve, &seed, DIMENSIONS);
+
+            // Accumulate locally
+            local_tot[s] += dfit;
+            local_max[s] = fmaxf(local_max[s], improve);
+            for (int d = 0; d < DIMENSIONS; ++d) {
+                local_weighted[s * DIMENSIONS + d] += wmove[d];
+            }
+            free(wmove);
+        }
+
+        // Merge thread-local into shared
+        for (int s = 0; s < N_SCHOOLS; ++s) {
+            #pragma omp atomic
+            tot_delta[s] += local_tot[s];
+            #pragma omp critical
+            max_improve[s] = fmaxf(max_improve[s], local_max[s]);
+            for (int d = 0; d < DIMENSIONS; ++d) {
+                #pragma omp atomic
+                weighted_delta[s * DIMENSIONS + d] += local_weighted[s * DIMENSIONS + d];
             }
         }
+
+        free(local_tot);
+        free(local_max);
+        free(local_weighted);
     }
 
-    // aggregation of results
-    if (current_iter % UPDATE_FREQUENCY ==0){
-        float complete_tot_delta_fitness = 0.0;
-        float complete_weighted_tot_delta_fitness[DIMENSIONS];
-        float complete_max_delta_fitness_improvement = 0.0;
-        for (int d = 0; d<DIMENSIONS; d++){
-            complete_weighted_tot_delta_fitness[d] = 0.0;
-        }
-        // calculus of complete values
-        // TODO: è una micro-ottimizzazione? Capire se e come parallelizzare
-        for (int s = 0; s < N_SCHOOLS; s++) {
-            complete_tot_delta_fitness += tot_delta_fitness[s];
-            for (int d = 0; d<DIMENSIONS; d++){
-                complete_weighted_tot_delta_fitness[d] += weighted_tot_delta_fitness[s][d];
-            }
-            if (max_delta_fitness_improvement[s] > complete_max_delta_fitness_improvement) {
-                complete_max_delta_fitness_improvement = max_delta_fitness_improvement[s];
+    // Periodic global update
+    if (current_iter % UPDATE_FREQUENCY == 0) {
+        float global_tot = 0.0f;
+        float global_max = 0.0f;
+        float *global_weight = (float *)calloc(DIMENSIONS, sizeof(float));
+        if (!global_weight) return;
+
+        for (int s = 0; s < N_SCHOOLS; ++s) {
+            global_tot += tot_delta[s];
+            global_max = fmaxf(global_max, max_improve[s]);
+            for (int d = 0; d < DIMENSIONS; ++d) {
+                global_weight[d] += weighted_delta[s * DIMENSIONS + d];
             }
         }
-        // update the values for each school
-        // TODO: è una micro-ottimizzazione? Capire se e come parallelizzare
-        for (int s = 0; s < N_SCHOOLS; s++) {
-            tot_delta_fitness[s] = complete_tot_delta_fitness;
-            for (int d = 0; d<DIMENSIONS; d++){
-                weighted_tot_delta_fitness[s][d]= complete_weighted_tot_delta_fitness[d];
+        // Broadcast back
+        for (int s = 0; s < N_SCHOOLS; ++s) {
+            tot_delta[s] = global_tot;
+            max_improve[s] = global_max;
+            for (int d = 0; d < DIMENSIONS; ++d) {
+                weighted_delta[s * DIMENSIONS + d] = global_weight[d];
             }
-            max_delta_fitness_improvement[s] = complete_max_delta_fitness_improvement;
         }
+        free(global_weight);
     }
+
+    free(tot_delta);
+    free(max_improve);
+    free(weighted_delta);
 }
 
 
