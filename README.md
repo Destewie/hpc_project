@@ -184,3 +184,27 @@ Breeding- 0.000115
 END: 145.290174
 
 
+With usign a local structure in the individual movement we reached a better result:
+(1)  Individual movement- 0.325134
+(2)  Individual movement- 0.192522
+(4)  Individual movement- 0.199572
+(8)  Individual movement- 0.070397
+(12) Individual movement- 0.033476
+(16) Individual movement- 0.026439
+
+Ora proviamo a rendere locali anche le variabili del collective:
+
+(1)  
+(2)  
+(4)  
+(8) 
+(12)
+(16)
+
+... e del collective volitive:
+(1)  
+(2)  
+(4)  
+(8) 
+(12)
+(16)
