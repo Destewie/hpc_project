@@ -263,12 +263,7 @@ void initFishArray(Fish* fishArray, const int DIMENSIONS, const int N_FISHES_PER
     }
 }
 
-// Revised Fish Swarm parallel individual movement in C
-#include <omp.h>
-#include <stdlib.h>
-#include <math.h>
-#include <stdio.h>
-
+// Assumes Fish and padded_seed_t defined elsewhere
 // Assumes Fish and padded_seed_t defined elsewhere
 
 void individualMovement(Fish *fish,
@@ -277,11 +272,11 @@ void individualMovement(Fish *fish,
                         float *max_improve_out,
                         unsigned int *seed,
                         int DIMENSIONS) {
-    // Allocate local arrays
+    // Local new position buffer
     double *new_pos = (double *)malloc(DIMENSIONS * sizeof(double));
-    if (!new_pos) return; // handle alloc failure
+    if (!new_pos) return; // allocation failure
 
-    // Compute new position and fitness
+    // Compute candidate position and fitness
     for (int d = 0; d < DIMENSIONS; ++d) {
         double norm_move = ((double)rand_r(seed) / (double)RAND_MAX) * 2.0 - 1.0;
         new_pos[d] = fish->position[d] + norm_move * fish->max_individual_step;
@@ -291,48 +286,48 @@ void individualMovement(Fish *fish,
 
     // Initialize outputs
     *delta_fitness_out = 0.0f;
-    *max_improve_out = 0.0f;
+    *max_improve_out   = 0.0f;
     for (int d = 0; d < DIMENSIONS; ++d) {
         weighted_move_out[d] = 0.0f;
     }
 
-    // If improvement, update outputs and fish
+    // If fitness improves, update outputs and fish state
     if (delta > 0.0) {
         *delta_fitness_out = (float)delta;
-        *max_improve_out = (float)delta;
+        *max_improve_out   = (float)delta;
         for (int d = 0; d < DIMENSIONS; ++d) {
             weighted_move_out[d] = (float)((new_pos[d] - fish->position[d]) * delta);
             fish->position[d] = new_pos[d];
         }
         fish->fitness = (float)new_fit;
     }
+
     free(new_pos);
 }
 
 void individualMovementArray(Fish *fishArray,
+                             float *tot_delta_fitness,
+                             float **weighted_tot_delta_fitness,
+                             float *max_delta_fitness_improvement,
+                             int current_iter,
+                             padded_seed_t *seeds,
                              int N_SCHOOLS,
                              int N_FISHES_PER_SCHOOL,
                              int DIMENSIONS,
-                             int current_iter,
-                             int UPDATE_FREQUENCY,
-                             padded_seed_t *seeds) {
-    // Shared arrays: dynamically allocated
-    float *tot_delta = (float *)calloc(N_SCHOOLS, sizeof(float));
-    float *max_improve = (float *)calloc(N_SCHOOLS, sizeof(float));
-    float *weighted_delta = (float *)calloc(N_SCHOOLS * DIMENSIONS, sizeof(float));
-    if (!tot_delta || !max_improve || !weighted_delta) return;
-
+                             int UPDATE_FREQUENCY) {
+    // Parallel region
     #pragma omp parallel
     {
         int tid = omp_get_thread_num();
         unsigned int seed = seeds[tid].seed;
 
-        // Thread-local accumulators
-        float *local_tot = (float *)calloc(N_SCHOOLS, sizeof(float));
-        float *local_max = (float *)calloc(N_SCHOOLS, sizeof(float));
+        // Thread-local accumulators matching original data structure
+        float *local_tot     = (float *)calloc(N_SCHOOLS, sizeof(float));
+        float *local_max     = (float *)calloc(N_SCHOOLS, sizeof(float));
         float *local_weighted = (float *)calloc(N_SCHOOLS * DIMENSIONS, sizeof(float));
         if (!local_tot || !local_max || !local_weighted) return;
 
+        // Work distribution: each fish
         #pragma omp for schedule(dynamic)
         for (int idx = 0; idx < N_SCHOOLS * N_FISHES_PER_SCHOOL; ++idx) {
             int s = idx / N_FISHES_PER_SCHOOL;
@@ -344,7 +339,7 @@ void individualMovementArray(Fish *fishArray,
 
             individualMovement(fish, &dfit, wmove, &improve, &seed, DIMENSIONS);
 
-            // Accumulate locally
+            // Accumulate into thread-local buffers
             local_tot[s] += dfit;
             local_max[s] = fmaxf(local_max[s], improve);
             for (int d = 0; d < DIMENSIONS; ++d) {
@@ -353,15 +348,17 @@ void individualMovementArray(Fish *fishArray,
             free(wmove);
         }
 
-        // Merge thread-local into shared
+        // Merge thread-local accumulators into shared arrays
         for (int s = 0; s < N_SCHOOLS; ++s) {
             #pragma omp atomic
-            tot_delta[s] += local_tot[s];
+            tot_delta_fitness[s] += local_tot[s];
+
             #pragma omp critical
-            max_improve[s] = fmaxf(max_improve[s], local_max[s]);
+            max_delta_fitness_improvement[s] = fmaxf(max_delta_fitness_improvement[s], local_max[s]);
+
             for (int d = 0; d < DIMENSIONS; ++d) {
                 #pragma omp atomic
-                weighted_delta[s * DIMENSIONS + d] += local_weighted[s * DIMENSIONS + d];
+                weighted_tot_delta_fitness[s][d] += local_weighted[s * DIMENSIONS + d];
             }
         }
 
@@ -370,34 +367,32 @@ void individualMovementArray(Fish *fishArray,
         free(local_weighted);
     }
 
-    // Periodic global update
+    // Periodic global update broadcasting complete totals
     if (current_iter % UPDATE_FREQUENCY == 0) {
         float global_tot = 0.0f;
         float global_max = 0.0f;
+        // Assuming weighted_tot_delta_fitness is C-contiguous array of arrays
         float *global_weight = (float *)calloc(DIMENSIONS, sizeof(float));
         if (!global_weight) return;
 
+        // Aggregate across schools
         for (int s = 0; s < N_SCHOOLS; ++s) {
-            global_tot += tot_delta[s];
-            global_max = fmaxf(global_max, max_improve[s]);
+            global_tot += tot_delta_fitness[s];
+            global_max = fmaxf(global_max, max_delta_fitness_improvement[s]);
             for (int d = 0; d < DIMENSIONS; ++d) {
-                global_weight[d] += weighted_delta[s * DIMENSIONS + d];
+                global_weight[d] += weighted_tot_delta_fitness[s][d];
             }
         }
-        // Broadcast back
+        // Broadcast aggregated values back to each school
         for (int s = 0; s < N_SCHOOLS; ++s) {
-            tot_delta[s] = global_tot;
-            max_improve[s] = global_max;
+            tot_delta_fitness[s] = global_tot;
+            max_delta_fitness_improvement[s] = global_max;
             for (int d = 0; d < DIMENSIONS; ++d) {
-                weighted_delta[s * DIMENSIONS + d] = global_weight[d];
+                weighted_tot_delta_fitness[s][d] = global_weight[d];
             }
         }
         free(global_weight);
     }
-
-    free(tot_delta);
-    free(max_improve);
-    free(weighted_delta);
 }
 
 
