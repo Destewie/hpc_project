@@ -420,12 +420,6 @@ void updateWeightsArray(Fish *fishArray,  float *max_delta_fitness_improvement, 
 }
 
 
-// Revised Fish Swarm parallel collective movement in C
-#include <omp.h>
-#include <stdlib.h>
-#include <math.h>
-#include <stdio.h>
-
 // Assumes Fish defined elsewhere, and objectiveFunction, MULTIPLIER available
 
 // Local-version of collective movement: uses thread-local tot and weighted arrays
@@ -453,18 +447,12 @@ void collectiveMovementArray(Fish *fishArray,
                              int N_SCHOOLS,
                              int N_FISHES_PER_SCHOOL,
                              int DIMENSIONS) {
-    #pragma omp parallel default(none) \
-        shared(fishArray, tot_delta_fitness, weighted_tot_delta_fitness) \
-        private(tid)
+    #pragma omp parallel default(none) shared(fishArray, tot_delta_fitness, weighted_tot_delta_fitness, N_SCHOOLS, N_FISHES_PER_SCHOOL,DIMENSIONS)
     {
         int tid = omp_get_thread_num();
         // Allocate thread-local copies of shared arrays
         float *local_tot = (float *)malloc(N_SCHOOLS * sizeof(float));
         float *local_weight = (float *)malloc(N_SCHOOLS * DIMENSIONS * sizeof(float));
-        if (!local_tot || !local_weight) {
-            free(local_tot); free(local_weight);
-            return;
-        }
         // Copy global values into local
         for (int s = 0; s < N_SCHOOLS; ++s) {
             local_tot[s] = tot_delta_fitness[s];
