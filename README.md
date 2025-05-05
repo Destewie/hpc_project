@@ -198,12 +198,48 @@ With usign a local structure in the individual movement we reached a better resu
 
 Ora proviamo a rendere locali anche le variabili del collective:
 
+
+
 (1)  
+Individual movement- 0.322119
+Collective movement- 0.264698
+
 (2)  
+Individual movement- 0.374777
+Collective movement- 0.297142
+-----------------------------
+Individual movement- 0.172758
+Collective movement- 0.137967
+
 (4)  
+Individual movement- 0.087109
+Collective movement- 0.068994
+
 (8) 
-(12)Individual movement- 0.027301
+Individual movement- 0.056808
+Collective movement- 0.076849
+-----------------------------
+Individual movement- 0.106309
+Collective movement- 0.133865
+-----------------------------
+Individual movement- 0.100382
+Collective movement- 0.127348
+
+(12)
+Individual movement- 0.067111
+Collective movement- 0.102759
+
 (16)
+Individual movement- 0.030886
+Collective movement- 0.045614
+
+(20)
+Individual movement- 0.026262
+Collective movement- 0.014225
+
+(24)
+Individual movement- 0.016126
+Collective movement- 0.018476
 
 ... e del collective volitive:
 (1)  

@@ -577,81 +577,90 @@ void calculateSumWeights(Fish *fishArray, float *old_sum, float *new_sum, int cu
     }
 }
 
-void volitivePositionUpdateArray(Fish *fishArray, int school_index, int shrink, float *barycenter, const int N_FISHES_PER_SCHOOL, const int DIMENSIONS){
-    double rand_mult = 0.0;
+// Revised Fish Swarm volitive movement parallel in C
+#include <omp.h>
+#include <stdlib.h>
+#include <math.h>
+#include <stdio.h>
 
-    // questo codice si può ottimizare mettendo shrink -1,1
-    if (shrink==1) {
-        for (int i = school_index*N_FISHES_PER_SCHOOL; i < school_index*N_FISHES_PER_SCHOOL + N_FISHES_PER_SCHOOL; i++) {
-            for (int d = 0; d < DIMENSIONS; d++) { // TODO: change max individual step with another step in order to have the possibility to tune it
-                rand_mult= fmin(((double)rand() / (double)RAND_MAX) + 0.1, 1.0); //valore qualsiasi tra 0.1 e 1
+// Assumes Fish, calculateBarycenters, calculateSumWeights defined elsewhere
+// Uses rand_r for thread-safe RNG
 
-                double temp= fishArray[i].position[d];
-                fishArray[i].position[d] -= fishArray[i].max_volitive_step * rand_mult * (fishArray[i].position[d] - barycenter[d]);
+void volitivePositionUpdateArray(Fish *fishArray,
+                                 int school_index,
+                                 int shrink,
+                                 float *barycenter,
+                                 const int N_FISHES_PER_SCHOOL,
+                                 const int DIMENSIONS) {
+    int start = school_index * N_FISHES_PER_SCHOOL;
+    int end   = start + N_FISHES_PER_SCHOOL;
 
-                if (fishArray[i].position[d] > 1000.0 || fishArray[i].position[d] < -1000.0) {
-                    // printf("LAST STRANGE FISH: rand_mult: %f\n", rand_mult);
-                    // printf("dim= %d, pesce= %d\n", d, i);
-                    // printf("fishArray[%d].max_volitive_step: %f\n",i, fishArray[i].max_volitive_step);
-                    // printf("fishArray[%d].position[%d] before update: %f\n",i, d, temp);
-                    // printf("fishArray[%d].position[%d] after update: %f\n",i, d, fishArray[i].position[d]);
-                    // printf("barycenter: %f\n", barycenter[d]);
-                    printf("Error: Fish position out of bounds.\n");
-                    exit(1);
-                }
+    #pragma omp parallel for schedule(static) default(none) \
+        shared(fishArray, start, end, barycenter, shrink) \
+        firstprivate(DIMENSIONS) \
+        private(thread_seed)
+    for (int idx = start; idx < end; ++idx) {
+        unsigned int thread_seed = (unsigned int)idx + (unsigned int)time(NULL);
+        Fish *fish = &fishArray[idx];
+        for (int d = 0; d < DIMENSIONS; ++d) {
+            double rand_mult = fmin(((double)rand_r(&thread_seed) / RAND_MAX) + 0.1, 1.0);
+            double delta = fish->position[d] - barycenter[d];
+            if (shrink == 1) {
+                fish->position[d] -= fish->max_volitive_step * rand_mult * delta;
+            } else {
+                fish->position[d] += fish->max_volitive_step * rand_mult * delta;
             }
-        }
-    } else {
-        for (int i = school_index*N_FISHES_PER_SCHOOL; i < school_index*N_FISHES_PER_SCHOOL + N_FISHES_PER_SCHOOL; i++) {
-            for (int d = 0; d < DIMENSIONS; d++){ // TODO: change max individual step with another step in order to have the possibility to tune it
-                rand_mult= fmin(((double)rand() / (double)RAND_MAX) + 0.1, 1.0); //valore qualsiasi tra 0.1 e 1
-
-                double temp= fishArray[i].position[d];
-                fishArray[i].position[d] += fishArray[i].max_volitive_step * rand_mult * (fishArray[i].position[d] - barycenter[d]);
-
-                if (fishArray[i].position[d] > 1000.0 || fishArray[i].position[d] < -1000.0) {
-                    // printf("LAST STRANGE FISH: rand_mult: %f\n", rand_mult);
-                    // printf("dim= %d, pesce= %d\n", d, i);
-                    // printf("fishArray[%d].max_volitive_step: %f\n",i, fishArray[i].max_volitive_step);
-                    // printf("fishArray[%d].position[%d] before update: %f\n",i, d, temp);
-                    // printf("fishArray[%d].position[%d] after update: %f\n",i, d, fishArray[i].position[d]);
-                    // printf("barycenter: %f\n", barycenter[d]);
-                    exit(1);
-                }
+            if (fish->position[d] > 1000.0 || fish->position[d] < -1000.0) {
+                printf("Error: Fish position out of bounds.\n");
+                exit(1);
             }
         }
     }
 }
 
-void collectiveVolitiveArray(Fish *fishes, int current_iter, const int N_SCHOOLS, const int DIMENSIONS, const int N_FISHES_PER_SCHOOL, const int UPDATE_FREQUENCY) {
-    // float barycenter[N_SCHOOLS][DIMENSIONS];
+void collectiveVolitiveArray(Fish *fishes,
+                             int current_iter,
+                             const int N_SCHOOLS,
+                             const int DIMENSIONS,
+                             const int N_FISHES_PER_SCHOOL,
+                             const int UPDATE_FREQUENCY) {
     float **barycenter = malloc(N_SCHOOLS * sizeof(float*));
-    for (int i = 0; i < N_SCHOOLS; i++) {
-        barycenter[i] = malloc(DIMENSIONS * sizeof(float));
+    float *old_weights = malloc(N_SCHOOLS * sizeof(float));
+    float *new_weights = malloc(N_SCHOOLS * sizeof(float));
+    for (int s = 0; s < N_SCHOOLS; ++s) {
+        barycenter[s] = malloc(DIMENSIONS * sizeof(float));
     }
 
-    calculateBarycenters(fishes, barycenter, current_iter, UPDATE_FREQUENCY, DIMENSIONS, N_SCHOOLS, N_FISHES_PER_SCHOOL);
-    
-    float old_sum_weights[N_SCHOOLS];
-    float new_sum_weights[N_SCHOOLS];
-    calculateSumWeights(fishes, old_sum_weights, new_sum_weights, current_iter, UPDATE_FREQUENCY, N_FISHES_PER_SCHOOL, N_SCHOOLS);
+    calculateBarycenters(fishes, barycenter,
+                         current_iter, UPDATE_FREQUENCY,
+                         DIMENSIONS, N_SCHOOLS, N_FISHES_PER_SCHOOL);
+    calculateSumWeights(fishes, old_weights, new_weights,
+                        current_iter, UPDATE_FREQUENCY,
+                        N_FISHES_PER_SCHOOL, N_SCHOOLS);
 
-    for (int s = 0; s < N_SCHOOLS; s++) {
-        if (old_sum_weights[s] < new_sum_weights[s]) {
-            //shrink = 1 -> il banco ha guadagnato peso quindi si deve avvicinare al baricentro
-            volitivePositionUpdateArray(fishes, s, 1, barycenter[s], N_FISHES_PER_SCHOOL, DIMENSIONS);
-        } else if (old_sum_weights[s] > new_sum_weights[s]) {
-            //shrink = 0 -> il banco ha perso peso quindi si deve allargare in cerca di cibo
-            volitivePositionUpdateArray(fishes, s, 0, barycenter[s], N_FISHES_PER_SCHOOL, DIMENSIONS);
-        }else{
-            // printf("EQUAL WEIGHTS, do nothing");
-        }
-
-        // update previous_cycle_weight
-        for (int i = s * N_FISHES_PER_SCHOOL; i < (s + 1) * N_FISHES_PER_SCHOOL; i++) {
-            fishes[i].previous_cycle_weight = fishes[i].weight;
+    #pragma omp parallel for schedule(dynamic) default(none) \
+        shared(fishes, barycenter, old_weights, new_weights, N_SCHOOLS, DIMENSIONS, N_FISHES_PER_SCHOOL)
+    for (int s = 0; s < N_SCHOOLS; ++s) {
+        if (old_weights[s] == new_weights[s]) continue;
+        int shrink = (old_weights[s] < new_weights[s]) ? 1 : 0;
+        // Update positions in parallel per fish
+        volitivePositionUpdateArray(fishes,
+                                    s,
+                                    shrink,
+                                    barycenter[s],
+                                    N_FISHES_PER_SCHOOL,
+                                    DIMENSIONS);
+        // Update previous_cycle_weight for each fish
+        int base = s * N_FISHES_PER_SCHOOL;
+        for (int i = 0; i < N_FISHES_PER_SCHOOL; ++i) {
+            fishes[base + i].previous_cycle_weight = fishes[base + i].weight;
         }
     }
+
+    for (int s = 0; s < N_SCHOOLS; ++s) free(barycenter[s]);
+    free(barycenter);
+    free(old_weights);
+    free(new_weights);
 }
 
 void breeding(Fish *fishes, int current_iter, const int UPDATE_FREQUENCY, const int N_FISHES_PER_SCHOOL, const int N_SCHOOLS, const int DIMENSIONS) {
