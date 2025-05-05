@@ -325,7 +325,6 @@ void individualMovementArray(Fish *fishArray,
         float *local_tot     = (float *)calloc(N_SCHOOLS, sizeof(float));
         float *local_max     = (float *)calloc(N_SCHOOLS, sizeof(float));
         float *local_weighted = (float *)calloc(N_SCHOOLS * DIMENSIONS, sizeof(float));
-        if (!local_tot || !local_max || !local_weighted) return;
 
         // Work distribution: each fish
         #pragma omp for schedule(dynamic)
