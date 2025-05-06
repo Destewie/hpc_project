@@ -248,10 +248,11 @@ Collective movement- 0.276688
 Collective volitive- 0.089173
 
 (2)  
-
+Individual movement- 0.162689
+Collective movement- 0.134987
+Collective volitive- 0.079497
 
 (4)  
-
 
 (8) 
 Individual movement- 0.045884
@@ -260,6 +261,4 @@ Collective volitive- 0.092915
 
 (12)
 
-
 (16)
-
