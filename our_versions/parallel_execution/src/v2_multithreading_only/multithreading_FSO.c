@@ -595,7 +595,7 @@ void volitivePositionUpdateArray(Fish *fishArray,
     int start = school_index * N_FISHES_PER_SCHOOL;
     int end   = start + N_FISHES_PER_SCHOOL;
 
-    #pragma omp parallel for schedule(static) default(none) shared(fishArray, start, end, barycenter, shrink) firstprivate(DIMENSIONS) private(thread_seed)
+    #pragma omp parallel for schedule(static) default(none) shared(fishArray, start, end, barycenter, shrink) firstprivate(DIMENSIONS) 
     for (int idx = start; idx < end; ++idx) {
         unsigned int thread_seed = (unsigned int)idx + (unsigned int)time(NULL);
         Fish *fish = &fishArray[idx];
@@ -635,7 +635,7 @@ void collectiveVolitiveArray(Fish *fishes,
                         current_iter, UPDATE_FREQUENCY,
                         N_FISHES_PER_SCHOOL, N_SCHOOLS);
 
-    #pragma omp parallel for schedule(dynamic) default(none) shared(fishes, barycenter, old_weights, new_weights, N_SCHOOLS, DIMENSIONS, N_FISHES_PER_SCHOOL)
+    #pragma omp parallel for schedule(dynamic) default(none) shared(fishes, barycenter, old_weights, new_weights)
     for (int s = 0; s < N_SCHOOLS; ++s) {
         if (old_weights[s] == new_weights[s]) continue;
         int shrink = (old_weights[s] < new_weights[s]) ? 1 : 0;
