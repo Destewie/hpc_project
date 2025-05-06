@@ -15,8 +15,8 @@
 #PBS -l walltime=06:00:00
 
 # chunks (~nodes) : cores per chunk : shared memory per chunk (?)
-#PBS -l select=1:ncpus=12:mem=2gb
-export OMP_NUM_THREADS=12
+#PBS -l select=1:ncpus=16:mem=2gb
+export OMP_NUM_THREADS=16
 export OMP_PROC_BIND=close
 export OMP_PLACES=cores
 export OMP_SCHEDULE="dynamic, 100"
