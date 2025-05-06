@@ -243,8 +243,21 @@ Collective movement- 0.018476
 
 ... e del collective volitive:
 (1)  
+
+
 (2)  
+
+
 (4)  
+
+
 (8) 
+Individual movement- 0.045884
+Collective movement- 0.035155
+Collective volitive- 0.092915
+
 (12)
+
+
 (16)
+
