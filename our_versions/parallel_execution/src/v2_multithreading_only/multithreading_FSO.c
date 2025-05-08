@@ -841,7 +841,7 @@ int main(int argc, char *argv[]) {
         
         // INDIVIDUAL MOVEMENT
         c = MPI_Wtime();
-        individualMovementArray(fishes, total_fitness, weighted_total_fitness, max_improvement, iter, seeds, N_SCHOOLS, DIMENSIONS, N_FISHES_PER_SCHOOL, UPDATE_FREQUENCY);
+        individualMovementArray(fishes, total_fitness, weighted_total_fitness, max_improvement, iter, seeds, N_SCHOOLS, N_FISHES_PER_SCHOOL, DIMENSIONS, UPDATE_FREQUENCY);
         d = MPI_Wtime();
 
         // UPDATE WEIGHTS
