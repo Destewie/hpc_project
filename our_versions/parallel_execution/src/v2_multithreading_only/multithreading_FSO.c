@@ -605,8 +605,9 @@ void volitivePositionUpdateArray(Fish *fishArray,
                 fish->position[d] += fish->max_volitive_step * rand_mult * delta;
             }
             if (fish->position[d] > 1000.0 || fish->position[d] < -1000.0) {
+                shrink = 1;
                 printf("Error: Fish position out of bounds. Problematic error %f\n", fish->position[d]);
-                exit(1);
+                // exit(1);
             }
         }
     }
@@ -632,23 +633,40 @@ void collectiveVolitiveArray(Fish *fishes,
                         current_iter, UPDATE_FREQUENCY,
                         N_FISHES_PER_SCHOOL, N_SCHOOLS);
 
-    #pragma omp parallel for schedule(dynamic) default(none) shared(fishes, barycenter, old_weights, new_weights)
-    for (int s = 0; s < N_SCHOOLS; ++s) {
-        if (old_weights[s] == new_weights[s]) continue;
-        int shrink = (old_weights[s] < new_weights[s]) ? 1 : 0;
-        // Update positions in parallel per fish
-        volitivePositionUpdateArray(fishes,
-                                    s,
-                                    shrink,
-                                    barycenter[s],
-                                    N_FISHES_PER_SCHOOL,
-                                    DIMENSIONS);
-        // Update previous_cycle_weight for each fish
-        int base = s * N_FISHES_PER_SCHOOL;
-        for (int i = 0; i < N_FISHES_PER_SCHOOL; ++i) {
-            fishes[base + i].previous_cycle_weight = fishes[base + i].weight;
+    #pragma omp parallel 
+    {
+        int shrink_streak_counter = 0;
+
+        #pragma omp for schedule(dynamic) default(none) shared(fishes, barycenter, old_weights, new_weights)
+        for (int s = 0; s < N_SCHOOLS; ++s) {
+            if (old_weights[s] == new_weights[s]) continue;
+            int shrink = (old_weights[s] < new_weights[s]) ? 1 : 0;
+            shrink == 1 ? shrink_streak_counter++ : shrink_streak_counter = 0;
+
+            //mossa per evitare che l'algoritmo impazzisca e inizi a far allontanare troppo i pesci
+            if (shrink_streak_counter >= 4) {
+                shrink = 1;
+            }
+
+            // Update positions in parallel per fish
+            volitivePositionUpdateArray(fishes,
+                                        s,
+                                        shrink,
+                                        barycenter[s],
+                                        N_FISHES_PER_SCHOOL,
+                                        DIMENSIONS);
+
+
+            
+            // Update previous_cycle_weight for each fish
+            int base = s * N_FISHES_PER_SCHOOL;
+            for (int i = 0; i < N_FISHES_PER_SCHOOL; ++i) {
+                fishes[base + i].previous_cycle_weight = fishes[base + i].weight;
+            }
         }
+
     }
+    
 
     for (int s = 0; s < N_SCHOOLS; ++s) free(barycenter[s]);
     free(barycenter);
