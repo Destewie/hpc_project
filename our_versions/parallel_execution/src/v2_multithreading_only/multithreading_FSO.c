@@ -633,11 +633,11 @@ void collectiveVolitiveArray(Fish *fishes,
                         current_iter, UPDATE_FREQUENCY,
                         N_FISHES_PER_SCHOOL, N_SCHOOLS);
 
-    #pragma omp parallel 
+    #pragma omp parallel default(none) shared(fishes, barycenter, old_weights, new_weights)
     {
         int shrink_streak_counter = 0;
 
-        #pragma omp for schedule(dynamic) default(none) shared(fishes, barycenter, old_weights, new_weights)
+        #pragma omp for schedule(dynamic) 
         for (int s = 0; s < N_SCHOOLS; ++s) {
             if (old_weights[s] == new_weights[s]) continue;
             int shrink = (old_weights[s] < new_weights[s]) ? 1 : 0;
