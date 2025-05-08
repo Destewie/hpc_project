@@ -15,7 +15,7 @@
 #include <mpi.h> //l'unico utilizzo qui è per il wtime
 
 
-#define FUNCTION "min_rosenbrok"   //TODO: Capire se, al posto di fare un controllo su una stringa, possiamo passare alle funzioni direttamente un puntatore ad una funzione (in modo comodo, se no lasciamo perdere)
+#define FUNCTION "min_ackley"   //TODO: Capire se, al posto di fare un controllo su una stringa, possiamo passare alle funzioni direttamente un puntatore ad una funzione (in modo comodo, se no lasciamo perdere)
 #define MULTIPLIER -1   // 1 in case of maximization, -1 in case of minimization
 
 #define BOUNDS_MIN -70.0   // Minimum bound of the search space
@@ -186,7 +186,7 @@ double min_schwefel(double *x,const int DIMENSIONS) {
 
 
 double objectiveFunction(double *x,const int DIMENSIONS) {
-    if (strcmp(FUNCTION, "min_rosenbrok") == 0) {
+    if (strcmp(FUNCTION, "min_rosenbrock") == 0) {
         return rosenbrok(x, DIMENSIONS);
     } else if (strcmp(FUNCTION, "min_sphere") == 0) {
         return min_sphere(x, DIMENSIONS);
