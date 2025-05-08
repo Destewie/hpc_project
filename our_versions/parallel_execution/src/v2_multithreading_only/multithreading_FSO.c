@@ -261,6 +261,12 @@ void initFishArray(Fish* fishArray, const int DIMENSIONS, const int N_FISHES_PER
         initFish(&fishArray[i], i, DIMENSIONS, N_FISHES_PER_SCHOOL, N_SCHOOLS);  // Inizializza ciascun pesce
         // printFish(fishArray[i]);
     }
+
+    printf("INIZIALIZZAZIONE---------------------------- %d\n", DIMENSIONS);
+    for (int i=0; i<N_FISHES_PER_SCHOOL; i++){
+        printFish(fishArray[i], DIMENSIONS);
+    }
+    printf("----------------------------\n");
 }
 
 // Assumes Fish and padded_seed_t defined elsewhere
@@ -319,7 +325,7 @@ void individualMovementArray(Fish *fishArray,
                              int UPDATE_FREQUENCY) {
     
     
-    printf("--INIZIO--\n");
+    printf("--INIZIO-- %d\n", DIMENSIONS);
     for (int i=0; i<N_FISHES_PER_SCHOOL; i++){
         printFish(fishArray[i], DIMENSIONS);
     }
