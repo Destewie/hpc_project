@@ -344,7 +344,7 @@ void individualMovementArray(Fish *fishArray,
             float *wmove = (float *)malloc(DIMENSIONS * sizeof(float));
             float improve;
 
-            individualMovement(fish, &dfit, wmove, &improve, &seed, DIMENSIONS);
+            // individualMovement(fish, &dfit, wmove, &improve, &seed, DIMENSIONS);
 
             // Accumulate into thread-local buffers
             local_tot[s] += dfit;
@@ -802,8 +802,8 @@ int main(int argc, char *argv[]) {
     double end = 0.0;
 
     char filename[50];
-    sprintf(filename, "/home/federico.desanti/hpc_project/our_versions/evolution_logs/%s_%dd_log.json",FUNCTION, DIMENSIONS);
-    // sprintf(filename, "/home/annachiara.fortuna/hpc_project/our_versions/evolution_logs/%s_%dd_log.json",FUNCTION, DIMENSIONS);
+    // sprintf(filename, "/home/federico.desanti/hpc_project/our_versions/evolution_logs/%s_%dd_log.json",FUNCTION, DIMENSIONS);
+    sprintf(filename, "/home/annachiara.fortuna/hpc_project/our_versions/evolution_logs/%s_%dd_log.json",FUNCTION, DIMENSIONS);
     FILE *file = fopen(filename, "w");
     if (file == NULL) {
         perror("Error opening file");
