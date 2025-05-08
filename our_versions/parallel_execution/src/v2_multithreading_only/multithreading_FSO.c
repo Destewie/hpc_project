@@ -598,11 +598,15 @@ void volitivePositionUpdateArray(Fish *fishArray,
         Fish *fish = &fishArray[idx];
         for (int d = 0; d < DIMENSIONS; ++d) {
             double rand_mult = fmin(((double)rand_r(&thread_seed) / RAND_MAX) + 0.1, 1.0);
+
             double delta = fish->position[d] - barycenter[d];
+            double norm = sqrt(delta * delta + 1e-8); // eviti divisione per 0
+            double direction = delta / norm;
+        
             if (shrink == 1) {
-                fish->position[d] -= fish->max_volitive_step * rand_mult * delta;
+                fish->position[d] -= fish->max_volitive_step * rand_mult * direction;
             } else {
-                fish->position[d] += fish->max_volitive_step * rand_mult * delta;
+                fish->position[d] += fish->max_volitive_step * rand_mult * direction;
             }
             if (fish->position[d] > 1000.0 || fish->position[d] < -1000.0) {
                 shrink = 1;
@@ -633,51 +637,35 @@ void collectiveVolitiveArray(Fish *fishes,
                         current_iter, UPDATE_FREQUENCY,
                         N_FISHES_PER_SCHOOL, N_SCHOOLS);
 
-    #pragma omp parallel default(none) shared(fishes, barycenter, old_weights, new_weights)
-    {
-        int enlarge_streak_counter = 0;
 
-        #pragma omp for schedule(dynamic) 
-        for (int s = 0; s < N_SCHOOLS; ++s) {
-            if (old_weights[s] == new_weights[s]) continue;
-            int shrink = (old_weights[s] < new_weights[s]) ? 1 : 0;
-
-            if (shrink == 0) {
-                enlarge_streak_counter++;
-            } else {
-                enlarge_streak_counter = 0;
-            }
-
-            //mossa per evitare che l'algoritmo impazzisca e inizi a far allontanare troppo i pesci
-            if (enlarge_streak_counter >= 4) {
-                shrink = 1;
-            }
-
-            // Update positions in parallel per fish
-            volitivePositionUpdateArray(fishes,
-                                        s,
-                                        shrink,
-                                        barycenter[s],
-                                        N_FISHES_PER_SCHOOL,
-                                        DIMENSIONS);
+    #pragma omp parallel for schedule(dynamic) default(none) shared(fishes, barycenter, old_weights, new_weights)
+    for (int s = 0; s < N_SCHOOLS; ++s) {
+        if (old_weights[s] == new_weights[s]) continue;
+        int shrink = (old_weights[s] < new_weights[s]) ? 1 : 0;
 
 
-            
-            // Update previous_cycle_weight for each fish
-            int base = s * N_FISHES_PER_SCHOOL;
-            for (int i = 0; i < N_FISHES_PER_SCHOOL; ++i) {
-                fishes[base + i].previous_cycle_weight = fishes[base + i].weight;
-            }
+        // Update positions in parallel per fish
+        volitivePositionUpdateArray(fishes,
+                                    s,
+                                    shrink,
+                                    barycenter[s],
+                                    N_FISHES_PER_SCHOOL,
+                                    DIMENSIONS);
+
+        // Update previous_cycle_weight for each fish
+        int base = s * N_FISHES_PER_SCHOOL;
+        for (int i = 0; i < N_FISHES_PER_SCHOOL; ++i) {
+            fishes[base + i].previous_cycle_weight = fishes[base + i].weight;
         }
-
     }
-    
 
-    for (int s = 0; s < N_SCHOOLS; ++s) free(barycenter[s]);
-    free(barycenter);
-    free(old_weights);
-    free(new_weights);
 }
+
+
+for (int s = 0; s < N_SCHOOLS; ++s) free(barycenter[s]);
+free(barycenter);
+free(old_weights);
+free(new_weights);
 
 void breeding(Fish *fishes, int current_iter, const int UPDATE_FREQUENCY, const int N_FISHES_PER_SCHOOL, const int N_SCHOOLS, const int DIMENSIONS) {
 
