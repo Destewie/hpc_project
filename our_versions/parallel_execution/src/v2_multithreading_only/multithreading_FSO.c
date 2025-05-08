@@ -659,13 +659,13 @@ void collectiveVolitiveArray(Fish *fishes,
         }
     }
 
+    for (int s = 0; s < N_SCHOOLS; ++s) free(barycenter[s]);
+    free(barycenter);
+    free(old_weights);
+    free(new_weights);
 }
 
 
-for (int s = 0; s < N_SCHOOLS; ++s) free(barycenter[s]);
-free(barycenter);
-free(old_weights);
-free(new_weights);
 
 void breeding(Fish *fishes, int current_iter, const int UPDATE_FREQUENCY, const int N_FISHES_PER_SCHOOL, const int N_SCHOOLS, const int DIMENSIONS) {
 
