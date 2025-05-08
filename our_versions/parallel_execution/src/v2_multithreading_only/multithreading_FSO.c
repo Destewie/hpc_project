@@ -301,6 +301,8 @@ void individualMovement(Fish *fish,
         }
         fish->fitness = (float)new_fit;
     }
+    printf("after update-------> ");
+    printFish(&fish, DIMENSIONS);
 
     free(new_pos);
 }
@@ -317,9 +319,9 @@ void individualMovementArray(Fish *fishArray,
                              int UPDATE_FREQUENCY) {
     
     
-    printf("--INIZIO--\n")
+    printf("--INIZIO--\n");
     for (int i=0; i<N_FISHES_PER_SCHOOL; i++){
-        printFish(fishArray[i], DIMENSIONS)
+        printFish(fishArray[i], DIMENSIONS);
     }
 
     // Parallel region
@@ -367,6 +369,8 @@ void individualMovementArray(Fish *fishArray,
             }
         }
 
+        seeds[tid].seed = seed;
+
         free(local_tot);
         free(local_max);
         free(local_weighted);
@@ -399,9 +403,9 @@ void individualMovementArray(Fish *fishArray,
         free(global_weight);
     }
 
-    printf("--FINE--\n")
+    printf("--FINE--\n");
     for (int i=0; i<N_FISHES_PER_SCHOOL; i++){
-        printFish(fishArray[i], DIMENSIONS)
+        printFish(fishArray[i], DIMENSIONS);
     }
 }
 
