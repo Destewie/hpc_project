@@ -18,8 +18,8 @@
 #define FUNCTION "min_sphere"   //TODO: Capire se, al posto di fare un controllo su una stringa, possiamo passare alle funzioni direttamente un puntatore ad una funzione (in modo comodo, se no lasciamo perdere)
 #define MULTIPLIER -1   // 1 in case of maximization, -1 in case of minimization
 
-#define BOUNDS_MIN -100.0   // Minimum bound of the search space
-#define BOUNDS_MAX -70.0    // Maximum bound of the search space
+#define BOUNDS_MIN -70.0   // Minimum bound of the search space
+#define BOUNDS_MAX 70.0    // Maximum bound of the search space
 #define MAX_INDIVIDUAL_STEP 2 // Maximum step for individual movement
 #define MAX_VOLITIVE_STEP 0.2 // Maximum step for collective movement
 
@@ -604,7 +604,7 @@ void volitivePositionUpdateArray(Fish *fishArray,
             } else {
                 fish->position[d] += fish->max_volitive_step * rand_mult * delta;
             }
-            if (fish->position[d] > 5000.0 || fish->position[d] < -5000.0) {
+            if (fish->position[d] > 1000.0 || fish->position[d] < -1000.0) {
                 printf("Error: Fish position out of bounds. Problematic error %f\n", fish->position[d]);
                 exit(1);
             }

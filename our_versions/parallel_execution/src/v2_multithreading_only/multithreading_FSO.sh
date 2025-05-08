@@ -33,7 +33,7 @@ mpicc $C_PROGRAM_PATH -g -Wall -fopenmp -lm -std=c99 -o $EXECUTABLE_PATH_AND_NAM
 
 # run
 # <"Usage: N_SCHOOLS N_FISHES_PER_SCHOOL DIMENSIONS MAX_ITER UPDATE_FREQUENCY">
-mpirun.actual -n 1 $EXECUTABLE_PATH_AND_NAME 1 100 2 100 1
+mpirun.actual -n 1 $EXECUTABLE_PATH_AND_NAME 2 100 2 100 1
 
 # PLAN to MODIFY N_FISHES_PER_SCHOOL and N_SCHOOLS while maintaining the same N_FISHES
 # -n x -> x is the number of processes = number of schools
