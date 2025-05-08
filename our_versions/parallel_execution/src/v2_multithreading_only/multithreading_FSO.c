@@ -607,7 +607,7 @@ void volitivePositionUpdateArray(Fish *fishArray,
             if (fish->position[d] > 1000.0 || fish->position[d] < -1000.0) {
                 shrink = 1;
                 printf("Error: Fish position out of bounds. Problematic error %f\n", fish->position[d]);
-                // exit(1);
+                exit(1);
             }
         }
     }
@@ -635,21 +635,21 @@ void collectiveVolitiveArray(Fish *fishes,
 
     #pragma omp parallel default(none) shared(fishes, barycenter, old_weights, new_weights)
     {
-        int shrink_streak_counter = 0;
+        int enlarge_streak_counter = 0;
 
         #pragma omp for schedule(dynamic) 
         for (int s = 0; s < N_SCHOOLS; ++s) {
             if (old_weights[s] == new_weights[s]) continue;
             int shrink = (old_weights[s] < new_weights[s]) ? 1 : 0;
 
-            if (shrink == 1) {
-                shrink_streak_counter++;
+            if (shrink == 0) {
+                enlarge_streak_counter++;
             } else {
-                shrink_streak_counter = 0;
+                enlarge_streak_counter = 0;
             }
 
             //mossa per evitare che l'algoritmo impazzisca e inizi a far allontanare troppo i pesci
-            if (shrink_streak_counter >= 4) {
+            if (enlarge_streak_counter >= 4) {
                 shrink = 1;
             }
 
