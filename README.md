@@ -197,9 +197,6 @@ With usign a local structure in the individual movement we reached a better resu
 
 
 Ora proviamo a rendere locali anche le variabili del collective:
-
-
-
 (1)  
 Individual movement- 0.322119
 Collective movement- 0.264698
@@ -273,4 +270,7 @@ Collective movement- 0.032265
 Collective volitive- 0.084550
 
 ORA FORSE SAREBBE IL CASO DI TESTARE NUOVAMENTE IL FUNZIONAMENTO DELL'ALGORITMO TRAMITE LE VISUALIZZAZIONI FATTE IN PYTHON.
-LA PROSSIMA VOLTA TESTATELE
+
+# TEST 08/05/2025
+Ora proviamo a vedere se funziona ancora tutto con l'aiuto delle visualizzazioni grafiche.
+

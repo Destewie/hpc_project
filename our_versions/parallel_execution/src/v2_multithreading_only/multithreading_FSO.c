@@ -315,6 +315,13 @@ void individualMovementArray(Fish *fishArray,
                              int N_FISHES_PER_SCHOOL,
                              int DIMENSIONS,
                              int UPDATE_FREQUENCY) {
+    
+    
+    printf("--INIZIO--\n")
+    for (int i=0; i<N_FISHES_PER_SCHOOL; i++){
+        printFish(fishArray[i], DIMENSIONS)
+    }
+
     // Parallel region
     #pragma omp parallel
     {
@@ -334,7 +341,6 @@ void individualMovementArray(Fish *fishArray,
             float dfit;
             float *wmove = (float *)malloc(DIMENSIONS * sizeof(float));
             float improve;
-            if (!wmove) continue;
 
             individualMovement(fish, &dfit, wmove, &improve, &seed, DIMENSIONS);
 
@@ -391,6 +397,11 @@ void individualMovementArray(Fish *fishArray,
             }
         }
         free(global_weight);
+    }
+
+    printf("--FINE--\n")
+    for (int i=0; i<N_FISHES_PER_SCHOOL; i++){
+        printFish(fishArray[i], DIMENSIONS)
     }
 }
 
