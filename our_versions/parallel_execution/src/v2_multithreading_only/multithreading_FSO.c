@@ -605,7 +605,7 @@ void volitivePositionUpdateArray(Fish *fishArray,
                 fish->position[d] += fish->max_volitive_step * rand_mult * delta;
             }
             if (fish->position[d] > 1000.0 || fish->position[d] < -1000.0) {
-                printf("Error: Fish position out of bounds.\n");
+                printf("Error: Fish position out of bounds. Problematic error %f\n", fish->position[d]);
                 exit(1);
             }
         }
