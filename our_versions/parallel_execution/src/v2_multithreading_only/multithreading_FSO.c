@@ -600,7 +600,6 @@ void volitivePositionUpdateArray(Fish *fishArray,
             double rand_mult = fmin(((double)rand_r(&thread_seed) / RAND_MAX) + 0.1, 1.0);
 
             double delta = fish->position[d] - barycenter[d];
-            delta = delta / (1.0 + fabs(delta)); 
 
             if (shrink == 1) {
                 fish->position[d] -= fish->max_volitive_step * rand_mult * delta;
@@ -610,7 +609,9 @@ void volitivePositionUpdateArray(Fish *fishArray,
             if (fish->position[d] > 1000.0 || fish->position[d] < -1000.0) {
                 shrink = 1;
                 printf("Error: Fish position out of bounds. Problematic error %f\n", fish->position[d]);
-                exit(1);
+
+                fish->position[d] = fmax(fmin(fish->position[d], 1000.0), -1000.0);
+                // exit(1);
             }
         }
     }

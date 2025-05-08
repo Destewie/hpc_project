@@ -273,7 +273,7 @@ ORA FORSE SAREBBE IL CASO DI TESTARE NUOVAMENTE IL FUNZIONAMENTO DELL'ALGORITMO 
 
 # TEST 08/05/2025
 Ora proviamo a vedere se funziona ancora tutto con l'aiuto delle visualizzazioni grafiche.
-Siamo arrivati alla conclusione che in generale funziona, ma abbiamo un problemino con certe funzioni per cui la tendenza è quella di esplorare uno spazio troppo ampio e non capiamo se questo comportamento è corretto o se è causato da qualche problema nel nostro codice. Per provare a risolvere normalizziamo il vettore "delta" dentro "volitivePositionUpdateArray" con una funzione che non lo 
+Siamo arrivati alla conclusione che in generale funziona, ma abbiamo un problemino con certe funzioni per cui la tendenza è quella di esplorare uno spazio troppo ampio e non capiamo se questo comportamento è corretto o se è causato da qualche problema nel nostro codice. Per provare a risolvere abbiamo normalizzato il vettore "delta" dentro "volitivePositionUpdateArray" con una funzione che non lo faccia in modo soft, ma purtoppo non ha funzionato. Per questo motivo abbiamo rinunicato a questa modifica. 
 
 
 - prossima volta: 
