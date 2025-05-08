@@ -261,12 +261,6 @@ void initFishArray(Fish* fishArray, const int DIMENSIONS, const int N_FISHES_PER
         initFish(&fishArray[i], i, DIMENSIONS, N_FISHES_PER_SCHOOL, N_SCHOOLS);  // Inizializza ciascun pesce
         // printFish(fishArray[i]);
     }
-
-    printf("INIZIALIZZAZIONE---------------------------- %d\n", DIMENSIONS);
-    for (int i=0; i<N_FISHES_PER_SCHOOL; i++){
-        printFish(fishArray[i], DIMENSIONS);
-    }
-    printf("----------------------------\n");
 }
 
 // Assumes Fish and padded_seed_t defined elsewhere
@@ -307,8 +301,6 @@ void individualMovement(Fish *fish,
         }
         fish->fitness = (float)new_fit;
     }
-    printf("after update-------> ");
-    printFish(*fish, DIMENSIONS);
 
     free(new_pos);
 }
@@ -324,11 +316,6 @@ void individualMovementArray(Fish *fishArray,
                              int DIMENSIONS,
                              int UPDATE_FREQUENCY) {
     
-    
-    printf("--INIZIO-- %d\n", DIMENSIONS);
-    for (int i=0; i<N_FISHES_PER_SCHOOL; i++){
-        printFish(fishArray[i], DIMENSIONS);
-    }
 
     // Parallel region
     #pragma omp parallel
@@ -407,10 +394,6 @@ void individualMovementArray(Fish *fishArray,
         free(global_weight);
     }
 
-    printf("--FINE--\n");
-    for (int i=0; i<N_FISHES_PER_SCHOOL; i++){
-        printFish(fishArray[i], DIMENSIONS);
-    }
 }
 
 
@@ -842,7 +825,7 @@ int main(int argc, char *argv[]) {
         
         // INDIVIDUAL MOVEMENT
         c = MPI_Wtime();
-        individualMovementArray(fishes, total_fitness, weighted_total_fitness, max_improvement, iter, seeds, N_SCHOOLS, DIMENSIONS, N_FISHES_PER_SCHOOL, UPDATE_FREQUENCY);
+        individualMovementArray(fishes, total_fitness, weighted_total_fitness, max_improvement, iter, seeds, N_SCHOOLS, N_FISHES_PER_SCHOOL, DIMENSIONS, UPDATE_FREQUENCY);
         d = MPI_Wtime();
 
         // UPDATE WEIGHTS
