@@ -321,7 +321,7 @@ void individualMovementArray(Fish *fishArray,
     
     printf("--INIZIO--\n");
     for (int i=0; i<N_FISHES_PER_SCHOOL; i++){
-        printFish(fishArray[i], DIMENSIONS)
+        printFish(fishArray[i], DIMENSIONS);
     }
 
     // Parallel region
@@ -401,9 +401,9 @@ void individualMovementArray(Fish *fishArray,
         free(global_weight);
     }
 
-    printf("--FINE--\n")
+    printf("--FINE--\n");
     for (int i=0; i<N_FISHES_PER_SCHOOL; i++){
-        printFish(fishArray[i], DIMENSIONS)
+        printFish(fishArray[i], DIMENSIONS);
     }
 }
 
@@ -590,11 +590,6 @@ void calculateSumWeights(Fish *fishArray, float *old_sum, float *new_sum, int cu
     }
 }
 
-// Revised Fish Swarm volitive movement parallel in C
-#include <omp.h>
-#include <stdlib.h>
-#include <math.h>
-#include <stdio.h>
 
 // Assumes Fish, calculateBarycenters, calculateSumWeights defined elsewhere
 // Uses rand_r for thread-safe RNG
@@ -800,8 +795,8 @@ int main(int argc, char *argv[]) {
     double end = 0.0;
 
     char filename[50];
-    sprintf(filename, "/home/federico.desanti/hpc_project/our_versions/evolution_logs/%s_%dd_log.json",FUNCTION, DIMENSIONS);
-    // sprintf(filename, "/home/annachiara.fortuna/hpc_project/our_versions/evolution_logs/%s_%dd_log.json",FUNCTION, DIMENSIONS);
+    // sprintf(filename, "/home/federico.desanti/hpc_project/our_versions/evolution_logs/%s_%dd_log.json",FUNCTION, DIMENSIONS);
+    sprintf(filename, "/home/annachiara.fortuna/hpc_project/our_versions/evolution_logs/%s_%dd_log.json",FUNCTION, DIMENSIONS);
     FILE *file = fopen(filename, "w");
     if (file == NULL) {
         perror("Error opening file");
