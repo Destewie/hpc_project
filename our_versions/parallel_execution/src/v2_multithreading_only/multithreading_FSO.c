@@ -61,9 +61,9 @@ typedef struct {
 //----------------------------- UTILS -------------------------------------------------------
 //-------------------------------------------------------------------------------------------
 
-void WriteFishesToJson(Fish *fishes, FILE *file, int first, int last,const int N_FISHES_PER_SCHOOL,const int N_SCHOOLS, const int DIMENSIONS) {
+void WriteFishesToJson(Fish *fishes, FILE *file, int first_call, int last_call, const int N_FISHES_PER_SCHOOL, const int N_SCHOOLS, const int DIMENSIONS) {
 
-    if (first) {
+    if (first_call) {
         // Scrive l'apertura dell'array principale solo se è la prima chiamata
         fprintf(file, "[\n");
     }
@@ -88,7 +88,7 @@ void WriteFishesToJson(Fish *fishes, FILE *file, int first, int last,const int N
         }
     }
 
-    if (last) {
+    if (last_call) {
         // Chiude l'array principale se è l'ultima chiamata
         fprintf(file, "\t]\n]\n");
     } else {
@@ -321,7 +321,7 @@ void individualMovementArray(Fish *fishArray,
     
     printf("--INIZIO--\n");
     for (int i=0; i<N_FISHES_PER_SCHOOL; i++){
-        printFish(fishArray[i], DIMENSIONS)
+        printFish(fishArray[i], DIMENSIONS);
     }
 
     // Parallel region
@@ -401,9 +401,9 @@ void individualMovementArray(Fish *fishArray,
         free(global_weight);
     }
 
-    printf("--FINE--\n")
+    printf("--FINE--\n");
     for (int i=0; i<N_FISHES_PER_SCHOOL; i++){
-        printFish(fishArray[i], DIMENSIONS)
+        printFish(fishArray[i], DIMENSIONS);
     }
 }
 
