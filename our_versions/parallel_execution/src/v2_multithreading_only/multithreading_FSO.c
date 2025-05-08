@@ -641,7 +641,12 @@ void collectiveVolitiveArray(Fish *fishes,
         for (int s = 0; s < N_SCHOOLS; ++s) {
             if (old_weights[s] == new_weights[s]) continue;
             int shrink = (old_weights[s] < new_weights[s]) ? 1 : 0;
-            shrink == 1 ? shrink_streak_counter++ : shrink_streak_counter = 0;
+
+            if (shrink == 1) {
+                shrink_streak_counter++;
+            } else {
+                shrink_streak_counter = 0;
+            }
 
             //mossa per evitare che l'algoritmo impazzisca e inizi a far allontanare troppo i pesci
             if (shrink_streak_counter >= 4) {
