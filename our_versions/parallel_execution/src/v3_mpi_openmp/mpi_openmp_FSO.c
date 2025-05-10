@@ -28,7 +28,7 @@
 #define BREEDING_THRESHOLD 7.0 // minimus threshold of weight to breedh new fishes
 #define A 10.0 //rastrigin param
 
-#define LOG 1 // 1 to log the results, 0 otherwise
+#define LOG 0 // 1 to log the results, 0 otherwise
 
 // è una struct per fare in modo che la cache dei thread non subisca del false sharing e conseguenti race conditions
 // Seed da usare in combo con rand_r() 
@@ -102,23 +102,16 @@ double clamp(double value, double min, double max) {
 }
 
 // Per resettare le variabili all'inizio di ogni epoca
-void variablesReset(float *tot_fitness, float** weighted_tot_fitness, float *max_improvement,const int N_SCHOOLS,const int DIMENSIONS) {
+void variablesReset(float* tot_fitness, float* weighted_tot_fitness,  float* max_improvement, const int DIMENSIONS) {
 
-
-    int i, d;
-
-    //TODO: vale veramente la pena parallelizzare questa funzione??
-    // # pragma omp parallel for default(none) shared(tot_fitness, weighted_tot_fitness, max_improvement) // volendo si potrebbe mettere il modo per schedulare
-    // # pragma omp parallel for collapse(2) default(none) private(i,d) shared(tot_fitness, weighted_tot_fitness, max_improvement) // volendo si potrebbe mettere il modo per schedulare
-    for (i = 0; i < N_SCHOOLS; i++) {
-        tot_fitness[i] = 0.0;
-
-        for (d = 0; d < DIMENSIONS; d++) {
-            weighted_tot_fitness[i][d] = 0.0;
-        }
-        max_improvement[i] = 0.0;
+    for (int d = 0; d < DIMENSIONS; d++) {
+        weighted_tot_fitness[d] = 0.0;
     }
+
+    *tot_fitness = 0.0;
+    *max_improvement = 0.0;
 }
+
 
 //-------------------------------------------------------------------------------------------
 //---------------------------- MATH FUNCTIONS -----------------------------------------------
@@ -260,7 +253,6 @@ void initFishArray(Fish* fishArray, const int DIMENSIONS, const int N_FISHES_PER
     }
 }
 
-// Assumes Fish and padded_seed_t defined elsewhere
 // Assumes Fish and padded_seed_t defined elsewhere
 
 void individualMovement(Fish *fish,
@@ -815,9 +807,9 @@ int main(int argc, char *argv[]) {
     Fish *fishes = malloc(N_FISHES_PER_SCHOOL*sizeof(Fish));//creiamo un vettore per ogni processo diverso
     
     initFishArray(fishes, DIMENSIONS, N_FISHES_PER_SCHOOL, N_SCHOOLS, rank);
-    // if (DIMENSIONS <= 2 && LOG) {
-    //     WriteFishesToJson(fishes, file, 1, 0, N_FISHES_PER_SCHOOL, N_SCHOOLS, DIMENSIONS);
-    // }
+    if (DIMENSIONS <= 2 && LOG) {
+        WriteFishesToJson(fishes, file, 1, 0, N_FISHES_PER_SCHOOL, N_SCHOOLS, DIMENSIONS);
+    }
 
     // MAIN LOOP
     double a, b, c, d, e, f, g, h, i, l, m, n;
@@ -825,7 +817,7 @@ int main(int argc, char *argv[]) {
     for (int iter = 1; iter < MAX_ITER; iter++) { 
 
         a = MPI_Wtime();
-        // variablesReset(total_fitness, weighted_total_fitness, max_improvement, N_SCHOOLS, DIMENSIONS);
+        variablesReset(&total_fitness, weighted_total_fitness, &max_improvement, DIMENSIONS);
         b = MPI_Wtime();
         
         // INDIVIDUAL MOVEMENT
@@ -854,10 +846,10 @@ int main(int argc, char *argv[]) {
         n = MPI_Wtime();
 
        
-        // // SAVE ON FILE
-        // if (DIMENSIONS <= 2 && LOG) {
-        //     WriteFishesToJson(fishes, file, 0, iter==MAX_ITER-1?1:0,  N_FISHES_PER_SCHOOL, N_SCHOOLS, DIMENSIONS);
-        // }
+        // SAVE ON FILE
+        if (DIMENSIONS <= 2 && LOG) {
+            WriteFishesToJson(fishes, file, 0, iter==MAX_ITER-1?1:0,  N_FISHES_PER_SCHOOL, N_SCHOOLS, DIMENSIONS);
+        }
     }
 
     //timer stop
@@ -870,15 +862,17 @@ int main(int argc, char *argv[]) {
     #pragma omp barrier
     MPI_Finalize();
 
-    printf("Variablee reset- %f\n", b-a);
-    printf("Individual movement- %f\n", d-c);
-    printf("Update weights- %f\n", f-e);
-    printf("Collective movement- %f\n", h-g); 
-    printf("Collective volitive- %f\n", l-i); 
-    printf("Breeding- %f\n", n-m); 
-    
+    if (rank==0) {
+        printf("Variablee reset- %f\n", b-a);
+        printf("Individual movement- %f\n", d-c);
+        printf("Update weights- %f\n", f-e);
+        printf("Collective movement- %f\n", h-g); 
+        printf("Collective volitive- %f\n", l-i); 
+        printf("Breeding- %f\n", n-m); 
+        
 
-    printf("END: %f\n", end-start);
+        printf("END: %f\n", end-start);
+    }
 
 
     // print all the fishes
