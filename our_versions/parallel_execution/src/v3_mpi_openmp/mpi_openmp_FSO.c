@@ -862,17 +862,15 @@ int main(int argc, char *argv[]) {
     #pragma omp barrier
     MPI_Finalize();
 
-    if (rank==0) {
-        printf("Variablee reset- %f\n", b-a);
-        printf("Individual movement- %f\n", d-c);
-        printf("Update weights- %f\n", f-e);
-        printf("Collective movement- %f\n", h-g); 
-        printf("Collective volitive- %f\n", l-i); 
-        printf("Breeding- %f\n", n-m); 
-        
+    printf("Variablee reset- %f\n", b-a);
+    printf("Individual movement- %f\n", d-c);
+    printf("Update weights- %f\n", f-e);
+    printf("Collective movement- %f\n", h-g); 
+    printf("Collective volitive- %f\n", l-i); 
+    printf("Breeding- %f\n", n-m); 
+    
 
-        printf("END: %f\n", end-start);
-    }
+    printf("END: %f\n", end-start);
 
 
     // print all the fishes
