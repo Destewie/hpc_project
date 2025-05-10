@@ -215,13 +215,12 @@ void printFish(Fish fish,const int DIMENSIONS){
     printf("\tweight: %f \tfitness: %f\n", fish.weight, fish.fitness);
 }
 
-// Funzione per inizializzare un singolo pesce
-void initFish(Fish *fish, int fish_index, const int DIMENSIONS, const int N_FISHES_PER_SCHOOL, const int N_SCHOOLS ) {
+// Funzione per inizializzare un singolo pesce 
+void initFish(Fish *fish, int process_rank, const int DIMENSIONS, const int N_FISHES_PER_SCHOOL, const int N_SCHOOLS ) { // the number of schools is needed to divide the space
 
     // Posizioni iniziali divise per banco
-    int school_index = fish_index / N_FISHES_PER_SCHOOL; // Calcola il banco
     double portion_bounds = (SPAWN_BOUNDS_MAX - SPAWN_BOUNDS_MIN) / N_SCHOOLS; // Calcola la porzione corretta per ciascun banco
-    double lower_bound = SPAWN_BOUNDS_MIN + school_index * portion_bounds; // Limite inferiore per il banco
+    double lower_bound = SPAWN_BOUNDS_MIN + process_rank * portion_bounds; // Limite inferiore per il banco
     double upper_bound = lower_bound + portion_bounds; // Limite superiore per il banco
     fish->position = malloc(DIMENSIONS*sizeof(double));
     fish->new_position = malloc(DIMENSIONS*sizeof(double));
@@ -253,10 +252,10 @@ void initFish(Fish *fish, int fish_index, const int DIMENSIONS, const int N_FISH
 }
 
 // Funzione per inizializzare un array di pesci
-void initFishArray(Fish* fishArray, const int DIMENSIONS, const int N_FISHES_PER_SCHOOL, const int N_SCHOOLS) {
+void initFishArray(Fish* fishArray, const int DIMENSIONS, const int N_FISHES_PER_SCHOOL, const int N_SCHOOLS, int rank) {
     #pragma omp parallel for default(none) shared(fishArray)
-    for (int i = 0; i < N_FISHES_PER_SCHOOL*N_SCHOOLS; i++) {
-        initFish(&fishArray[i], i, DIMENSIONS, N_FISHES_PER_SCHOOL, N_SCHOOLS);  // Inizializza ciascun pesce
+    for (int i = 0; i < N_FISHES_PER_SCHOOL; i++){
+        initFish(&fishArray[i], rank, DIMENSIONS, N_FISHES_PER_SCHOOL, N_SCHOOLS);  // Inizializza ciascun pesce
         // printFish(fishArray[i]);
     }
 }
@@ -786,38 +785,35 @@ int main(int argc, char *argv[]) {
         seeds[i].seed = (unsigned int)time(NULL) + i;
     }
 
-
     //create a timer
     double start = MPI_Wtime(); 
     double end = 0.0;
 
-    char filename[50];
-    // sprintf(filename, "/home/federico.desanti/hpc_project/our_versions/evolution_logs/%s_%dd_log.json",FUNCTION, DIMENSIONS);
-    sprintf(filename, "/home/annachiara.fortuna/hpc_project/our_versions/evolution_logs/%s_%dd_log.json",FUNCTION, DIMENSIONS);
-    FILE *file = fopen(filename, "w");
-    if (file == NULL) {
-        perror("Error opening file");
-        return 1;
+    if (rank==0) {
+        char filename[50];
+        // sprintf(filename, "/home/federico.desanti/hpc_project/our_versions/evolution_logs/%s_%dd_log.json",FUNCTION, DIMENSIONS);
+        sprintf(filename, "/home/annachiara.fortuna/hpc_project/our_versions/evolution_logs/%s_%dd_log.json",FUNCTION, DIMENSIONS);
+        FILE *file = fopen(filename, "w");
+        if (file == NULL) {
+            perror("Error opening file");
+            return 1;
+        }
     }
 
     // float best_fitness[N_SCHOOLS];
-    float total_fitness[N_SCHOOLS];
-    float **weighted_total_fitness = malloc(N_SCHOOLS*sizeof(float*));
+    float total_fitness;
+    weighted_total_fitness[i] = malloc(DIMENSIONS*sizeof(float));
     if (weighted_total_fitness==NULL){
         exit(2);
     }
-    for (int i = 0; i < N_SCHOOLS; i++) {
-        weighted_total_fitness[i] = malloc(DIMENSIONS*sizeof(float));
-        if (weighted_total_fitness[i]==NULL){
-            exit(2);
-        }
-    }
-    float max_improvement[N_SCHOOLS];
+
+    float max_improvement;
     srand(time(NULL));  // Seed for random number generation
 
     // INITIALIZATION
-    Fish *fishes = malloc(N_FISHES_PER_SCHOOL*N_SCHOOLS*sizeof(Fish)); //creiamo un vettore unico che sarà diviso in banchi di pesci in base agli indici
-    initFishArray(fishes, DIMENSIONS, N_FISHES_PER_SCHOOL, N_SCHOOLS);
+    Fish *fishes = malloc(N_FISHES_PER_SCHOOL*sizeof(Fish));//creiamo un vettore per ogni processo diverso
+    
+    initFishArray(fishes, DIMENSIONS, N_FISHES_PER_SCHOOL, N_SCHOOLS, rank);
     if (DIMENSIONS <= 2 && LOG) {
         WriteFishesToJson(fishes, file, 1, 0, N_FISHES_PER_SCHOOL, N_SCHOOLS, DIMENSIONS);
     }
@@ -828,52 +824,47 @@ int main(int argc, char *argv[]) {
     for (int iter = 1; iter < MAX_ITER; iter++) { 
 
         a = MPI_Wtime();
-        variablesReset(total_fitness, weighted_total_fitness, max_improvement, N_SCHOOLS, DIMENSIONS);
+        // variablesReset(total_fitness, weighted_total_fitness, max_improvement, N_SCHOOLS, DIMENSIONS);
         b = MPI_Wtime();
         
         // INDIVIDUAL MOVEMENT
         c = MPI_Wtime();
-        individualMovementArray(fishes, total_fitness, weighted_total_fitness, max_improvement, iter, seeds, N_SCHOOLS, N_FISHES_PER_SCHOOL, DIMENSIONS, UPDATE_FREQUENCY);
+        // individualMovementArray(fishes, total_fitness, weighted_total_fitness, max_improvement, iter, seeds, N_SCHOOLS, N_FISHES_PER_SCHOOL, DIMENSIONS, UPDATE_FREQUENCY);
         d = MPI_Wtime();
 
         // UPDATE WEIGHTS
         e = MPI_Wtime();
-        updateWeightsArray(fishes, max_improvement, N_SCHOOLS, N_FISHES_PER_SCHOOL);
+        // updateWeightsArray(fishes, max_improvement, N_SCHOOLS, N_FISHES_PER_SCHOOL);
         f = MPI_Wtime();
 
         // COLLECTIVE MOVEMENT
         g = MPI_Wtime();
-        collectiveMovementArray(fishes, total_fitness, weighted_total_fitness, N_SCHOOLS, N_FISHES_PER_SCHOOL, DIMENSIONS);
+        // collectiveMovementArray(fishes, total_fitness, weighted_total_fitness, N_SCHOOLS, N_FISHES_PER_SCHOOL, DIMENSIONS);
         h = MPI_Wtime();
 
         // COLLECTIVE VOLITIVE MOVEMENT
         i = MPI_Wtime();
-        collectiveVolitiveArray(fishes, iter, N_SCHOOLS, DIMENSIONS, N_FISHES_PER_SCHOOL, UPDATE_FREQUENCY);
+        // collectiveVolitiveArray(fishes, iter, N_SCHOOLS, DIMENSIONS, N_FISHES_PER_SCHOOL, UPDATE_FREQUENCY);
         l = MPI_Wtime();
 
         // BREEDING
         m = MPI_Wtime();
-        breeding(fishes, iter, UPDATE_FREQUENCY, N_FISHES_PER_SCHOOL, N_SCHOOLS, DIMENSIONS);
+        // breeding(fishes, iter, UPDATE_FREQUENCY, N_FISHES_PER_SCHOOL, N_SCHOOLS, DIMENSIONS);
         n = MPI_Wtime();
 
        
-        // SAVE ON FILE
-        if (DIMENSIONS <= 2 && LOG) {
-            WriteFishesToJson(fishes, file, 0, iter==MAX_ITER-1?1:0,  N_FISHES_PER_SCHOOL, N_SCHOOLS, DIMENSIONS);
-        }
-        // //calcolo la best fitness 
-        // for (int i = 0; i < N_FISHES_PER_SCHOOL*N_SCHOOLS; i++) {
-        //     // printFish(fishes[i]);
-        //     if (best_fitness<fishes[i].fitness) {
-        //         best_fitness = fishes[i].fitness;
-        //     }
+        // // SAVE ON FILE
+        // if (DIMENSIONS <= 2 && LOG) {
+        //     WriteFishesToJson(fishes, file, 0, iter==MAX_ITER-1?1:0,  N_FISHES_PER_SCHOOL, N_SCHOOLS, DIMENSIONS);
         // }
     }
 
     //timer stop
     end = MPI_Wtime();
 
-    fclose(file);
+    if (rank==0) {
+        fclose(file);
+    }
 
     #pragma omp barrier
     MPI_Finalize();

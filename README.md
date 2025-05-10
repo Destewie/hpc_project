@@ -280,3 +280,9 @@ Siamo arrivati alla conclusione che in generale funziona, ma abbiamo un problemi
 Capiamo se vogliamo intraprendere la strada che ci porterà a sviluppare una versione poco leggibile, ma altamente parallelizzabile.
 Se si, in bocca al lupo.
 Se no, capiamo come immettere MPI.
+
+# TEST 10/05/2025
+Proviamo a inserire MPI nel codice, nuova directory v3_mpi_openmp. 
+Per come la pensavamo molto tempo fa, noi definiamo quanti pesci totali ci saranno e poi il programma se li smazza automaticamente in schools facendo npesci / nprocessi.
+
+Dato che ogni processo si gestisce un solo banco di pesci, dobbiamo ridefinire tutte le strutture che erano state fatte apposta per gestire n_schools (visto che ora ogni processo ne gestisce una sola).
