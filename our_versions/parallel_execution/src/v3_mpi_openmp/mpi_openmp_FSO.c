@@ -787,9 +787,9 @@ int main(int argc, char *argv[]) {
     // INITIALIZATION
     Fish *fishes = malloc(N_FISHES_PER_PROCESS*sizeof(Fish));//creiamo un vettore per ogni processo diverso
     
-    initFishArray(fishes, DIMENSIONS, N_FISHES_PER_PROCESS, rank);
+    initFishArray(fishes, DIMENSIONS, N_FISHES_PER_PROCESS, size, rank);
     if (DIMENSIONS <= 2 && LOG) {
-        WriteFishesToJson(fishes, file, 1, 0, N_FISHES_PER_PROCESS, DIMENSIONS);
+        WriteFishesToJson(fishes, file, 1, 0, N_FISHES_PER_PROCESS, size, DIMENSIONS);
     }
 
     // MAIN LOOP
@@ -829,7 +829,7 @@ int main(int argc, char *argv[]) {
        
         // SAVE ON FILE
         if (DIMENSIONS <= 2 && LOG) {
-            WriteFishesToJson(fishes, file, 0, iter==MAX_ITER-1?1:0,  N_FISHES_PER_PROCESS, DIMENSIONS);
+            WriteFishesToJson(fishes, file, 0, iter==MAX_ITER-1?1:0,  N_FISHES_PER_PROCESS, size, DIMENSIONS);
         }
     }
 
