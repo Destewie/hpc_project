@@ -18,15 +18,13 @@
 #define FUNCTION "min_ackley"   //TODO: Capire se, al posto di fare un controllo su una stringa, possiamo passare alle funzioni direttamente un puntatore ad una funzione (in modo comodo, se no lasciamo perdere)
 #define MULTIPLIER -1   // 1 in case of maximization, -1 in case of minimization
 
-#define BOUNDS_MIN -70.0   // Minimum bound of the search space
-#define BOUNDS_MAX 70.0    // Maximum bound of the search space
+#define SPAWN_BOUNDS_MIN -70.0   // Minimum bound of the spawn space
+#define SPAWN_BOUNDS_MAX 70.0    // Maximum bound of the spawn space
 #define MAX_INDIVIDUAL_STEP 2 // Maximum step for individual movement
 #define MAX_VOLITIVE_STEP 0.2 // Maximum step for collective movement
 
-#define BOUNDS_MIN_W 0.1   // Minimum bound of the search space
-#define BOUNDS_MAX_W 10.0    // Maximum bound of the search space
-#define W_SCALE_MIN 1.0
-#define W_SCALE_MAX 10.0
+#define W_SCALE_MIN 1.0         // Minimum Bounds of the weight
+#define W_SCALE_MAX 10.0        // Maximum bount of the weight
 #define BREEDING_THRESHOLD 7.0 // minimus threshold of weight to breedh new fishes
 #define A 10.0 //rastrigin param
 
@@ -222,8 +220,8 @@ void initFish(Fish *fish, int fish_index, const int DIMENSIONS, const int N_FISH
 
     // Posizioni iniziali divise per banco
     int school_index = fish_index / N_FISHES_PER_SCHOOL; // Calcola il banco
-    double portion_bounds = (BOUNDS_MAX - BOUNDS_MIN) / N_SCHOOLS; // Calcola la porzione corretta per ciascun banco
-    double lower_bound = BOUNDS_MIN + school_index * portion_bounds; // Limite inferiore per il banco
+    double portion_bounds = (SPAWN_BOUNDS_MAX - SPAWN_BOUNDS_MIN) / N_SCHOOLS; // Calcola la porzione corretta per ciascun banco
+    double lower_bound = SPAWN_BOUNDS_MIN + school_index * portion_bounds; // Limite inferiore per il banco
     double upper_bound = lower_bound + portion_bounds; // Limite superiore per il banco
     fish->position = malloc(DIMENSIONS*sizeof(double));
     fish->new_position = malloc(DIMENSIONS*sizeof(double));
@@ -231,14 +229,14 @@ void initFish(Fish *fish, int fish_index, const int DIMENSIONS, const int N_FISH
     // NON PARALLELIZZATO PER EVITARE MICRO-PARALLELIZZAZIONE INNESTATA, parallelizzato in: void initFishArray(Fish* fishArray) 
     for (int d = 0; d < DIMENSIONS; d++) {
         // // Posizioni iniziali random
-        // fish->position[d] = ((double)rand() / RAND_MAX) * (BOUNDS_MAX - BOUNDS_MIN) + BOUNDS_MIN;
+        // fish->position[d] = ((double)rand() / RAND_MAX) * (BOUNDS_MAX - SPAWN_BOUNDS_MIN) + SPAWN_BOUNDS_MIN;
 
         // Posizioni iniziali divise per banco
         if (d == 0) {
             fish->position[d] = ((double)rand() / RAND_MAX) * (upper_bound - lower_bound) + lower_bound;
             // printf("[D0] lower_bound: %f, upper_bound: %f\n, x: %f", lower_bound, upper_bound, fish->position[d]);
         } else {
-            fish->position[d] = ((double)rand() / RAND_MAX) * (BOUNDS_MAX - BOUNDS_MIN) + BOUNDS_MIN;
+            fish->position[d] = ((double)rand() / RAND_MAX) * (SPAWN_BOUNDS_MAX - SPAWN_BOUNDS_MIN) + SPAWN_BOUNDS_MIN;
         }
 
         fish->new_position[d] = fish->position[d];

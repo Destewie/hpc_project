@@ -184,7 +184,7 @@ void printFish(Fish fish){
 // Funzione per inizializzare un singolo pesce
 void initFish(Fish *fish) {
     for (int i = 0; i < DIMENSIONS; i++) {
-        fish->position[i] = ((double)rand() / RAND_MAX) * (BOUNDS_MAX - BOUNDS_MIN) + BOUNDS_MIN;
+        fish->position[i] = ((double)rand() / RAND_MAX) * (SPAWN_BOUNDS_MAX - SPAWN_BOUNDS_MIN) + SPAWN_BOUNDS_MIN;
         fish->new_position[i] = fish->position[i];
     }
 
