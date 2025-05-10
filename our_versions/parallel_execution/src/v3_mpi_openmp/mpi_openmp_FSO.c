@@ -253,7 +253,7 @@ void initFish(Fish *fish, int process_rank, const int DIMENSIONS, const int N_FI
 
 // Funzione per inizializzare un array di pesci
 void initFishArray(Fish* fishArray, const int DIMENSIONS, const int N_FISHES_PER_SCHOOL, const int N_SCHOOLS, int rank) {
-    #pragma omp parallel for default(none) shared(fishArray)
+    #pragma omp parallel for default(none) private(rank) shared(fishArray)
     for (int i = 0; i < N_FISHES_PER_SCHOOL; i++){
         initFish(&fishArray[i], rank, DIMENSIONS, N_FISHES_PER_SCHOOL, N_SCHOOLS);  // Inizializza ciascun pesce
         // printFish(fishArray[i]);
@@ -789,11 +789,12 @@ int main(int argc, char *argv[]) {
     double start = MPI_Wtime(); 
     double end = 0.0;
 
+    FILE *file;
     if (rank==0) {
         char filename[50];
         // sprintf(filename, "/home/federico.desanti/hpc_project/our_versions/evolution_logs/%s_%dd_log.json",FUNCTION, DIMENSIONS);
         sprintf(filename, "/home/annachiara.fortuna/hpc_project/our_versions/evolution_logs/%s_%dd_log.json",FUNCTION, DIMENSIONS);
-        FILE *file = fopen(filename, "w");
+        file = fopen(filename, "w");
         if (file == NULL) {
             perror("Error opening file");
             return 1;
@@ -802,7 +803,7 @@ int main(int argc, char *argv[]) {
 
     // float best_fitness[N_SCHOOLS];
     float total_fitness;
-    weighted_total_fitness[i] = malloc(DIMENSIONS*sizeof(float));
+    float* weighted_total_fitness = malloc(DIMENSIONS*sizeof(float));
     if (weighted_total_fitness==NULL){
         exit(2);
     }
@@ -814,9 +815,9 @@ int main(int argc, char *argv[]) {
     Fish *fishes = malloc(N_FISHES_PER_SCHOOL*sizeof(Fish));//creiamo un vettore per ogni processo diverso
     
     initFishArray(fishes, DIMENSIONS, N_FISHES_PER_SCHOOL, N_SCHOOLS, rank);
-    if (DIMENSIONS <= 2 && LOG) {
-        WriteFishesToJson(fishes, file, 1, 0, N_FISHES_PER_SCHOOL, N_SCHOOLS, DIMENSIONS);
-    }
+    // if (DIMENSIONS <= 2 && LOG) {
+    //     WriteFishesToJson(fishes, file, 1, 0, N_FISHES_PER_SCHOOL, N_SCHOOLS, DIMENSIONS);
+    // }
 
     // MAIN LOOP
     double a, b, c, d, e, f, g, h, i, l, m, n;
