@@ -336,24 +336,20 @@ void individualMovementArray(Fish* fishArray,
             }
 
             free(wmove);
-            free(local_weighted);
         }
 
         // Merge thread-local accumulators into shared arrays   
         #pragma omp atomic
-        tot_delta_fitness += local_tot;
+        *tot_delta_fitness += local_tot;
 
         #pragma omp critical
-        max_delta_fitness_improvement = fmaxf(max_delta_fitness_improvement, local_max);
+        *max_delta_fitness_improvement = fmaxf(*max_delta_fitness_improvement, local_max);
 
         for (int d = 0; d < DIMENSIONS; ++d) {
             #pragma omp atomic
             weighted_tot_delta_fitness[d] += local_weighted[d];
         }
         
-
-        free(local_tot);
-        free(local_max);
         free(local_weighted);
     }
 
@@ -791,9 +787,9 @@ int main(int argc, char *argv[]) {
     // INITIALIZATION
     Fish *fishes = malloc(N_FISHES_PER_PROCESS*sizeof(Fish));//creiamo un vettore per ogni processo diverso
     
-    initFishArray(fishes, DIMENSIONS, N_FISHES_PER_PROCESS, N_PROCESSES, rank);
+    initFishArray(fishes, DIMENSIONS, N_FISHES_PER_PROCESS, rank);
     if (DIMENSIONS <= 2 && LOG) {
-        WriteFishesToJson(fishes, file, 1, 0, N_FISHES_PER_PROCESS, N_PROCESSES, DIMENSIONS);
+        WriteFishesToJson(fishes, file, 1, 0, N_FISHES_PER_PROCESS, DIMENSIONS);
     }
 
     // MAIN LOOP
@@ -833,7 +829,7 @@ int main(int argc, char *argv[]) {
        
         // SAVE ON FILE
         if (DIMENSIONS <= 2 && LOG) {
-            WriteFishesToJson(fishes, file, 0, iter==MAX_ITER-1?1:0,  N_FISHES_PER_PROCESS, N_PROCESSES, DIMENSIONS);
+            WriteFishesToJson(fishes, file, 0, iter==MAX_ITER-1?1:0,  N_FISHES_PER_PROCESS, DIMENSIONS);
         }
     }
 
