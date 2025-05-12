@@ -286,3 +286,10 @@ Proviamo a inserire MPI nel codice, nuova directory v3_mpi_openmp.
 Per come la pensavamo molto tempo fa, noi definiamo quanti pesci totali ci saranno e poi il programma se li smazza automaticamente in schools facendo npesci / nprocessi.
 
 Dato che ogni processo si gestisce un solo banco di pesci, dobbiamo ridefinire tutte le strutture che erano state fatte apposta per gestire n_schools (visto che ora ogni processo ne gestisce una sola).
+Ora la versione funziona per l'individual movement, nonostante questo il tempo schizza su di molto molto e inoltre aumenta all'aumentare dei processi che si usano.
+Alcuni dati:
+RUNNING WITH: N-PROCESSES 4 - N_FISHES_PER_PROCESS 100 - DIMENSIONS 2 - MAX_ITER 200 - UPDATE_FREQUENCY 1 + 8 threads per processo ->>>>>>>Individual movement- 0.078004
+RUNNING WITH: N-PROCESSES 2 - N_FISHES_PER_PROCESS 100 - DIMENSIONS 2 - MAX_ITER 200 - UPDATE_FREQUENCY 1 + 8 threads per processo ->>>>>>>Individual movement- 0.005673
+RUNNING WITH: N-PROCESSES 1 - N_FISHES_PER_PROCESS 100 - DIMENSIONS 2 - MAX_ITER 200 - UPDATE_FREQUENCY 1 + 8 threads per processo ->>>>>>>Individual movement- 0.000015
+
+Prossima volta: andare avanti con parallelizzazione e capire meglio quando usare scatter e pack e fare test
