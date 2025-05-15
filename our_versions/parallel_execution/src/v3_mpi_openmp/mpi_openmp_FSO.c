@@ -673,78 +673,38 @@ void collectiveVolitiveArray(Fish *fishes,
 
 
 
-void breeding(Fish *fishes, int current_iter, const int UPDATE_FREQUENCY, const int N_FISHES_PER_PROCESS, const int N_SCHOOLS, const int DIMENSIONS) {
+void breeding(Fish *fishes, int current_iter, const int N_FISHES_PER_PROCESS, const int DIMENSIONS) {
+    // Indici del miglior, secondo miglior e peggiore pesce del banco
+    int first_index = 0;
+    int second_index = -1; // Inizializza con un valore non valido
+    int worst_index = 0;
 
-    if (current_iter%UPDATE_FREQUENCY==0){
-        // Indici del miglior, secondo miglior e peggiore pesce del banco
-        int first_index = 0;
-        int second_index = -1; // Inizializza con un valore non valido
-        int worst_index = 0;
+    for (int i = 1; i < N_FISHES_PER_PROCESS; i++) {
+        int current_index = i;
 
-        for (int i = 0; i < N_FISHES_PER_PROCESS*N_SCHOOLS; i++) {
-            
-            // Controlla se il peso corrente è maggiore del primo
-            if (fishes[i].weight > fishes[first_index].weight) {
-                second_index = first_index; // Aggiorna il secondo con il vecchio primo
-                first_index = i;
-            } 
-            // Controlla se il peso corrente è maggiore del secondo (solo se valido)
-            else if (second_index == -1 || fishes[i].weight > fishes[second_index].weight) {
-                second_index = i;
-            }
-
-            // Aggiorna il peggiore
-            if (fishes[i].weight < fishes[worst_index].weight) {
-                worst_index = i;
-            }
+        // Controlla se il peso corrente è maggiore del primo
+        if (fishes[current_index].weight > fishes[first_index].weight) {
+            second_index = first_index; // Aggiorna il secondo con il vecchio primo
+            first_index = current_index;
+        } 
+        // Controlla se il peso corrente è maggiore del secondo (solo se valido)
+        else if (second_index == -1 || fishes[current_index].weight > fishes[second_index].weight) {
+            second_index = current_index;
         }
 
-        // Esegui il "breeding" solo se entrambi superano la threshold
-        if (fishes[first_index].weight > BREEDING_THRESHOLD && fishes[second_index].weight > BREEDING_THRESHOLD) {
-            for (int d = 0; d < DIMENSIONS; d++) {
-                fishes[worst_index].position[d] = (fishes[first_index].position[d] + fishes[second_index].position[d]) / 2;
-            }
-            fishes[worst_index].weight = (fishes[first_index].weight + fishes[second_index].weight) / 2;
-            fishes[worst_index].fitness = objectiveFunction(fishes[worst_index].position, DIMENSIONS) * MULTIPLIER;
-
+        // Aggiorna il peggiore
+        if (fishes[current_index].weight < fishes[worst_index].weight) {
+            worst_index = current_index;
         }
+    }
 
-    }else{
-        for (int s = 0; s < N_SCHOOLS; s++) {
-            // Indici del miglior, secondo miglior e peggiore pesce del banco
-            int first_index = s * N_FISHES_PER_PROCESS;
-            int second_index = -1; // Inizializza con un valore non valido
-            int worst_index = s * N_FISHES_PER_PROCESS;
-
-            for (int i = 1; i < N_FISHES_PER_PROCESS; i++) {
-                int current_index = s * N_FISHES_PER_PROCESS + i;
-
-                // Controlla se il peso corrente è maggiore del primo
-                if (fishes[current_index].weight > fishes[first_index].weight) {
-                    second_index = first_index; // Aggiorna il secondo con il vecchio primo
-                    first_index = current_index;
-                } 
-                // Controlla se il peso corrente è maggiore del secondo (solo se valido)
-                else if (second_index == -1 || fishes[current_index].weight > fishes[second_index].weight) {
-                    second_index = current_index;
-                }
-
-                // Aggiorna il peggiore
-                if (fishes[current_index].weight < fishes[worst_index].weight) {
-                    worst_index = current_index;
-                }
-            }
-
-            // Esegui il "breeding" solo se entrambi superano la threshold
-            if (fishes[first_index].weight > BREEDING_THRESHOLD && fishes[second_index].weight > BREEDING_THRESHOLD) {
-                for (int d = 0; d < DIMENSIONS; d++) {
-                    fishes[worst_index].position[d] = (fishes[first_index].position[d] + fishes[second_index].position[d]) / 2;
-                }
-                fishes[worst_index].weight = (fishes[first_index].weight + fishes[second_index].weight) / 2;
-                fishes[worst_index].fitness = objectiveFunction(fishes[worst_index].position, DIMENSIONS) * MULTIPLIER;
-
-            }
+    // Esegui il "breeding" solo se entrambi superano la threshold
+    if (fishes[first_index].weight > BREEDING_THRESHOLD && fishes[second_index].weight > BREEDING_THRESHOLD) {
+        for (int d = 0; d < DIMENSIONS; d++) {
+            fishes[worst_index].position[d] = (fishes[first_index].position[d] + fishes[second_index].position[d]) / 2;
         }
+        fishes[worst_index].weight = (fishes[first_index].weight + fishes[second_index].weight) / 2;
+        fishes[worst_index].fitness = objectiveFunction(fishes[worst_index].position, DIMENSIONS) * MULTIPLIER;
     }
 }
 
@@ -862,7 +822,7 @@ int main(int argc, char *argv[]) {
 
         // BREEDING
         m = MPI_Wtime();
-        // breeding(fishes, iter, UPDATE_FREQUENCY, N_FISHES_PER_PROCESS, DIMENSIONS);
+        breeding(fishes, iter, N_FISHES_PER_PROCESS, DIMENSIONS);
         n = MPI_Wtime();
 
        

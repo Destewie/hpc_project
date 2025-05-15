@@ -299,6 +299,13 @@ Abbiamo fatto un altro branch per provare a ridurre da 3 a 2 MPI_AllReduce in in
 Questo è stato fatto! Tendenzialmente riscontriamo un miglioramento sull'individual movement di circa 0.02 (ma non sempre, è un po' fluttuante... forse dipenderà dallo stato del cluster??)
 
 Siamo al punto di adattare il collectiveVolitiveMovement, per farlo, dato che la funzione richiede comunicazione tra tutti i processi, vogliamo collassare insieme la funzione che si occupa di calcolare il baricentro e quella che si occupa di calcolare la somma totale dei pesi, in modo da ridurre la comunicazione totale. 
+Con questa modifica funzionante abbiamo dei buoni risultati sulle tempistiche (negli esempi il numero di pesci totale è lo stesso 16000, con 8 core per processo)
+- RUNNING WITH: N-PROCESSES 1 - N_FISHES_PER_PROCESS 16000 - DIMENSIONS 100 - MAX_ITER 200 - UPDATE_FREQUENCY 1 => 20.770748 s
+- RUNNING WITH: N-PROCESSES 2 - N_FISHES_PER_PROCESS 8000 - DIMENSIONS 100 - MAX_ITER 200 - UPDATE_FREQUENCY 1 => 23.437921 s
+- RUNNING WITH: N-PROCESSES 4 - N_FISHES_PER_PROCESS 4000 - DIMENSIONS 100 - MAX_ITER 200 - UPDATE_FREQUENCY 1 => 21.707344 s
+- RUNNING WITH: N-PROCESSES 8 - N_FISHES_PER_PROCESS 2000 - DIMENSIONS 100 - MAX_ITER 200 - UPDATE_FREQUENCY 1 => 19.164604 s
+- RUNNING WITH: N-PROCESSES 16 - N_FISHES_PER_PROCESS 1000 - DIMENSIONS 100 - MAX_ITER 200 - UPDATE_FREQUENCY 1 => 36.393537 s (individual qua è molto alto, non so se sia per quello)
+
 
 Nella parte di breeding, togliamo proprio la comunicazione tra tutti i banchi. Tanto il pesce peggiore tra tutti, sarà comunque il pesce peggiore del suo banco. Teniamo che ogni banco toglie il suo pesce peggiore e ne spawna uno nuovo dai suoi due pesci migliori.
 
