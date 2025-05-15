@@ -439,7 +439,7 @@ void collectiveMovementArray(Fish *fishArray,
         }
 
         // Parallel update of fish positions using local buffers
-        #pragma omp for collapse(2) schedule(static)
+        #pragma omp for schedule(static)
         for (int i = 0; i < N_FISHES_PER_PROCESS; ++i) {
             Fish *fish = &fishArray[i];
             collectiveMovementLocal(fish,
