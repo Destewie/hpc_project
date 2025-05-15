@@ -463,6 +463,64 @@ void collectiveMovementArray(Fish *fishArray,
 }
 
 
+void calculateBarycentersAndSumWeights(Fish *fishArray, float* barycenter, float *old_sum, float *new_sum, int current_iter, const int UPDATE_FREQUENCY, const int DIMENSIONS, const int N_FISHES_PER_PROCESS) {
+
+    //common part for all processes where they calcuate their own data
+    // BARYCENTER
+    float numerator[DIMENSIONS];
+    // float denominator[DIMENSIONS]; it is the same for everyone
+
+    for (int d = 0; d < DIMENSIONS; d++){
+        numerator[d] = 0.0;
+        // denominator[d] = 0.0;
+    }
+    *new_sum = 0.0;
+    *old_sum = 0.0;
+
+    for (int d = 0; d < DIMENSIONS; d++) {
+        for (int i = 0; i < N_FISHES_PER_PROCESS; i++) {
+            numerator[d] += fishArray[i].position[d] * fishArray[i].weight;
+            *new_sum += fishArray[i].weight;
+            *old_sum += fishArray[i].previous_cycle_weight;
+        }
+
+        if (*new_sum != 0.0) {
+            barycenter[d] = numerator[d] / *new_sum;
+        } else {
+            printf("Denominator is zero...\n");
+        }
+    }
+
+    // exchange of information among processes
+    if (current_iter % UPDATE_FREQUENCY == 0) {
+        // creare un unico array per il banco con tutte le cose dentro
+        // tutte le cose per UN SOLO BANCO sono: il suo peso totale all'iterazione corrente, il suo peso totale all'iterazione precedente e la moltiplicazione del suo baricentro(d valori) per il suo peso attuale
+        float* temp_array = (float *)malloc((DIMENSIONS + 2) * sizeof(float));
+        temp_array[0] = *old_sum;
+        temp_array[1] = *new_sum;
+
+        for (int d = 0; d < DIMENSIONS; d++) {
+            temp_array[d + 2] = numerator[d];
+        }
+
+        MPI_Allreduce(MPI_IN_PLACE, temp_array, DIMENSIONS + 2, MPI_FLOAT, MPI_SUM, MPI_COMM_WORLD);        
+    
+        // Update the original arrays
+        *old_sum = temp_array[0];
+        *new_sum = temp_array[1];
+
+        if (*new_sum != 0.0) {
+            for (int d = 0; d < DIMENSIONS; d++) {
+                barycenter[d] = temp_array[d + 2] / *new_sum;
+            } 
+        }else {
+            printf("Denominator is zero...\n");
+        }
+        
+    }
+}
+
+
 void calculateBarycenters(Fish *fishArray, float* barycenter, int current_iter, const int UPDATE_FREQUENCY, const int DIMENSIONS, const int N_FISHES_PER_PROCESS){
 
     if (current_iter%UPDATE_FREQUENCY==0){
@@ -519,26 +577,22 @@ void calculateSumWeights(Fish *fishArray, float *old_sum, float *new_sum, int cu
     if (current_iter%UPDATE_FREQUENCY==0){
         float complete_old_sum = 0.0;
         float complete_new_sum = 0.0;
-        for (int i=0; i<N_FISHES_PER_PROCESS*N_SCHOOLS; i++) {
+        for (int i=0; i<N_FISHES_PER_PROCESS; i++) {
             complete_old_sum += fishArray[i].previous_cycle_weight;
             complete_new_sum += fishArray[i].weight;
         }
 
-        for (int s=0; s<N_SCHOOLS; s++) {
-            old_sum[s] = complete_old_sum;
-            new_sum[s] = complete_new_sum;
-        }
+        old_sum = complete_old_sum;
+        new_sum = complete_new_sum;
+        
     }else{
-        for (int s=0; s<N_SCHOOLS; s++) {
-            old_sum[s] = 0.0;
-            new_sum[s] = 0.0;
-        }
 
-        for (int s=0; s<N_SCHOOLS; s++) {
-            for (int i = 0; i < N_FISHES_PER_PROCESS; i++) {
-                old_sum[s] += fishArray[s * N_FISHES_PER_PROCESS + i].previous_cycle_weight;
-                new_sum[s] += fishArray[s * N_FISHES_PER_PROCESS + i].weight;
-            }
+        old_sum = 0.0;
+        new_sum = 0.0;
+
+        for (int i = 0; i < N_FISHES_PER_PROCESS; i++) {
+            old_sum += fishArray[i].previous_cycle_weight;
+            new_sum += fishArray[i].weight;
         }
     }
 }
@@ -548,16 +602,13 @@ void calculateSumWeights(Fish *fishArray, float *old_sum, float *new_sum, int cu
 // Uses rand_r for thread-safe RNG
 
 void volitivePositionUpdateArray(Fish *fishArray,
-                                 int school_index,
                                  int shrink,
                                  float *barycenter,
                                  const int N_FISHES_PER_PROCESS,
                                  const int DIMENSIONS) {
-    int start = school_index * N_FISHES_PER_PROCESS;
-    int end   = start + N_FISHES_PER_PROCESS;
 
     #pragma omp parallel for schedule(static) default(none) shared(fishArray, start, end, barycenter, shrink) firstprivate(DIMENSIONS) 
-    for (int idx = start; idx < end; ++idx) {
+    for (int idx = 0; idx < N_FISHES_PER_PROCESS; ++idx) {
         unsigned int thread_seed = (unsigned int)idx + (unsigned int)time(NULL);
         Fish *fish = &fishArray[idx];
         for (int d = 0; d < DIMENSIONS; ++d) {
@@ -575,7 +626,6 @@ void volitivePositionUpdateArray(Fish *fishArray,
                 printf("Error: Fish position out of bounds. Problematic error %f\n", fish->position[d]);
 
                 fish->position[d] = fmax(fmin(fish->position[d], 1000.0), -1000.0);
-                // exit(1);
             }
         }
     }
@@ -590,40 +640,37 @@ void collectiveVolitiveArray(Fish *fishes,
     float old_weights;
     float new_weights;
 
-    calculateBarycenters(fishes, barycenter,
-                         current_iter, UPDATE_FREQUENCY,
-                         DIMENSIONS, N_FISHES_PER_PROCESS);
-    calculateSumWeights(fishes, old_weights, new_weights,
-                        current_iter, UPDATE_FREQUENCY,
-                        N_FISHES_PER_PROCESS);
+    // calculateBarycenters(fishes, barycenter,
+    //                      current_iter, UPDATE_FREQUENCY,
+    //                      DIMENSIONS, N_FISHES_PER_PROCESS);
+    // calculateSumWeights(fishes, old_weights, new_weights,
+    //                     current_iter, UPDATE_FREQUENCY,
+    //                     N_FISHES_PER_PROCESS);
+    calculateBarycentersAndSumWeights(fishes, barycenter, &old_weights, &new_weights, current_iter, UPDATE_FREQUENCY, DIMENSIONS, N_FISHES_PER_PROCESS);
 
 
-    #pragma omp parallel for schedule(dynamic) default(none) shared(fishes, barycenter, old_weights, new_weights)
-    for (int s = 0; s < N_SCHOOLS; ++s) {
-        if (old_weights[s] == new_weights[s]) continue;
-        int shrink = (old_weights[s] < new_weights[s]) ? 1 : 0;
+    // #pragma omp parallel for schedule(dynamic) default(none) shared(fishes, barycenter, old_weights, new_weights)
+    
+    if (old_weights == new_weights) continue;
+    int shrink = (old_weights < new_weights) ? 1 : 0;
 
 
-        // Update positions in parallel per fish
-        volitivePositionUpdateArray(fishes,
-                                    s,
-                                    shrink,
-                                    barycenter[s],
-                                    N_FISHES_PER_PROCESS,
-                                    DIMENSIONS);
+    // Update positions in parallel per fish
+    volitivePositionUpdateArray(fishes,
+                                shrink,
+                                barycenter,
+                                N_FISHES_PER_PROCESS,
+                                DIMENSIONS);
 
-        // Update previous_cycle_weight for each fish
-        int base = s * N_FISHES_PER_PROCESS;
-        for (int i = 0; i < N_FISHES_PER_PROCESS; ++i) {
-            fishes[base + i].previous_cycle_weight = fishes[base + i].weight;
-        }
+    // Update previous_cycle_weight for each fish
+    // int base = s * N_FISHES_PER_PROCESS;
+    for (int i = 0; i < N_FISHES_PER_PROCESS; ++i) {
+        fishes[i].previous_cycle_weight = fishes[i].weight;
     }
-
-    for (int s = 0; s < N_SCHOOLS; ++s) free(barycenter[s]);
+    
     free(barycenter);
-    free(old_weights);
-    free(new_weights);
 }
+
 
 
 void breeding(Fish *fishes, int current_iter, const int UPDATE_FREQUENCY, const int N_FISHES_PER_PROCESS, const int N_SCHOOLS, const int DIMENSIONS) {
