@@ -323,3 +323,10 @@ Consideriamo di usare MPI_IAllreduce, che è la versione non bloccante della ste
 - RUNNING WITH: N-PROCESSES 8 - N_FISHES_PER_PROCESS 2000 - DIMENSIONS 100 - MAX_ITER 200 - UPDATE_FREQUENCY 1 => 14.17845 s
 - RUNNING WITH: N-PROCESSES 16 - N_FISHES_PER_PROCESS 1000 - DIMENSIONS 100 - MAX_ITER 200 - UPDATE_FREQUENCY 1 => 18.210253 s
 
+Forse fare il mappazzone di codice non porterebbe a grandi risultati perché non ci permetterebbe di sfruttare appieno la funzionalita asincrona dell'mpi_Iallreduce... però controlliamo meglio la prossima volta.
+
+Tenendo il numero di pesci fisso e modificando il numero di processi, vediamo che i tempi comunque si alzano... STRANO, uffi.
+
+Proviamo anche ad aumentare i processi tenendo fisso il numero di pesci per processo. In questo caso guardiamo a come evolvono i tempi.
+Con quelle premesse, i pesci crescono linearmente rispetto al numero di processi. Abbiamo vinto se i tempi non crescono anche loro linearmente :)
+
