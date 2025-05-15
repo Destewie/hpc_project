@@ -308,8 +308,13 @@ Con questa modifica funzionante abbiamo dei buoni risultati sulle tempistiche (n
 
 
 Nella parte di breeding, togliamo proprio la comunicazione tra tutti i banchi. Tanto il pesce peggiore tra tutti, sarà comunque il pesce peggiore del suo banco. Teniamo che ogni banco toglie il suo pesce peggiore e ne spawna uno nuovo dai suoi due pesci migliori.
+Tempi di un altro test con breeding e avendo tolto le stampe (il numero di pesci totale è lo stesso 16000, con 8 core per processo):
+- RUNNING WITH: N-PROCESSES 1 - N_FISHES_PER_PROCESS 16000 - DIMENSIONS 100 - MAX_ITER 200 - UPDATE_FREQUENCY 1 => 68.865700 s
+- RUNNING WITH: N-PROCESSES 2 - N_FISHES_PER_PROCESS 8000 - DIMENSIONS 100 - MAX_ITER 200 - UPDATE_FREQUENCY 1 => 9.346894 s
+- RUNNING WITH: N-PROCESSES 4 - N_FISHES_PER_PROCESS 4000 - DIMENSIONS 100 - MAX_ITER 200 - UPDATE_FREQUENCY 1 => 18.798985 s
+- RUNNING WITH: N-PROCESSES 8 - N_FISHES_PER_PROCESS 2000 - DIMENSIONS 100 - MAX_ITER 200 - UPDATE_FREQUENCY 1 => 21.397372 s
+- RUNNING WITH: N-PROCESSES 16 - N_FISHES_PER_PROCESS 1000 - DIMENSIONS 100 - MAX_ITER 200 - UPDATE_FREQUENCY 1 => 53.934437 s
 
 
-
-Consideriamo di usare MPI_IAll_reduce, che è la versione non bloccante della stessa chiamata.
+Consideriamo di usare MPI_IAllreduce, che è la versione non bloccante della stessa chiamata.
 

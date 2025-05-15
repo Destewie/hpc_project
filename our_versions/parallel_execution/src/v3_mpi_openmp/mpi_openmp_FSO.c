@@ -363,15 +363,26 @@ void individualMovementArray(Fish* fishArray,
             temp_array[d + 1] = weighted_tot_delta_fitness[d];
         }
 
-        MPI_Allreduce(MPI_IN_PLACE, temp_array, DIMENSIONS + 1, MPI_FLOAT, MPI_SUM, MPI_COMM_WORLD);        
-        MPI_Allreduce(MPI_IN_PLACE, &max_delta_fitness_improvement, 1, MPI_DOUBLE, MPI_MAX, MPI_COMM_WORLD);
+        MPI_Request request0;
+        MPI_Status status0;
+        MPI_Request request1;
+        MPI_Status status1;
+
+
+        MPI_Iallreduce(MPI_IN_PLACE, temp_array, DIMENSIONS + 1, MPI_FLOAT, MPI_SUM, MPI_COMM_WORLD, &request1);        
+        MPI_Iallreduce(MPI_IN_PLACE, &max_delta_fitness_improvement, 1, MPI_DOUBLE, MPI_MAX, MPI_COMM_WORLD,  &request0);
+
+        // MPI_Allreduce(MPI_IN_PLACE, temp_array, DIMENSIONS + 1, MPI_FLOAT, MPI_SUM, MPI_COMM_WORLD);        
+        // MPI_Allreduce(MPI_IN_PLACE, &max_delta_fitness_improvement, 1, MPI_DOUBLE, MPI_MAX, MPI_COMM_WORLD);
 
         // Update the original arrays
+        MPI_Wait(&request1, &status1);
         *tot_delta_fitness = temp_array[0];
         for (int d = 0; d < DIMENSIONS; d++) {
             weighted_tot_delta_fitness[d] = temp_array[d + 1];
         }
 
+        MPI_Wait(&request0, &status0);
     }
 
 }
@@ -517,83 +528,6 @@ void calculateBarycentersAndSumWeights(Fish *fishArray, float* barycenter, float
             printf("Denominator is zero...\n");
         }
         
-    }
-}
-
-
-void calculateBarycenters(Fish *fishArray, float* barycenter, int current_iter, const int UPDATE_FREQUENCY, const int DIMENSIONS, const int N_FISHES_PER_PROCESS){
-
-    if (current_iter%UPDATE_FREQUENCY==0){
-        //TODO : QUI CI SI ASPETTA COMUNICAZIONE TRA TUTTI I PROCESSI
-        float common_numerator[DIMENSIONS];
-        float common_denominator[DIMENSIONS];
-        
-        for (int d = 0; d<DIMENSIONS; d++){
-            common_numerator[d] = 0.0;
-            common_denominator[d] = 0.0;
-        }
-
-        for (int d = 0; d < DIMENSIONS; d++) {
-            for (int i = 0; i < N_FISHES_PER_PROCESS; i++) {
-                common_numerator[d] += fishArray[i].position[d] * fishArray[i].weight;
-                common_denominator[d] += fishArray[i].weight;
-            }
-        }
-
-        for (int d = 0; d < DIMENSIONS; d++) {
-            if (common_denominator[d] != 0.0) {
-                barycenter[d] = common_numerator[d] / common_denominator[d];
-            }
-        }
-
-    } else {
-
-        float numerator[DIMENSIONS];
-        float denominator[DIMENSIONS];
-
-        for (int d = 0; d<DIMENSIONS; d++){
-            numerator[d] = 0.0;
-            denominator[d] = 0.0;
-        }
-
-        for (int d = 0; d < DIMENSIONS; d++) {
-            for (int i = 0; i < N_FISHES_PER_PROCESS; i++) {
-                numerator[d] += fishArray[i].position[d] * fishArray[i].weight;
-                denominator[d] += fishArray[i].weight;
-            }
-
-            if (denominator[d] != 0.0) {
-                barycenter[d] = numerator[d] / denominator[d];
-            } else {
-                printf("Denominator is zero...\n");
-            }
-        }
-    }
-
-}
-
-void calculateSumWeights(Fish *fishArray, float *old_sum, float *new_sum, int current_iter, const int UPDATE_FREQUENCY, const int N_FISHES_PER_PROCESS, const int N_SCHOOLS){
-
-    if (current_iter%UPDATE_FREQUENCY==0){
-        float complete_old_sum = 0.0;
-        float complete_new_sum = 0.0;
-        for (int i=0; i<N_FISHES_PER_PROCESS; i++) {
-            complete_old_sum += fishArray[i].previous_cycle_weight;
-            complete_new_sum += fishArray[i].weight;
-        }
-
-        *old_sum = complete_old_sum;
-        *new_sum = complete_new_sum;
-        
-    }else{
-
-        *old_sum = 0.0;
-        *new_sum = 0.0;
-
-        for (int i = 0; i < N_FISHES_PER_PROCESS; i++) {
-            *old_sum += fishArray[i].previous_cycle_weight;
-            *new_sum += fishArray[i].weight;
-        }
     }
 }
 
