@@ -323,6 +323,14 @@ Consideriamo di usare MPI_IAllreduce, che è la versione non bloccante della ste
 - RUNNING WITH: N-PROCESSES 8 - N_FISHES_PER_PROCESS 2000 - DIMENSIONS 100 - MAX_ITER 200 - UPDATE_FREQUENCY 1 => 14.17845 s
 - RUNNING WITH: N-PROCESSES 16 - N_FISHES_PER_PROCESS 1000 - DIMENSIONS 100 - MAX_ITER 200 - UPDATE_FREQUENCY 1 => 18.210253 s
 
+
+con 64000 pesci e 8 cores
+- RUNNING WITH: N-PROCESSES 1 - N_FISHES_PER_PROCESS 64000 - DIMENSIONS 100 - MAX_ITER 200 - UPDATE_FREQUENCY 1 => 120.599103 s
+- RUNNING WITH: N-PROCESSES 2 - N_FISHES_PER_PROCESS 32000 - DIMENSIONS 100 - MAX_ITER 200 - UPDATE_FREQUENCY 1 => 151.590752 s
+- RUNNING WITH: N-PROCESSES 4 - N_FISHES_PER_PROCESS 16000 - DIMENSIONS 100 - MAX_ITER 200 - UPDATE_FREQUENCY 1 => 103.626230 s
+- RUNNING WITH: N-PROCESSES 8 - N_FISHES_PER_PROCESS 8000 - DIMENSIONS 100 - MAX_ITER 200 - UPDATE_FREQUENCY 1 => 92.038892 s
+- RUNNING WITH: N-PROCESSES 16 - N_FISHES_PER_PROCESS 4000 - DIMENSIONS 100 - MAX_ITER 200 - UPDATE_FREQUENCY 1 => 117.446751 s
+
 Forse fare il mappazzone di codice non porterebbe a grandi risultati perché non ci permetterebbe di sfruttare appieno la funzionalita asincrona dell'mpi_Iallreduce... però controlliamo meglio la prossima volta.
 
 Tenendo il numero di pesci fisso e modificando il numero di processi, vediamo che i tempi comunque si alzano... STRANO, uffi.
