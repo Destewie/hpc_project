@@ -738,16 +738,16 @@ int main(int argc, char *argv[]) {
 
     int n_threads;
 
-    // #pragma omp parallel
-    // {
-    //     n_threads = omp_get_num_threads();
+    #pragma omp parallel
+    {
+        n_threads = omp_get_num_threads();
 
-    //     int thread_id = omp_get_thread_num();
-    //     int core_id = sched_getcpu();  // Ottiene il core in cui sta girando il thread
-    //     printf("MPI Process %d - OpenMP Thread %d out of %d_g running on core %d\n",
-    //            rank, thread_id, n_threads, core_id);
-    //     fflush(stdout);
-    // }
+        int thread_id = omp_get_thread_num();
+        int core_id = sched_getcpu();  // Ottiene il core in cui sta girando il thread
+        printf("MPI Process %d - OpenMP Thread %d out of %d_g running on core %d\n",
+               rank, thread_id, n_threads, core_id);
+        fflush(stdout);
+    }
 
     // Vettore contenente un seed diverso per ogni thread. 
     padded_seed_t *seeds = malloc(n_threads * sizeof(padded_seed_t));
