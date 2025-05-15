@@ -296,7 +296,10 @@ Prossima volta: andare avanti con parallelizzazione e capire meglio quando usare
 
 # TEST 15/05/2025
 Abbiamo fatto un altro branch per provare a ridurre da 3 a 2 MPI_AllReduce in individual movement andando ad unire i due MPI_AllReduce che sommano le proprie componenti. Per farlo, però, dobbiamo andare a creare un nuovo vettore che comprende tutte le variabili.
-Questo è stato fatto!
+Questo è stato fatto! Tendenzialmente riscontriamo un miglioramento sull'individual movement di circa 0.02 (ma non sempre, è un po' fluttuante... forse dipenderà dallo stato del cluster??)
 
 Ora torniamo a mettere a posto funzione per funzione per adattarle all'introduzione di mpi (quindi togliendo il N_SCHOOLS ecc...)
+
 Consideriamo di usare MPI_IAll_reduce, che è la versione non bloccante della stessa chiamata.
+
+Fatta 

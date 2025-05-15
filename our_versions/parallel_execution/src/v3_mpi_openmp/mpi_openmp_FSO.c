@@ -423,7 +423,7 @@ static inline void collectiveMovementLocal(Fish *fish,
 
 void collectiveMovementArray(Fish *fishArray,
                              float *tot_delta_fitness,
-                             float **weighted_tot_delta_fitness,
+                             float *weighted_tot_delta_fitness,
                              int N_SCHOOLS,
                              int N_FISHES_PER_PROCESS,
                              int DIMENSIONS) {
@@ -431,41 +431,34 @@ void collectiveMovementArray(Fish *fishArray,
     {
         int tid = omp_get_thread_num();
         // Allocate thread-local copies of shared arrays
-        float *local_tot = (float *)malloc(N_SCHOOLS * sizeof(float));
-        float *local_weight = (float *)malloc(N_SCHOOLS * DIMENSIONS * sizeof(float));
+        float local_tot;
+        float *local_weight = (float *)malloc(DIMENSIONS * sizeof(float));
         // Copy global values into local
-        for (int s = 0; s < N_SCHOOLS; ++s) {
-            local_tot[s] = tot_delta_fitness[s];
-            for (int d = 0; d < DIMENSIONS; ++d) {
-                local_weight[s * DIMENSIONS + d] = weighted_tot_delta_fitness[s][d];
-            }
+        local_tot = *tot_delta_fitness;
+        for (int d = 0; d < DIMENSIONS; ++d) {
+            local_weight[d] = weighted_tot_delta_fitness[d];
         }
 
         // Parallel update of fish positions using local buffers
         #pragma omp for collapse(2) schedule(static)
-        for (int s = 0; s < N_SCHOOLS; ++s) {
-            for (int i = 0; i < N_FISHES_PER_PROCESS; ++i) {
-                Fish *fish = &fishArray[s * N_FISHES_PER_PROCESS + i];
-                collectiveMovementLocal(fish,
-                                        local_tot[s],
-                                        &local_weight[s * DIMENSIONS],
-                                        DIMENSIONS);
-            }
+        for (int i = 0; i < N_FISHES_PER_PROCESS; ++i) {
+            Fish *fish = &fishArray[i];
+            collectiveMovementLocal(fish,
+                                    local_tot,
+                                    local_weight,
+                                    DIMENSIONS);
         }
 
         // Barrier before merging local back to shared
         #pragma omp barrier
         #pragma omp single
         {
-            for (int s = 0; s < N_SCHOOLS; ++s) {
-                tot_delta_fitness[s] = local_tot[s];
-                for (int d = 0; d < DIMENSIONS; ++d) {
-                    weighted_tot_delta_fitness[s][d] = local_weight[s * DIMENSIONS + d];
-                }
+            *tot_delta_fitness = local_tot;
+            for (int d = 0; d < DIMENSIONS; ++d) {
+                weighted_tot_delta_fitness[d] = local_weight[d];
             }
         }
 
-        free(local_tot);
         free(local_weight);
     }
 }
@@ -823,7 +816,7 @@ int main(int argc, char *argv[]) {
 
         // COLLECTIVE MOVEMENT
         g = MPI_Wtime();
-        // collectiveMovementArray(fishes, total_fitness, weighted_total_fitness, N_SCHOOLS, N_FISHES_PER_PROCESS, DIMENSIONS);
+        collectiveMovementArray(fishes, total_fitness, weighted_total_fitness, N_FISHES_PER_PROCESS, DIMENSIONS);
         h = MPI_Wtime();
 
         // COLLECTIVE VOLITIVE MOVEMENT
