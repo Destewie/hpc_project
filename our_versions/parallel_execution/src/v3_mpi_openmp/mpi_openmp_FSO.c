@@ -582,17 +582,17 @@ void calculateSumWeights(Fish *fishArray, float *old_sum, float *new_sum, int cu
             complete_new_sum += fishArray[i].weight;
         }
 
-        old_sum = complete_old_sum;
-        new_sum = complete_new_sum;
+        *old_sum = complete_old_sum;
+        *new_sum = complete_new_sum;
         
     }else{
 
-        old_sum = 0.0;
-        new_sum = 0.0;
+        *old_sum = 0.0;
+        *new_sum = 0.0;
 
         for (int i = 0; i < N_FISHES_PER_PROCESS; i++) {
-            old_sum += fishArray[i].previous_cycle_weight;
-            new_sum += fishArray[i].weight;
+            *old_sum += fishArray[i].previous_cycle_weight;
+            *new_sum += fishArray[i].weight;
         }
     }
 }
@@ -607,7 +607,7 @@ void volitivePositionUpdateArray(Fish *fishArray,
                                  const int N_FISHES_PER_PROCESS,
                                  const int DIMENSIONS) {
 
-    #pragma omp parallel for schedule(static) default(none) shared(fishArray, start, end, barycenter, shrink) firstprivate(DIMENSIONS) 
+    #pragma omp parallel for schedule(static) default(none) shared(fishArray, barycenter, shrink) firstprivate(DIMENSIONS) 
     for (int idx = 0; idx < N_FISHES_PER_PROCESS; ++idx) {
         unsigned int thread_seed = (unsigned int)idx + (unsigned int)time(NULL);
         Fish *fish = &fishArray[idx];
@@ -651,7 +651,7 @@ void collectiveVolitiveArray(Fish *fishes,
 
     // #pragma omp parallel for schedule(dynamic) default(none) shared(fishes, barycenter, old_weights, new_weights)
     
-    if (old_weights == new_weights) continue;
+    if (old_weights == new_weights) return;
     int shrink = (old_weights < new_weights) ? 1 : 0;
 
 
@@ -857,12 +857,12 @@ int main(int argc, char *argv[]) {
 
         // COLLECTIVE VOLITIVE MOVEMENT
         i = MPI_Wtime();
-        collectiveVolitiveArray(fishes, iter, N_SCHOOLS, DIMENSIONS, N_FISHES_PER_PROCESS, UPDATE_FREQUENCY);
+        collectiveVolitiveArray(fishes, iter, DIMENSIONS, N_FISHES_PER_PROCESS, UPDATE_FREQUENCY);
         l = MPI_Wtime();
 
         // BREEDING
         m = MPI_Wtime();
-        // breeding(fishes, iter, UPDATE_FREQUENCY, N_FISHES_PER_PROCESS, N_SCHOOLS, DIMENSIONS);
+        // breeding(fishes, iter, UPDATE_FREQUENCY, N_FISHES_PER_PROCESS, DIMENSIONS);
         n = MPI_Wtime();
 
        
