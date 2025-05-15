@@ -356,14 +356,25 @@ void individualMovementArray(Fish* fishArray,
     // Periodic global update broadcasting complete totals
     if (current_iter % UPDATE_FREQUENCY == 0) {
 
-        // Aggregate across schools (which a) 
-        // MPI_Allreduce(&tot_delta_fitness, &tot_delta_fitness, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
-        // MPI_Allreduce(&max_delta_fitness_improvement, &max_delta_fitness_improvement, 1, MPI_DOUBLE, MPI_MAX, MPI_COMM_WORLD);
-        // MPI_Allreduce(weighted_tot_delta_fitness, weighted_tot_delta_fitness, DIMENSIONS, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
-        
-        MPI_Allreduce(MPI_IN_PLACE, &tot_delta_fitness, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+        // Append tot_delta_fitness to weighted_tot_delta_fitness creating a new array
+        float *temp_array = (float *)malloc((DIMENSIONS + 1) * sizeof(float));
+        temp_array[0] = *tot_delta_fitness;
+        for (int d = 0; d < DIMENSIONS; ++d) {
+            temp_array[d + 1] = weighted_tot_delta_fitness[d];
+        }
+
+        // MPI_Allreduce(MPI_IN_PLACE, &tot_delta_fitness, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+        // MPI_Allreduce(MPI_IN_PLACE, weighted_tot_delta_fitness, DIMENSIONS, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+        MPI_Allreduce(MPI_IN_PLACE, temp_array, DIMENSIONS + 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);        
+
         MPI_Allreduce(MPI_IN_PLACE, &max_delta_fitness_improvement, 1, MPI_DOUBLE, MPI_MAX, MPI_COMM_WORLD);
-        MPI_Allreduce(MPI_IN_PLACE, weighted_tot_delta_fitness, DIMENSIONS, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+
+        // Update the original arrays
+        *tot_delta_fitness = temp_array[0];
+        for (int d = 0; d < DIMENSIONS; ++d) {
+            weighted_tot_delta_fitness[d] = temp_array[d + 1];
+        }
+
     }
 
 }

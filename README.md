@@ -293,3 +293,6 @@ RUNNING WITH: N-PROCESSES 2 - N_FISHES_PER_PROCESS 100 - DIMENSIONS 2 - MAX_ITER
 RUNNING WITH: N-PROCESSES 1 - N_FISHES_PER_PROCESS 100 - DIMENSIONS 2 - MAX_ITER 200 - UPDATE_FREQUENCY 1 + 8 threads per processo ->>>>>>>Individual movement- 0.000015
 
 Prossima volta: andare avanti con parallelizzazione e capire meglio quando usare scatter e pack e fare test
+
+# TEST 15/05/2025
+Abbiamo fatto un altro branch per provare a ridurre da 3 a 2 MPI_AllReduce in individual movement andando ad unire i due MPI_AllReduce che sommano le proprie componenti. Per farlo, però, dobbiamo andare a creare un nuovo vettore che comprende tutte le variabili.
