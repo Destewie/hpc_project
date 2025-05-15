@@ -377,9 +377,9 @@ void individualMovementArray(Fish* fishArray,
 }
 
 
-void updateWeights(Fish *fish, float *max_delta_fitness_improvement) {
-    if (*max_delta_fitness_improvement != 0.0) { // Avoid division by zero
-        fish->weight += (fish->new_fitness - fish->fitness)/ *max_delta_fitness_improvement;
+void updateWeights(Fish *fish, float max_delta_fitness_improvement) {
+    if (max_delta_fitness_improvement != 0.0) { // Avoid division by zero
+        fish->weight += (fish->new_fitness - fish->fitness)/ max_delta_fitness_improvement;
     }    // fish->weight += (fish->new_fitness - fish->fitness);
 
     if (fish->weight<=W_SCALE_MIN) {
@@ -393,11 +393,9 @@ void updateWeights(Fish *fish, float *max_delta_fitness_improvement) {
     fish->fitness = fish->new_fitness;
 }
 
-void updateWeightsArray(Fish *fishArray,  float *max_delta_fitness_improvement, const int N_SCHOOLS, const int N_FISHES_PER_PROCESS) {
-    for (int s = 0; s < N_SCHOOLS; s++) {
-        for (int i = 0; i < N_FISHES_PER_PROCESS; i++) {
-            updateWeights(&fishArray[s*N_FISHES_PER_PROCESS+i], &max_delta_fitness_improvement[s]);
-        }
+void updateWeightsArray(Fish *fishArray,  float max_delta_fitness_improvement, const int N_FISHES_PER_PROCESS) {
+    for (int i = 0; i < N_FISHES_PER_PROCESS; i++) {
+        updateWeights(&fishArray[i], max_delta_fitness_improvement);
     }
 }
 
@@ -820,7 +818,7 @@ int main(int argc, char *argv[]) {
 
         // UPDATE WEIGHTS
         e = MPI_Wtime();
-        // updateWeightsArray(fishes, max_improvement, N_SCHOOLS, N_FISHES_PER_PROCESS);
+        updateWeightsArray(fishes, max_improvement, N_FISHES_PER_PROCESS);
         f = MPI_Wtime();
 
         // COLLECTIVE MOVEMENT
