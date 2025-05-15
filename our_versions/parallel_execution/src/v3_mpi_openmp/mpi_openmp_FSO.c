@@ -424,10 +424,9 @@ static inline void collectiveMovementLocal(Fish *fish,
 void collectiveMovementArray(Fish *fishArray,
                              float *tot_delta_fitness,
                              float *weighted_tot_delta_fitness,
-                             int N_SCHOOLS,
                              int N_FISHES_PER_PROCESS,
                              int DIMENSIONS) {
-    #pragma omp parallel default(none) shared(fishArray, tot_delta_fitness, weighted_tot_delta_fitness, N_SCHOOLS, N_FISHES_PER_PROCESS,DIMENSIONS)
+    #pragma omp parallel default(none) shared(fishArray, tot_delta_fitness, weighted_tot_delta_fitness, N_FISHES_PER_PROCESS,DIMENSIONS)
     {
         int tid = omp_get_thread_num();
         // Allocate thread-local copies of shared arrays
@@ -816,7 +815,7 @@ int main(int argc, char *argv[]) {
 
         // COLLECTIVE MOVEMENT
         g = MPI_Wtime();
-        collectiveMovementArray(fishes, total_fitness, weighted_total_fitness, N_FISHES_PER_PROCESS, DIMENSIONS);
+        collectiveMovementArray(fishes, &total_fitness, weighted_total_fitness, N_FISHES_PER_PROCESS, DIMENSIONS);
         h = MPI_Wtime();
 
         // COLLECTIVE VOLITIVE MOVEMENT
