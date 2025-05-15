@@ -359,16 +359,16 @@ void individualMovementArray(Fish* fishArray,
         // Append tot_delta_fitness to weighted_tot_delta_fitness creating a new array
         float *temp_array = (float *)malloc((DIMENSIONS + 1) * sizeof(float));
         temp_array[0] = *tot_delta_fitness;
-        for (int d = 0; d < DIMENSIONS; ++d) {
+        for (int d = 0; d < DIMENSIONS; d++) {
             temp_array[d + 1] = weighted_tot_delta_fitness[d];
         }
 
-        MPI_Allreduce(MPI_IN_PLACE, temp_array, DIMENSIONS + 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);        
+        MPI_Allreduce(MPI_IN_PLACE, temp_array, DIMENSIONS + 1, MPI_FLOAT, MPI_SUM, MPI_COMM_WORLD);        
         MPI_Allreduce(MPI_IN_PLACE, &max_delta_fitness_improvement, 1, MPI_DOUBLE, MPI_MAX, MPI_COMM_WORLD);
 
         // Update the original arrays
         *tot_delta_fitness = temp_array[0];
-        for (int d = 0; d < DIMENSIONS; ++d) {
+        for (int d = 0; d < DIMENSIONS; d++) {
             weighted_tot_delta_fitness[d] = temp_array[d + 1];
         }
 
@@ -463,9 +463,10 @@ void collectiveMovementArray(Fish *fishArray,
 }
 
 
-void calculateBarycenters(Fish *fishArray, float** barycenter, int current_iter, const int UPDATE_FREQUENCY, const int DIMENSIONS, const int N_SCHOOLS, const int N_FISHES_PER_PROCESS){
+void calculateBarycenters(Fish *fishArray, float* barycenter, int current_iter, const int UPDATE_FREQUENCY, const int DIMENSIONS, const int N_FISHES_PER_PROCESS){
 
     if (current_iter%UPDATE_FREQUENCY==0){
+        //TODO : QUI CI SI ASPETTA COMUNICAZIONE TRA TUTTI I PROCESSI
         float common_numerator[DIMENSIONS];
         float common_denominator[DIMENSIONS];
         
@@ -474,46 +475,39 @@ void calculateBarycenters(Fish *fishArray, float** barycenter, int current_iter,
             common_denominator[d] = 0.0;
         }
 
-        for (int s = 0; s < N_SCHOOLS; s++) {
-            for (int d = 0; d < DIMENSIONS; d++) {
-                for (int i = 0; i < N_FISHES_PER_PROCESS; i++) {
-                    common_numerator[d] += fishArray[s * N_FISHES_PER_PROCESS + i].position[d] * fishArray[s * N_FISHES_PER_PROCESS + i].weight;
-                    common_denominator[d] += fishArray[s * N_FISHES_PER_PROCESS + i].weight;
-                }
+        for (int d = 0; d < DIMENSIONS; d++) {
+            for (int i = 0; i < N_FISHES_PER_PROCESS; i++) {
+                common_numerator[d] += fishArray[i].position[d] * fishArray[i].weight;
+                common_denominator[d] += fishArray[i].weight;
             }
         }
 
-        for (int s = 0; s < N_SCHOOLS; s++) {
-            for (int d = 0; d < DIMENSIONS; d++) {
-                if (common_denominator[d] != 0.0) {
-                    barycenter[s][d] = common_numerator[d] / common_denominator[d];
-                }
-            }
-        }
-    }else{
-
-        float numerator[N_SCHOOLS][DIMENSIONS];
-        float denominator[N_SCHOOLS][DIMENSIONS];
-
-        for (int s = 0; s<N_SCHOOLS; s++) {
-            for (int d = 0; d<DIMENSIONS; d++){
-                numerator[s][d] = 0.0;
-                denominator[s][d] = 0.0;
+        for (int d = 0; d < DIMENSIONS; d++) {
+            if (common_denominator[d] != 0.0) {
+                barycenter[d] = common_numerator[d] / common_denominator[d];
             }
         }
 
-        for (int s = 0; s < N_SCHOOLS; s++) {
-            for (int d = 0; d < DIMENSIONS; d++) {
-                for (int i = 0; i < N_FISHES_PER_PROCESS; i++) {
-                    numerator[s][d] += fishArray[s * N_FISHES_PER_PROCESS + i].position[d] * fishArray[s * N_FISHES_PER_PROCESS + i].weight;
-                    denominator[s][d] += fishArray[s * N_FISHES_PER_PROCESS + i].weight;
-                }
+    } else {
 
-                if (denominator[s][d] != 0.0) {
-                    barycenter[s][d] = numerator[s][d] / denominator[s][d];
-                } else {
-                    printf("Denominator is zero...\n");
-                }
+        float numerator[DIMENSIONS];
+        float denominator[DIMENSIONS];
+
+        for (int d = 0; d<DIMENSIONS; d++){
+            numerator[d] = 0.0;
+            denominator[d] = 0.0;
+        }
+
+        for (int d = 0; d < DIMENSIONS; d++) {
+            for (int i = 0; i < N_FISHES_PER_PROCESS; i++) {
+                numerator[d] += fishArray[i].position[d] * fishArray[i].weight;
+                denominator[d] += fishArray[i].weight;
+            }
+
+            if (denominator[d] != 0.0) {
+                barycenter[d] = numerator[d] / denominator[d];
+            } else {
+                printf("Denominator is zero...\n");
             }
         }
     }
@@ -589,23 +583,19 @@ void volitivePositionUpdateArray(Fish *fishArray,
 
 void collectiveVolitiveArray(Fish *fishes,
                              int current_iter,
-                             const int N_SCHOOLS,
                              const int DIMENSIONS,
                              const int N_FISHES_PER_PROCESS,
                              const int UPDATE_FREQUENCY) {
-    float **barycenter = malloc(N_SCHOOLS * sizeof(float*));
-    float *old_weights = malloc(N_SCHOOLS * sizeof(float));
-    float *new_weights = malloc(N_SCHOOLS * sizeof(float));
-    for (int s = 0; s < N_SCHOOLS; ++s) {
-        barycenter[s] = malloc(DIMENSIONS * sizeof(float));
-    }
+    float *barycenter = malloc(DIMENSIONS * sizeof(float));
+    float old_weights;
+    float new_weights;
 
     calculateBarycenters(fishes, barycenter,
                          current_iter, UPDATE_FREQUENCY,
-                         DIMENSIONS, N_SCHOOLS, N_FISHES_PER_PROCESS);
+                         DIMENSIONS, N_FISHES_PER_PROCESS);
     calculateSumWeights(fishes, old_weights, new_weights,
                         current_iter, UPDATE_FREQUENCY,
-                        N_FISHES_PER_PROCESS, N_SCHOOLS);
+                        N_FISHES_PER_PROCESS);
 
 
     #pragma omp parallel for schedule(dynamic) default(none) shared(fishes, barycenter, old_weights, new_weights)
@@ -820,7 +810,7 @@ int main(int argc, char *argv[]) {
 
         // COLLECTIVE VOLITIVE MOVEMENT
         i = MPI_Wtime();
-        // collectiveVolitiveArray(fishes, iter, N_SCHOOLS, DIMENSIONS, N_FISHES_PER_PROCESS, UPDATE_FREQUENCY);
+        collectiveVolitiveArray(fishes, iter, N_SCHOOLS, DIMENSIONS, N_FISHES_PER_PROCESS, UPDATE_FREQUENCY);
         l = MPI_Wtime();
 
         // BREEDING

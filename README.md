@@ -298,8 +298,11 @@ Prossima volta: andare avanti con parallelizzazione e capire meglio quando usare
 Abbiamo fatto un altro branch per provare a ridurre da 3 a 2 MPI_AllReduce in individual movement andando ad unire i due MPI_AllReduce che sommano le proprie componenti. Per farlo, però, dobbiamo andare a creare un nuovo vettore che comprende tutte le variabili.
 Questo è stato fatto! Tendenzialmente riscontriamo un miglioramento sull'individual movement di circa 0.02 (ma non sempre, è un po' fluttuante... forse dipenderà dallo stato del cluster??)
 
-Ora torniamo a mettere a posto funzione per funzione per adattarle all'introduzione di mpi (quindi togliendo il N_SCHOOLS ecc...)
+Siamo al punto di adattare il collectiveVolitiveMovement, per farlo, dato che la funzione richiede comunicazione tra tutti i processi, vogliamo collassare insieme la funzione che si occupa di calcolare il baricentro e quella che si occupa di calcolare la somma totale dei pesi, in modo da ridurre la comunicazione totale. 
+
+Nella parte di breeding, togliamo proprio la comunicazione tra tutti i banchi. Tanto il pesce peggiore tra tutti, sarà comunque il pesce peggiore del suo banco. Teniamo che ogni banco toglie il suo pesce peggiore e ne spawna uno nuovo dai suoi due pesci migliori.
+
+
 
 Consideriamo di usare MPI_IAll_reduce, che è la versione non bloccante della stessa chiamata.
 
-Fatta 
