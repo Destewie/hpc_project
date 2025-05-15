@@ -359,16 +359,16 @@ void individualMovementArray(Fish* fishArray,
         // Append tot_delta_fitness to weighted_tot_delta_fitness creating a new array
         float *temp_array = (float *)malloc((DIMENSIONS + 1) * sizeof(float));
         temp_array[0] = *tot_delta_fitness;
-        for (int d = 0; d < DIMENSIONS; ++d) {
+        for (int d = 0; d < DIMENSIONS; d++) {
             temp_array[d + 1] = weighted_tot_delta_fitness[d];
         }
 
-        MPI_Allreduce(MPI_IN_PLACE, temp_array, DIMENSIONS + 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);        
+        MPI_Allreduce(MPI_IN_PLACE, temp_array, DIMENSIONS + 1, MPI_FLOAT, MPI_SUM, MPI_COMM_WORLD);        
         MPI_Allreduce(MPI_IN_PLACE, &max_delta_fitness_improvement, 1, MPI_DOUBLE, MPI_MAX, MPI_COMM_WORLD);
 
         // Update the original arrays
         *tot_delta_fitness = temp_array[0];
-        for (int d = 0; d < DIMENSIONS; ++d) {
+        for (int d = 0; d < DIMENSIONS; d++) {
             weighted_tot_delta_fitness[d] = temp_array[d + 1];
         }
 
@@ -439,7 +439,7 @@ void collectiveMovementArray(Fish *fishArray,
         }
 
         // Parallel update of fish positions using local buffers
-        #pragma omp for collapse(2) schedule(static)
+        #pragma omp for schedule(static)
         for (int i = 0; i < N_FISHES_PER_PROCESS; ++i) {
             Fish *fish = &fishArray[i];
             collectiveMovementLocal(fish,
@@ -820,7 +820,7 @@ int main(int argc, char *argv[]) {
 
         // COLLECTIVE VOLITIVE MOVEMENT
         i = MPI_Wtime();
-        // collectiveVolitiveArray(fishes, iter, N_SCHOOLS, DIMENSIONS, N_FISHES_PER_PROCESS, UPDATE_FREQUENCY);
+        collectiveVolitiveArray(fishes, iter, N_SCHOOLS, DIMENSIONS, N_FISHES_PER_PROCESS, UPDATE_FREQUENCY);
         l = MPI_Wtime();
 
         // BREEDING
