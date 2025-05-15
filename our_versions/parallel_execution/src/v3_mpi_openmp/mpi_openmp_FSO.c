@@ -363,10 +363,7 @@ void individualMovementArray(Fish* fishArray,
             temp_array[d + 1] = weighted_tot_delta_fitness[d];
         }
 
-        // MPI_Allreduce(MPI_IN_PLACE, &tot_delta_fitness, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
-        // MPI_Allreduce(MPI_IN_PLACE, weighted_tot_delta_fitness, DIMENSIONS, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
         MPI_Allreduce(MPI_IN_PLACE, temp_array, DIMENSIONS + 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);        
-
         MPI_Allreduce(MPI_IN_PLACE, &max_delta_fitness_improvement, 1, MPI_DOUBLE, MPI_MAX, MPI_COMM_WORLD);
 
         // Update the original arrays
