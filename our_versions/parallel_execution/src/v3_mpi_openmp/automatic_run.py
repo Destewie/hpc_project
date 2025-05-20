@@ -1,13 +1,13 @@
 import os
 import subprocess
 
+# se proviamo a lanciare tutte le combinazioni tra processi, thread e place, produciamo troppi job per il cluster
+# teniamo fissi i processi e lanciamo tutte le altre combinazioni
 # VALID_SELECT = [1, 2, 4, 8, 16, 32, 64]
-# VALID_NCPUS = [1, 2, 4, 8, 16, 32]
-
 VALID_SELECT = [2]
-VALID_NCPUS = [4,8]
+VALID_NCPUS = [1, 2, 4, 8, 16, 32]
 VALID_PLACE = ['pack', 'scatter']
-TOTAL_FISHES = 128000
+TOTAL_FISHES = 12000
 
 PBS_TEMPLATE = """#!/bin/bash
 # max walltime 6h
