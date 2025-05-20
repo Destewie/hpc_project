@@ -383,8 +383,10 @@ Proviamo anche ad aumentare i processi tenendo fisso il numero di pesci per proc
 Con quelle premesse, i pesci crescono linearmente rispetto al numero di processi. Abbiamo vinto se i tempi non crescono anche loro linearmente :)
 
 # 20/05/25
-Se funziona lo script automatico per lanciare i job, fare la stessa cosa con i numeri corretti
-Parser dei vari risulati ->
-  cercare riga END per il tempo (uno a caso va bene)
-  cercare rifa RUNNING WITH per tutte le info
-  cercare riga per il numero di core
+DA FARE:
+- Se funziona lo script automatico per lanciare i job, fare la stessa cosa con i numeri corretti (Annina)
+- Mergiare il branch (Des)
+- Parser dei vari risulati ->
+    cercare riga END per il tempo (uno a caso va bene)
+    cercare rifa RUNNING WITH per tutte le info
+    cercare riga per il numero di core
