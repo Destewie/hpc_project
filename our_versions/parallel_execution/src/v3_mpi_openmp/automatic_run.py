@@ -7,7 +7,7 @@ import subprocess
 VALID_SELECT = [2]
 VALID_NCPUS = [1, 2, 4, 8, 16, 32]
 VALID_PLACE = ['pack', 'scatter']
-TOTAL_FISHES = 12000
+TOTAL_FISHES = 128000
 
 PBS_TEMPLATE = """#!/bin/bash
 # max walltime 6h
