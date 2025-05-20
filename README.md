@@ -382,3 +382,9 @@ Tenendo il numero di pesci fisso e modificando il numero di processi, vediamo ch
 Proviamo anche ad aumentare i processi tenendo fisso il numero di pesci per processo. In questo caso guardiamo a come evolvono i tempi.
 Con quelle premesse, i pesci crescono linearmente rispetto al numero di processi. Abbiamo vinto se i tempi non crescono anche loro linearmente :)
 
+# 20/05/25
+Se funziona lo script automatico per lanciare i job, fare la stessa cosa con i numeri corretti
+Parser dei vari risulati ->
+  cercare riga END per il tempo (uno a caso va bene)
+  cercare rifa RUNNING WITH per tutte le info
+  cercare riga per il numero di core
