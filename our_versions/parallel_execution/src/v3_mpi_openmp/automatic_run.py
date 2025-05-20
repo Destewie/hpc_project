@@ -45,13 +45,13 @@ def generate_pbs_script(select, ncpus, place, output_path="generated_job.sh"):
     with open(output_path, "w") as f:
         f.write(pbs_script)
     
-    print("PBS script generated at ", output_path)
+    print(f"PBS script generated at {output_path}")
 
 if __name__ == "__main__":
     for node in VALID_SELECT:
         for core in VALID_NCPUS:
             for place in VALID_PLACE:   
                 generate_pbs_script(node, core, place)
-                print("running with ", node, "processes, ", core, "cores, place=", place)
+                print(f"running with {node} processes, {core} cores, place={place}")
                 subprocess.call(["qsub", "generated_job.sh"])
                 print("\n")
