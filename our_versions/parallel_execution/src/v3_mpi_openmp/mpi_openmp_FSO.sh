@@ -21,7 +21,7 @@
 export OMP_NUM_THREADS=8
 export OMP_PROC_BIND=close
 export OMP_PLACES=cores
-export OMP_SCHEDULE="dynamic, 100"
+export OMP_SCHEDULE="dynamic, 1"
 
 
 readonly C_PROGRAM_PATH=~/hpc_project/our_versions/parallel_execution/src/v3_mpi_openmp/mpi_openmp_FSO.c
@@ -35,6 +35,6 @@ mpicc $C_PROGRAM_PATH -g -Wall -fopenmp -lm -std=c99 -o $EXECUTABLE_PATH_AND_NAM
 
 # run
 # <"Usage: N_FISHES_PER_PROCESS DIMENSIONS MAX_ITER UPDATE_FREQUENCY">
-mpirun.actual -n 4 $EXECUTABLE_PATH_AND_NAME 16000 100 200 1
+mpirun.actual -n 4 $EXECUTABLE_PATH_AND_NAME 16000 100 200 1 ciaooo
 
 

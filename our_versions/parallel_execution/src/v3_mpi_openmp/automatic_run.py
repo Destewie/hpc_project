@@ -23,7 +23,7 @@ PBS_TEMPLATE = """#!/bin/bash
 export OMP_NUM_THREADS={ncpus}
 export OMP_PROC_BIND=close
 export OMP_PLACES=cores
-export OMP_SCHEDULE="dynamic, 100"
+export OMP_SCHEDULE="dynamic, 1"
 
 readonly C_PROGRAM_PATH=~/hpc_project/our_versions/parallel_execution/src/v3_mpi_openmp/mpi_openmp_FSO.c
 readonly EXECUTABLE_PATH_AND_NAME=~/hpc_project/our_versions/parallel_execution/src/v3_mpi_openmp/mpi_openmp_FSO
@@ -35,7 +35,7 @@ module load mpich-3.2
 mpicc $C_PROGRAM_PATH -g -Wall -fopenmp -lm -std=c99 -o $EXECUTABLE_PATH_AND_NAME 
 
 # run
-mpirun.actual -n {select} $EXECUTABLE_PATH_AND_NAME {fishes_per_process} 1000 200 1
+mpirun.actual -n {select} $EXECUTABLE_PATH_AND_NAME {fishes_per_process} 1000 200 1 {place}
 """
 
 def generate_pbs_script(select, ncpus, place, output_path="generated_job.sh"):

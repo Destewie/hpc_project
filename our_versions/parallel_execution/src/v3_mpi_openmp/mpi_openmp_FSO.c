@@ -649,7 +649,7 @@ void breeding(Fish *fishes, int current_iter, const int N_FISHES_PER_PROCESS, co
 
 int main(int argc, char *argv[]) {
 
-    if (argc != 5) {
+    if (argc != 6) {
         printf("Usage: %s N_FISHES_PER_PROCESS DIMENSIONS MAX_ITER UPDATE_FREQUENCY\n", argv[0]);
         return 1;
     }
@@ -665,9 +665,10 @@ int main(int argc, char *argv[]) {
     const int DIMENSIONS = atoi(argv[2]);
     const int MAX_ITER = atoi(argv[3]);
     const int UPDATE_FREQUENCY = atoi(argv[4]);
+    char *place = argv[5];
 
     if (rank == 0) {
-        printf("\nRUNNING WITH: N-PROCESSES %d - N_FISHES_PER_PROCESS %d - DIMENSIONS %d - MAX_ITER %d - UPDATE_FREQUENCY %d\n", size, N_FISHES_PER_PROCESS, DIMENSIONS, MAX_ITER, UPDATE_FREQUENCY);
+        printf("\nRUNNING WITH: N-PROCESSES %d - N_FISHES_PER_PROCESS %d - DIMENSIONS %d - MAX_ITER %d - UPDATE_FREQUENCY %d - PLACE %s\n", size, N_FISHES_PER_PROCESS, DIMENSIONS, MAX_ITER, UPDATE_FREQUENCY, place);
     }
 
     int n_threads;
