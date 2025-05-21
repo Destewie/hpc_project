@@ -5,6 +5,7 @@ import glob
 with open("results.json", "r") as f:
     job_ids = json.load(f)
     job_ids = list(job_ids.keys())
+    job_ids.remove("genearal_info") #rimuovi la chiave "genearal_info" che non ci interessa
 
 print(job_ids)
 
