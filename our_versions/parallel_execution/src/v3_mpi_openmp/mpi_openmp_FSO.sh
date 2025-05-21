@@ -16,7 +16,7 @@
 
 # chunks (~nodes) : cores per chunk : shared memory per chunk (?)
 #PBS -l select=4:ncpus=8:mem=2gb
-#PBS -l place=scatter
+#PBS -l place=pack
 
 export OMP_NUM_THREADS=8
 export OMP_PROC_BIND=close
@@ -35,6 +35,6 @@ mpicc $C_PROGRAM_PATH -g -Wall -fopenmp -lm -std=c99 -o $EXECUTABLE_PATH_AND_NAM
 
 # run
 # <"Usage: N_FISHES_PER_PROCESS DIMENSIONS MAX_ITER UPDATE_FREQUENCY">
-mpirun.actual -n 4 $EXECUTABLE_PATH_AND_NAME 160 100 100 1 ciaooo
+mpirun.actual -n 4 $EXECUTABLE_PATH_AND_NAME 16000 100 100 1 pack
 
 
