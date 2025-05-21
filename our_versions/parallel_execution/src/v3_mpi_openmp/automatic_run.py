@@ -1,13 +1,14 @@
-import os
 import subprocess
 
 # se proviamo a lanciare tutte le combinazioni tra processi, thread e place, produciamo troppi job per il cluster
 # teniamo fissi i processi e lanciamo tutte le altre combinazioni
 # VALID_SELECT = [1, 2, 4, 8, 16, 32, 64]
 VALID_SELECT = [2]
-VALID_NCPUS = [1, 2, 4, 8, 16, 32]
-VALID_PLACE = ['pack', 'scatter']
-TOTAL_FISHES = 128000
+# VALID_NCPUS = [1, 2, 4, 8, 16, 32]
+VALID_NCPUS = [1, 2]
+# VALID_PLACE = ['pack', 'scatter']
+VALID_PLACE = ['pack']
+TOTAL_FISHES = 64000
 
 PBS_TEMPLATE = """#!/bin/bash
 # max walltime 6h
@@ -53,5 +54,16 @@ if __name__ == "__main__":
             for place in VALID_PLACE:   
                 generate_pbs_script(node, core, place)
                 print(f"running with {node} processes, {core} cores, place={place}")
-                subprocess.call(["qsub", "generated_job.sh"])
+                subprocess.call()
+
+                result = subprocess.run(
+                    ["qsub", "generated_job.sh"],
+                    capture_output=True,
+                    text=True  
+                )
+
+                print("STDOUT:", result.stdout)
+                print("STDERR:", result.stderr)
+                print("Return code:", result.returncode)
+
                 print("\n")
