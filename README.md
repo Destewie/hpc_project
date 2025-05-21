@@ -390,3 +390,22 @@ DA FARE:
     cercare riga END per il tempo (uno a caso va bene)
     cercare rifa RUNNING WITH per tutte le info
     cercare riga per il numero di core
+
+# 21/05/2025
+Fatto uno script per lanciare job in massa:
+
+- quando lo si lancia, vengono creati diversi file sh, uno per ogni job
+
+- viene creato un file results.json che inizialmente serve ad avere una mappatura tra l'id del job e i suoi parametri
+
+- una volta che si è contentx con i file ".o" e ".e" che sono stati prodotti dai job, puoi lanciare il parser.py che andrà ad aggiornare results.json con i tempi impiegati da ogni job (parser.py può essere sempre lanciato, anche se non tutti i file ".o" e ".e" sono stati prodotti. Ad ogni lancio di parser.py, il json viene aggiornato se ci dovessero essere nuovi file di output)
+
+- Una volta che si sono raccolti i dati desiderati, basta lanciare lo script "remove_garbage.sh" per eliminare tutto quello che è stato prodotto nei precedenti punti
+
+----------
+
+Purtroppo, lanciare i job in massa produce dei risultati di merdaaaaaaaaaaaa [uffa uffa].
+Credo che questo sia dovuto al fatto che si va a sovraccaricare il cluster.
+Per ovviare a questo problema, potremmo fare in modo che ogni job venga lanciato solo quando il precedente ha prodotto i suoi file ".o" e ".e".
+L'unica cosa che mi fa paura di questo approccio è che potrei essere bannato dal cluster perché ci sarebbe quello script che continua ad andare sul nodo di partenza... capiamola...
+
