@@ -2,7 +2,7 @@ import json
 import glob
 
 #prendi il file job_ids.json e prendi gli id e le informazioni sui job
-with open("job_ids.json", "r") as f:
+with open("results.json", "r") as f:
     job_ids = json.load(f)
     job_ids = list(job_ids.keys())
 
@@ -28,9 +28,9 @@ for job_id in job_ids:
                 break
 
 # Prendi questo valore e mettilo nello stesso json file di prima sotto la chiave del job_id
-    with open("job_ids.json", "r") as f:
+    with open("results.json", "r") as f:
         job_ids = json.load(f)
         job_ids[job_id]["time"] = time
     
-    with open("job_ids.json", "w") as f:
+    with open("results.json", "w") as f:
         json.dump(job_ids, f, indent=4)
