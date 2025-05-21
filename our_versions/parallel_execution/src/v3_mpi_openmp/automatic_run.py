@@ -47,7 +47,8 @@ def generate_pbs_script(select, ncpus, place, output_path="generated_job.sh"):
     output_path = f"generated_job_{select}_{ncpus}_{place}.sh" 
     with open(output_path, "w") as f:
         f.write(pbs_script)
-    # return output_path
+
+    return output_path
 
     
 if __name__ == "__main__":
