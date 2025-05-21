@@ -87,9 +87,24 @@ if __name__ == "__main__":
                     places.append(place)
 
     # create a json file with the job ids as keys and the parameters with the same index as its values
-    with open("job_ids.json", "w") as f:
-        json.dump({"genearal_info": {"dimensions": DIMENSIONS, "iterations": ITERATIONS, "update_frequency": UPDATE_FREQUENCY}}, f, indent=4)
-        json.dump({ids[i]: {"nodes": nodes[i], "cores": cores[i], "places": places[i]} for i in range(len(ids))}, f, indent=4)
+        data = {
+            "genearal_info": {
+                "dimensions": DIMENSIONS,
+                "iterations": ITERATIONS,
+                "update_frequency": UPDATE_FREQUENCY
+            }
+        }
 
+        # Aggiungi dinamicamente gli id al dizionario principale
+        for i in range(len(ids)):
+            data[ids[i]] = {
+                "nodes": nodes[i],
+                "cores": cores[i],
+                "places": places[i]
+            }
+
+        # Dump finale in un colpo solo
+        with open("output.json", "w") as f:
+            json.dump(data, f, indent=4)
 
                 
