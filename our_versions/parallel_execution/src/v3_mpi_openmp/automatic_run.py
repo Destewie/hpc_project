@@ -87,6 +87,9 @@ if __name__ == "__main__":
                     nodes.append(node)
                     cores.append(core)
                     places.append(place)
+                    
+                else: 
+                    print(f"[ERROR] {job_id}: Something went wrong with the job submission.")
 
     # create a json file with the job ids as keys and the parameters with the same index as its values
         data = {
