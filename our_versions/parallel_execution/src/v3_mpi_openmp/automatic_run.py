@@ -27,7 +27,7 @@ export OMP_PLACES=cores
 export OMP_SCHEDULE="dynamic, 1"
 
 readonly C_PROGRAM_PATH=~/hpc_project/our_versions/parallel_execution/src/v3_mpi_openmp/mpi_openmp_FSO.c
-readonly EXECUTABLE_PATH_AND_NAME=~/hpc_project/our_versions/parallel_execution/src/v3_mpi_openmp/mpi_openmp_FSO
+readonly EXECUTABLE_PATH_AND_NAME=~/hpc_project/our_versions/parallel_execution/src/v3_mpi_openmp/mpi_openmp_FSO_{select}_{ncpus}_{place}.out
 
 # get dependencies
 module load mpich-3.2
@@ -46,8 +46,6 @@ def generate_pbs_script(select, ncpus, place, output_path="generated_job.sh"):
     with open(output_path, "w") as f:
         f.write(pbs_script)
     
-    print(f"PBS script generated at {output_path}")
-
 if __name__ == "__main__":
     for node in VALID_SELECT:
         for core in VALID_NCPUS:
@@ -61,7 +59,7 @@ if __name__ == "__main__":
                     text=True  
                 )
 
-                print("STDOUT:", result.stdout)
+                print("STDOUT:", result.stdout.strip("\n"))
                 print("STDERR:", result.stderr)
                 print("Return code:", result.returncode)
 
