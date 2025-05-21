@@ -73,7 +73,7 @@ if __name__ == "__main__":
                 # remove everything from result.stdout after the first .
                 # from 3120330.hpc-head-n1.unitn.it to 3120330
                 job_id = result.stdout.split(".")[0]
-                print("JOB_ID:", job_id, "full:", result.stdout)
+                print("JOB_ID:", job_id)
                 print("STDERR:", result.stderr)
                 print("Return code:", result.returncode)
                 
