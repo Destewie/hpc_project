@@ -81,8 +81,9 @@ if __name__ == "__main__":
                     cores.append(core)
                     places.append(place)
 
-    # create a json file with the job ids and the parameters
+    # create a json file with the job ids as keys and the parameters with the same index as its values
     with open("job_ids.json", "w") as f:
-        json.dump({"ids": ids, "nodes": nodes, "cores": cores, "places": places}, f, indent=4)
+        json.dump({ids[i]: {"nodes": nodes[i], "cores": cores[i], "places": places[i]} for i in range(len(ids))}, f, indent=4)
+
 
                 
