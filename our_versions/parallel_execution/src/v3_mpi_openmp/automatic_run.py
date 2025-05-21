@@ -6,10 +6,13 @@ import json
 # VALID_SELECT = [1, 2, 4, 8, 16, 32, 64]
 VALID_SELECT = [4]
 # VALID_NCPUS = [1, 2, 4, 8, 16, 32]
-VALID_NCPUS = [1, 2]
+VALID_NCPUS = [4, 8]
 # VALID_PLACE = ['pack', 'scatter']
 VALID_PLACE = ['scatter']
 TOTAL_FISHES = 16000
+DIMENSIONS = 1000
+ITERATIONS = 200
+UPDATE_FREQUENCY = 1
 
 PBS_TEMPLATE = """#!/bin/bash
 # max walltime 6h
@@ -37,7 +40,7 @@ module load mpich-3.2
 mpicc $C_PROGRAM_PATH -g -Wall -fopenmp -lm -std=c99 -o $EXECUTABLE_PATH_AND_NAME 
 
 # run
-mpirun.actual -n {select} $EXECUTABLE_PATH_AND_NAME {fishes_per_process} 1000 200 1 {place}
+mpirun.actual -n {select} $EXECUTABLE_PATH_AND_NAME {fishes_per_process} {DIMENSIONS} {ITERATIONS} {UPDATE_FREQUENCY} {place}
 """
 
 def generate_pbs_script(select, ncpus, place, output_path="generated_job.sh"):
@@ -85,6 +88,7 @@ if __name__ == "__main__":
 
     # create a json file with the job ids as keys and the parameters with the same index as its values
     with open("job_ids.json", "w") as f:
+        json.dump({"genearal_info": {"dimensions": DIMENSIONS, "iterations": ITERATIONS, "update_frequency": UPDATE_FREQUENCY}}, f, indent=4)
         json.dump({ids[i]: {"nodes": nodes[i], "cores": cores[i], "places": places[i]} for i in range(len(ids))}, f, indent=4)
 
 
