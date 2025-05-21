@@ -101,18 +101,8 @@ if __name__ == "__main__":
                                 
                                 # if the json is already creaded, append the new data
                                 # else create it
-                                if len(times) > 0:
-                                    with open("results.json", "r") as f:
-                                        data = json.load(f)
-                                        data[job_id] = {
-                                            "nodes": node,
-                                            "cores": core,
-                                            "places": place,
-                                            "time": times[-1]
-                                        }
-                                    with open("results.json", "w") as f:
-                                        json.dump(data, f, indent=4)
-                                else:   
+                                if len(times) == 1:
+                                    # here the file doesn't exist yet
                                     with open("results.json", "w") as f:
                                         data = {
                                             "genearal_info": {
@@ -129,9 +119,20 @@ if __name__ == "__main__":
                                             }
                                         }
                                         json.dump(data, f, indent=4)
+                                else:   
+                                    # here the file already exists
+                                    with open("results.json", "r") as f:
+                                        data = json.load(f)
+                                        data[job_id] = {
+                                            "nodes": node,
+                                            "cores": core,
+                                            "places": place,
+                                            "time": times[-1]
+                                        }
+                                    with open("results.json", "w") as f:
+                                        json.dump(data, f, indent=4)
 
-
-                                print(f"This took {times[-1]}. Starting the next job...")
+                                print(f"This took {times[-1]}s. Starting the next job...")
                                 break
                         except FileNotFoundError:
                             continue
