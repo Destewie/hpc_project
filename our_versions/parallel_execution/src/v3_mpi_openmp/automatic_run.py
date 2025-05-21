@@ -53,9 +53,8 @@ if __name__ == "__main__":
         for core in VALID_NCPUS:
             for place in VALID_PLACE:   
                 generate_pbs_script(node, core, place)
-                print(f"running with {node} processes, {core} cores, place={place}")
-                subprocess.call()
 
+                print(f"running with {node} processes, {core} cores, place={place}")
                 result = subprocess.run(
                     ["qsub", "generated_job.sh"],
                     capture_output=True,
