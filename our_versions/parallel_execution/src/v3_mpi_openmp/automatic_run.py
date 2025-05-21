@@ -1,14 +1,15 @@
 import subprocess
+import json
 
 # se proviamo a lanciare tutte le combinazioni tra processi, thread e place, produciamo troppi job per il cluster
 # teniamo fissi i processi e lanciamo tutte le altre combinazioni
 # VALID_SELECT = [1, 2, 4, 8, 16, 32, 64]
-VALID_SELECT = [2]
+VALID_SELECT = [4]
 # VALID_NCPUS = [1, 2, 4, 8, 16, 32]
 VALID_NCPUS = [1, 2]
 # VALID_PLACE = ['pack', 'scatter']
-VALID_PLACE = ['pack']
-TOTAL_FISHES = 64000
+VALID_PLACE = ['scatter']
+TOTAL_FISHES = 16000
 
 PBS_TEMPLATE = """#!/bin/bash
 # max walltime 6h
@@ -47,6 +48,11 @@ def generate_pbs_script(select, ncpus, place, output_path="generated_job.sh"):
         f.write(pbs_script)
     
 if __name__ == "__main__":
+    ids = []
+    nodes = []
+    cores = []
+    places = []
+
     for node in VALID_SELECT:
         for core in VALID_NCPUS:
             for place in VALID_PLACE:   
@@ -60,6 +66,20 @@ if __name__ == "__main__":
                     text=True  
                 )
 
-                print("STDOUT:", result.stdout.strip("\n"))
+                # remove everything from result.stdout after the first .
+                job_id = result.stdout.split(".")[0]
+                print("JOB_ID:", job_id)
                 print("STDERR:", result.stderr)
                 print("Return code:", result.returncode)
+                
+                if result.stderr == "" and result.returncode == 0:
+                    ids.append(job_id)
+                    nodes.append(node)
+                    cores.append(core)
+                    places.append(place)
+
+    # create a json file with the job ids and the parameters
+    with open("job_ids.json", "w") as f:
+        json.dump({"ids": ids, "nodes": nodes, "cores": cores, "places": places}, f, indent=4)
+
+                
