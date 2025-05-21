@@ -35,6 +35,6 @@ mpicc $C_PROGRAM_PATH -g -Wall -fopenmp -lm -std=c99 -o $EXECUTABLE_PATH_AND_NAM
 
 # run
 # <"Usage: N_FISHES_PER_PROCESS DIMENSIONS MAX_ITER UPDATE_FREQUENCY">
-mpirun.actual -n 4 $EXECUTABLE_PATH_AND_NAME 16000 100 100 1 pack
+mpirun.actual -n 4 $EXECUTABLE_PATH_AND_NAME 16000 100 200 1 scatter
 
 
