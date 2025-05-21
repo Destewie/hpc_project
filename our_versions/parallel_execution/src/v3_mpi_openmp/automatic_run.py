@@ -4,15 +4,13 @@ import json
 # se proviamo a lanciare tutte le combinazioni tra processi, thread e place, produciamo troppi job per il cluster
 # teniamo fissi i processi e lanciamo tutte le altre combinazioni
 # VALID_SELECT = [1, 2, 4, 8, 16, 32, 64]
-VALID_SELECT = [1, 2, 4, 8, 16]
-# VALID_SELECT = [4]
+VALID_SELECT = [4, 8]
 # VALID_NCPUS = [1, 2, 4, 8, 16, 32]
-VALID_NCPUS = [32]
-# VALID_NCPUS = [4, 8]
+VALID_NCPUS = [8, 16]
 VALID_PLACE = ['pack', 'scatter']
 # VALID_PLACE = ['scatter']
 TOTAL_FISHES = 64000
-DIMENSIONS = 1000
+DIMENSIONS = 100
 ITERATIONS = 200
 UPDATE_FREQUENCY = 1
 
@@ -87,9 +85,26 @@ if __name__ == "__main__":
                     nodes.append(node)
                     cores.append(core)
                     places.append(place)
-                    
+
+                    # wait for the job to finish -> check if a file called generated_job_{nodes}_{cores}_{place}.sh.o{job_id} exists
+                    matching_file = f"generated_job_{node}_{core}_{place}.sh.o{job_id}"
+                    #continue checking if the file exists
+                    while True:
+                        try:
+                            with open(matching_file, "r") as f:
+                                # lines = f.readlines()
+                                # for line in lines:
+                                #     if line.startswith("END"):
+                                #         time = line.split()[1]
+                                #         break
+                                print(f"File {matching_file} found. Starting the next job...")
+                                break
+                        except FileNotFoundError:
+                            continue
+
                 else: 
                     print(f"[ERROR] {job_id}: Something went wrong with the job submission.")
+
 
     # create a json file with the job ids as keys and the parameters with the same index as its values
         data = {
