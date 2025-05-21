@@ -98,6 +98,39 @@ if __name__ == "__main__":
                                     if line.startswith("END"):
                                         times.append(line.split()[1])
                                         break
+                                
+                                # if the json is already creaded, append the new data
+                                # else create it
+                                if len(times) > 0:
+                                    with open("results.json", "r") as f:
+                                        data = json.load(f)
+                                        data[job_id] = {
+                                            "nodes": node,
+                                            "cores": core,
+                                            "places": place,
+                                            "time": times[-1]
+                                        }
+                                    with open("results.json", "w") as f:
+                                        json.dump(data, f, indent=4)
+                                else:   
+                                    with open("results.json", "w") as f:
+                                        data = {
+                                            "genearal_info": {
+                                                "dimensions": DIMENSIONS,
+                                                "iterations": ITERATIONS,
+                                                "update_frequency": UPDATE_FREQUENCY,
+                                                "total_fishes": TOTAL_FISHES,
+                                            },
+                                            job_id: {
+                                                "nodes": node,
+                                                "cores": core,
+                                                "places": place,
+                                                "time": times[-1]
+                                            }
+                                        }
+                                        json.dump(data, f, indent=4)
+
+
                                 print(f"This took {times[-1]}. Starting the next job...")
                                 break
                         except FileNotFoundError:
@@ -105,29 +138,3 @@ if __name__ == "__main__":
 
                 else: 
                     print(f"[ERROR] {job_id}: Something went wrong with the job submission.")
-
-
-    # create a json file with the job ids as keys and the parameters with the same index as its values
-        data = {
-            "genearal_info": {
-                "dimensions": DIMENSIONS,
-                "iterations": ITERATIONS,
-                "update_frequency": UPDATE_FREQUENCY,
-                "total_fishes": TOTAL_FISHES,
-            }
-        }
-
-        # Aggiungi dinamicamente gli id al dizionario principale
-        for i in range(len(ids)):
-            data[ids[i]] = {
-                "nodes": nodes[i],
-                "cores": cores[i],
-                "places": places[i],
-                "time": times[i]
-            }
-
-        # Dump finale in un colpo solo
-        with open("results.json", "w") as f:
-            json.dump(data, f, indent=4)
-
-                
