@@ -3,14 +3,14 @@ import json
 
 # se proviamo a lanciare tutte le combinazioni tra processi, thread e place, produciamo troppi job per il cluster
 # teniamo fissi i processi e lanciamo tutte le altre combinazioni
-# VALID_SELECT = [1, 2, 4, 8, 16, 32, 64]
-VALID_SELECT = [8]
-# VALID_NCPUS = [1, 2, 4, 8, 16, 32]
-VALID_NCPUS = [8, 16]
+VALID_SELECT = [1, 2, 4, 8, 16, 32, 64]
+# VALID_SELECT = [8]
+VALID_NCPUS = [1, 2, 4, 8, 16, 32]
+# VALID_NCPUS = [8, 16]
 VALID_PLACE = ['pack', 'scatter']
 # VALID_PLACE = ['scatter']
-TOTAL_FISHES = 8000
-DIMENSIONS = 100
+TOTAL_FISHES = 64000
+DIMENSIONS = 1000
 ITERATIONS = 200
 UPDATE_FREQUENCY = 1
 
@@ -59,6 +59,7 @@ if __name__ == "__main__":
     nodes = []
     cores = []
     places = []
+    times = []
 
     for node in VALID_SELECT:
         for core in VALID_NCPUS:
@@ -92,11 +93,11 @@ if __name__ == "__main__":
                     while True:
                         try:
                             with open(matching_file, "r") as f:
-                                # lines = f.readlines()
-                                # for line in lines:
-                                #     if line.startswith("END"):
-                                #         time = line.split()[1]
-                                #         break
+                                lines = f.readlines()
+                                for line in lines:
+                                    if line.startswith("END"):
+                                        times.append(line.split()[1])
+                                        break
                                 print(f"File {matching_file} found. Starting the next job...")
                                 break
                         except FileNotFoundError:
@@ -121,7 +122,8 @@ if __name__ == "__main__":
             data[ids[i]] = {
                 "nodes": nodes[i],
                 "cores": cores[i],
-                "places": places[i]
+                "places": places[i],
+                "time": times[i]
             }
 
         # Dump finale in un colpo solo
