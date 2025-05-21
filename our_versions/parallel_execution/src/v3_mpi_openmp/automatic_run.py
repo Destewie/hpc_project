@@ -40,12 +40,12 @@ module load mpich-3.2
 mpicc $C_PROGRAM_PATH -g -Wall -fopenmp -lm -std=c99 -o $EXECUTABLE_PATH_AND_NAME 
 
 # run
-mpirun.actual -n {select} $EXECUTABLE_PATH_AND_NAME {fishes_per_process} {DIMENSIONS} {ITERATIONS} {UPDATE_FREQUENCY} {place}
+mpirun.actual -n {select} $EXECUTABLE_PATH_AND_NAME {fishes_per_process} {dimensions} {iterations} {update_frequency} {place}
 """
 
 def generate_pbs_script(select, ncpus, place, output_path="generated_job.sh"):
     fishes_per_process = TOTAL_FISHES/select
-    pbs_script = PBS_TEMPLATE.format(select=select, ncpus=ncpus, place=place, fishes_per_process=fishes_per_process)
+    pbs_script = PBS_TEMPLATE.format(select=select, ncpus=ncpus, place=place, fishes_per_process=fishes_per_process, dimensions=DIMENSIONS, iterations=ITERATIONS, update_frequency=UPDATE_FREQUENCY)
 
     output_path = f"generated_job_{select}_{ncpus}_{place}.sh" 
     with open(output_path, "w") as f:
