@@ -5,8 +5,8 @@ import json
 # teniamo fissi i processi e lanciamo tutte le altre combinazioni
 # VALID_SELECT = [1, 2, 4, 8, 16, 32, 64]
 VALID_SELECT = [8]
-VALID_NCPUS = [1, 2, 4, 8, 16, 32]
-# VALID_NCPUS = [8, 16]
+# VALID_NCPUS = [1, 2, 4, 8, 16, 32]
+VALID_NCPUS = [2, 4, 8, 16]
 VALID_PLACE = ['pack', 'scatter']
 # VALID_PLACE = ['scatter']
 TOTAL_FISHES = 64000
