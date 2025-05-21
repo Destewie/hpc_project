@@ -9,7 +9,7 @@ VALID_SELECT = [4]
 VALID_NCPUS = [4, 8]
 # VALID_PLACE = ['pack', 'scatter']
 VALID_PLACE = ['scatter']
-TOTAL_FISHES = 16000
+TOTAL_FISHES = 64000
 DIMENSIONS = 1000
 ITERATIONS = 200
 UPDATE_FREQUENCY = 1
@@ -91,7 +91,8 @@ if __name__ == "__main__":
             "genearal_info": {
                 "dimensions": DIMENSIONS,
                 "iterations": ITERATIONS,
-                "update_frequency": UPDATE_FREQUENCY
+                "update_frequency": UPDATE_FREQUENCY,
+                "total_fishes": TOTAL_FISHES,
             }
         }
 
