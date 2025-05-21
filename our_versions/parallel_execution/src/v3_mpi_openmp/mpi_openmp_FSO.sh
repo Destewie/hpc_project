@@ -16,7 +16,7 @@
 
 # chunks (~nodes) : cores per chunk : shared memory per chunk (?)
 #PBS -l select=4:ncpus=8:mem=2gb
-#PBS -l place=pack
+#PBS -l place=scatter
 
 export OMP_NUM_THREADS=8
 export OMP_PROC_BIND=close
