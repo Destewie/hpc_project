@@ -4,11 +4,13 @@ import json
 # se proviamo a lanciare tutte le combinazioni tra processi, thread e place, produciamo troppi job per il cluster
 # teniamo fissi i processi e lanciamo tutte le altre combinazioni
 # VALID_SELECT = [1, 2, 4, 8, 16, 32, 64]
-VALID_SELECT = [4]
+VALID_SELECT = [1, 2, 4, 8, 16]
+# VALID_SELECT = [4]
 # VALID_NCPUS = [1, 2, 4, 8, 16, 32]
-VALID_NCPUS = [4, 8]
-# VALID_PLACE = ['pack', 'scatter']
-VALID_PLACE = ['scatter']
+VALID_NCPUS = [32]
+# VALID_NCPUS = [4, 8]
+VALID_PLACE = ['pack', 'scatter']
+# VALID_PLACE = ['scatter']
 TOTAL_FISHES = 64000
 DIMENSIONS = 1000
 ITERATIONS = 200
