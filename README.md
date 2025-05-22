@@ -413,4 +413,6 @@ L'unica cosa che mi fa paura di questo approccio è che potrei essere bannato da
 Mi sono messo via lo script che lancia in automatico i job: non so per quale motivo ma, anche se lancio i job uno dopo l'altro, il tempo impiegato dal job è vergognosamente più alto rispetto a lanciarlo a mano uno per uno. 
 Detto questo, augurateci buona fortuna: li lanceremo tutti a mano.
 
-Teniamo come 
+Teniamo fissi 128000 pesci totali
+
+Abbiamo fatto un nuovo parser apposta per i file .sh.o{job_id} che aggiorna un file results.json con tutti i risultati che non sono ancora stati segnati.
