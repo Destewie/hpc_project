@@ -36,6 +36,7 @@ for file_path, job_id in new_files:
     # Estrai i parametri da RUNNING WITH
     params_line = next((line for line in lines if line.startswith("RUNNING WITH:")), None)
     if not params_line:
+        print(f"Il job {job_id} non ha una riga RUNNING WITH valida.")
         continue  # se non c'è, salta
 
     params_match = re.search(
@@ -43,6 +44,7 @@ for file_path, job_id in new_files:
         params_line
     )
     if not params_match:
+        print (f"Il job {job_id} non ha parametri validi.")
         continue
 
     cores = int(params_match.group(1))
