@@ -55,14 +55,20 @@ for file_path, job_id in new_files:
     update_freq = int(params_match.group(5))
     place = params_match.group(6)
 
-    # Cerca riga END
+    # Cerca riga END e prendine un valore con parte decimale
     time = None
     for line in lines:
-        if line.startswith("END "):
-            parts = line.strip().split()
-            if len(parts) >= 2 and parts[1].isdigit():
-                time = parts[1]
-                break
+        if line.startswith("END:"):
+            parts = line.strip().split(":")
+            if len(parts) > 1:
+                try:
+                    time = float(parts[1])
+                    break
+                except ValueError:
+                    print(f"Il job {job_id} ha un tempo non valido: {parts[1]}")
+                    time = None
+                    break
+
 
     if time is None:
         print(f"Il job {job_id} non ha un tempo di esecuzione valido.")
