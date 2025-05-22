@@ -409,3 +409,8 @@ Credo che questo sia dovuto al fatto che si va a sovraccaricare il cluster.
 Per ovviare a questo problema, potremmo fare in modo che ogni job venga lanciato solo quando il precedente ha prodotto i suoi file ".o" e ".e".
 L'unica cosa che mi fa paura di questo approccio è che potrei essere bannato dal cluster perché ci sarebbe quello script che continua ad andare sul nodo di partenza... capiamola...
 
+# 22/05/2025
+Mi sono messo via lo script che lancia in automatico i job: non so per quale motivo ma, anche se lancio i job uno dopo l'altro, il tempo impiegato dal job è vergognosamente più alto rispetto a lanciarlo a mano uno per uno. 
+Detto questo, augurateci buona fortuna: li lanceremo tutti a mano.
+
+Teniamo come 
