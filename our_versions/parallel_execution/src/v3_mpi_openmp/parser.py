@@ -22,7 +22,7 @@ all_files = glob.glob("generated_job_*.sh.o*")
 # Filtra solo quelli con ID non già presenti
 new_files = []
 for f in all_files:
-    match = re.search(r"\.sh.o(\d+)$", f)
+    match = re.search(r"\.sh\.o(\d+)$", f)
     if match:
         job_id = match.group(1)
         if job_id not in existing_ids:
