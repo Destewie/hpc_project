@@ -40,7 +40,7 @@ for file_path, job_id in new_files:
         continue  # se non c'è, salta
 
     params_match = re.search(
-        r"N-PROCESSES (\d+) - N_FISHES_PER_PROCESS (\d+) - DIMENSIONS (\d+) - MAX_ITER (\d+) - UPDATE_FREQUENCY (\d+) - PLACE (\d+)",
+        r"N-PROCESSES (\d+) - N_FISHES_PER_PROCESS (\d+) - DIMENSIONS (\d+) - MAX_ITER (\d+) - UPDATE_FREQUENCY (\d+) - PLACE (\w+)",
         params_line
     )
     if not params_match:
