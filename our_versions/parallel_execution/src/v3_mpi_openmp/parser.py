@@ -40,7 +40,7 @@ for file_path, job_id in new_files:
         continue  # se non c'è, salta
 
     params_match = re.search(
-        r"N-PROCESSES (\d+) - N_FISHES_PER_PROCESS (\d+) - DIMENSIONS (\d+) - MAX_ITER (\d+) - UPDATE_FREQUENCY (\d+) - PLACE (\w+)",
+        r"N-PROCESSES (\d+) - N_FISHES_PER_PROCESS (\d+) - N_THREADS (\d+) - DIMENSIONS (\d+) - MAX_ITER (\d+) - UPDATE_FREQUENCY (\d+) - PLACE (\w+)",
         params_line
     )
     if not params_match:
@@ -50,10 +50,11 @@ for file_path, job_id in new_files:
     nodes = int(params_match.group(1))
     fishes_per_proc = int(params_match.group(2))
     total_fishes = nodes * fishes_per_proc
-    dimensions = int(params_match.group(3))
-    iterations = int(params_match.group(4))
-    update_freq = int(params_match.group(5))
-    place = params_match.group(6)
+    cores = int(params_match.group(3))
+    dimensions = int(params_match.group(4))
+    iterations = int(params_match.group(5))
+    update_freq = int(params_match.group(6))
+    place = params_match.group(7)
 
     # Cerca riga END e prendine un valore con parte decimale
     time = None
