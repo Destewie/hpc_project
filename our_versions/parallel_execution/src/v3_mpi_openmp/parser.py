@@ -17,7 +17,7 @@ else:
 existing_ids = set(results.keys())
 
 # Cerca file che corrispondono al pattern
-all_files = glob.glob("generated_job_*.sh.o*")
+all_files = glob.glob("mpi_openmp_FSO.sh.o*")
 
 # Filtra solo quelli con ID non già presenti
 new_files = []
