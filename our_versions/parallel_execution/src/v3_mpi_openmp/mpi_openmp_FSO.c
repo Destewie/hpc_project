@@ -667,9 +667,6 @@ int main(int argc, char *argv[]) {
     const int UPDATE_FREQUENCY = atoi(argv[4]);
     char *place = argv[5];
 
-    if (rank == 0) {
-        printf("\nRUNNING WITH: N-PROCESSES %d - N_FISHES_PER_PROCESS %d - DIMENSIONS %d - MAX_ITER %d - UPDATE_FREQUENCY %d - PLACE %s\n", size, N_FISHES_PER_PROCESS, DIMENSIONS, MAX_ITER, UPDATE_FREQUENCY, place);
-    }
 
     int n_threads;
 
@@ -682,6 +679,10 @@ int main(int argc, char *argv[]) {
         printf("MPI Process %d - OpenMP Thread %d out of %d running on core %d\n",
                rank, thread_id, n_threads, core_id);
         fflush(stdout);
+    }
+
+    if (rank == 0) {
+        printf("\nRUNNING WITH: N-PROCESSES %d - N_FISHES_PER_PROCESS %d - N_THREADS %d - DIMENSIONS %d - MAX_ITER %d - UPDATE_FREQUENCY %d - PLACE %s\n", size, N_FISHES_PER_PROCESS, n_threads, DIMENSIONS, MAX_ITER, UPDATE_FREQUENCY, place);
     }
 
     // Vettore contenente un seed diverso per ogni thread. 

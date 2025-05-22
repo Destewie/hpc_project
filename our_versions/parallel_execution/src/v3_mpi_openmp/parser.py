@@ -47,9 +47,9 @@ for file_path, job_id in new_files:
         print (f"Il job {job_id} non ha parametri validi.")
         continue
 
-    cores = int(params_match.group(1))
+    nodes = int(params_match.group(1))
     fishes_per_proc = int(params_match.group(2))
-    total_fishes = cores * fishes_per_proc
+    total_fishes = nodes * fishes_per_proc
     dimensions = int(params_match.group(3))
     iterations = int(params_match.group(4))
     update_freq = int(params_match.group(5))
@@ -80,7 +80,7 @@ for file_path, job_id in new_files:
         "dimensions": dimensions,
         "iterations": iterations,
         "update_frequency": update_freq,
-        "nodes": total_fishes // fishes_per_proc // cores,
+        "nodes": nodes,
         "cores": cores,
         "places": place,  # fissa come nel tuo esempio
         "time": time
