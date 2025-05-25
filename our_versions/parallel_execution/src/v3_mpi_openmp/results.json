@@ -228,5 +228,15 @@
         "cores": 4,
         "places": "scatter",
         "time": 129.852542
+    },
+    "3143078": {
+        "total_fishes": 64000,
+        "dimensions": 1000,
+        "iterations": 200,
+        "update_frequency": 1,
+        "nodes": 8,
+        "cores": 8,
+        "places": "scatter",
+        "time": 105.688047
     }
 }
