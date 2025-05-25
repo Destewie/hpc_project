@@ -1,14 +1,4 @@
 {
-    "3126703": {
-        "total_fishes": 64000,
-        "dimensions": 100,
-        "iterations": 200,
-        "update_frequency": 1,
-        "nodes": 1,
-        "cores": 4,
-        "places": "pack",
-        "time": 53.848943
-    },
     "3126762": {
         "total_fishes": 16000,
         "dimensions": 1000,
@@ -258,15 +248,5 @@
         "cores": 32,
         "places": "scatter",
         "time": 56.665228
-    },
-    "3143096": {
-        "total_fishes": 128000,
-        "dimensions": 1000,
-        "iterations": 200,
-        "update_frequency": 1,
-        "nodes": 16,
-        "cores": 1,
-        "places": "scatter",
-        "time": 297.75641
     }
 }
