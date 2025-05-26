@@ -1,5 +1,9 @@
 # All json OUT
+# Messo perché - quando abilito il logging dei risultati per vederli con la visualizzazione pythoni - produce i log in json
 *json
+
+#Però per collezionare i dati sui tempi devo fare un'eccezione per results.json
+!results.json
 
 # Assicurati che i file in parallel_execution/evolution_logs/*.json siano tracciati
 !our_versions/evolution_logs/*.json
