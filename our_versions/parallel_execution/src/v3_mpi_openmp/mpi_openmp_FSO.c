@@ -693,6 +693,19 @@ int main(int argc, char *argv[]) {
         seeds[i].seed = (unsigned int)time(NULL) + i;
     }
 
+    // Simulo la chiamata a whoami per ottenere il nome dell'utente corrente
+    char *user;
+    if (rank==0) {
+        user = getenv("USER");
+        if (user == NULL) {
+            //return errror
+            fprintf(stderr, "Error: USER environment variable not set.\n");
+            MPI_Finalize();
+            return 1;
+        }
+    }
+
+
     //create a timer
     double start = MPI_Wtime(); 
     double end = 0.0;
@@ -700,8 +713,7 @@ int main(int argc, char *argv[]) {
     FILE *file;
     if (rank==0) {
         char filename[50];
-        sprintf(filename, "/home/federico.desanti/hpc_project/our_versions/evolution_logs/%s_%dd_log.json",FUNCTION, DIMENSIONS);
-        // sprintf(filename, "/home/annachiara.fortuna/hpc_project/our_versions/evolution_logs/%s_%dd_log.json",FUNCTION, DIMENSIONS);
+        sprintf(filename, "/home/%s/hpc_project/our_versions/evolution_logs/%s_%dd_log.json", user, FUNCTION, DIMENSIONS);
         file = fopen(filename, "w");
         if (file == NULL) {
             perror("Error opening file");
