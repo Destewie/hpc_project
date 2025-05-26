@@ -416,3 +416,14 @@ Detto questo, augurateci buona fortuna: li lanceremo tutti a mano.
 Teniamo fissi 64000 pesci totali
 
 Abbiamo fatto un nuovo parser apposta per i file .sh.o{job_id} che aggiorna un file results.json con tutti i risultati che non sono ancora stati segnati.
+
+# 26/05/25
+Stiamo sviluppando i grafici per tirare le fila della nostra versione parallela.
+Per ora abbiamo:
+- un grafico che rappresenta la speedup all'aumentare dei processi, i dati sono raggrupati per numero di thread
+- un grafico che rappresenta il tempo in base all'aumentare dei core, i dati sono rappresentati per processo
+Da notare che questi grafici servono per la strong scalability perchè aumenta il numero di processori ma i dati da usare sono sempre quelli
+
+Cose da tenera a mente: scrivere tutte le scelte fatte sul report tipo come decidiamo di calcolare l'efficiency se per processo o per #thread*#processi. Poi fare studio con scatter e pack, fare studio sulla strong e weak scalability.
+
+Attenzione: abbiamo modificato il calcolo della efficiency per tenere conto del numero di thread*processi così da avere una misura valida dell'occupazione di ogni core. Inoltre abbiamo trovato che per una versione ibrida, un aumento superlineare è normale.
