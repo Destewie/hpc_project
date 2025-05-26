@@ -15,6 +15,7 @@
 *.sh.e*
 *.sh.o*
 .nfs*
+mpi_openmp_FSO.sh
 
 # Everything under the FishSchoolSearch directory
 FishSchoolSearch/
