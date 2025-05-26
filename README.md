@@ -422,7 +422,7 @@ Stiamo sviluppando i grafici per tirare le fila della nostra versione parallela.
 Per ora abbiamo:
 - un grafico che rappresenta la speedup all'aumentare dei processi, i dati sono raggrupati per numero di thread
 - un grafico che rappresenta il tempo in base all'aumentare dei core, i dati sono rappresentati per processo
-Da notare che questi grafici servono per la strong scalability perchè aumenta il numero di processori ma i dati da usare sono sempre quelli
+Da notare che questi grafici servono per la strong scalability perchè aumenta il numero di processori ma i dati da usare sono sempre quelli. In generale pensiamo di fare un'analisi sulla weak e sulla strong scalability.
 
 Cose da tenera a mente: scrivere tutte le scelte fatte sul report tipo come decidiamo di calcolare l'efficiency se per processo o per #thread*#processi. Poi fare studio con scatter e pack, fare studio sulla strong e weak scalability.
 
