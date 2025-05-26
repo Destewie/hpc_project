@@ -398,5 +398,45 @@
         "cores": 64,
         "places": "scatter",
         "time": 9.896317
+    },
+    "3145905": {
+        "total_fishes": 64000,
+        "dimensions": 1000,
+        "iterations": 200,
+        "update_frequency": 1,
+        "nodes": 1,
+        "cores": 64,
+        "places": "scatter",
+        "time": 407.667256
+    },
+    "3145964": {
+        "total_fishes": 64000,
+        "dimensions": 1000,
+        "iterations": 200,
+        "update_frequency": 1,
+        "nodes": 2,
+        "cores": 64,
+        "places": "scatter",
+        "time": 236.266617
+    },
+    "3145975": {
+        "total_fishes": 64000,
+        "dimensions": 1000,
+        "iterations": 200,
+        "update_frequency": 1,
+        "nodes": 4,
+        "cores": 64,
+        "places": "scatter",
+        "time": 112.233095
+    },
+    "3145991": {
+        "total_fishes": 64000,
+        "dimensions": 1000,
+        "iterations": 200,
+        "update_frequency": 1,
+        "nodes": 8,
+        "cores": 64,
+        "places": "scatter",
+        "time": 50.726549
     }
 }
