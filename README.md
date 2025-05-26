@@ -420,10 +420,16 @@ Abbiamo fatto un nuovo parser apposta per i file .sh.o{job_id} che aggiorna un f
 # 26/05/25
 Stiamo sviluppando i grafici per tirare le fila della nostra versione parallela.
 Per ora abbiamo:
-- un grafico che rappresenta la speedup all'aumentare dei processi, i dati sono raggrupati per numero di thread
+
+- un grafico che rappresenta la speedup all'aumentare dei processi, i dati sono raggrupati per numero di thread (visuals_2d_proc_speedup.py)
+
 - un grafico che rappresenta il tempo in base all'aumentare dei core, i dati sono rappresentati per processo
-Da notare che questi grafici servono per la strong scalability perchè aumenta il numero di processori ma i dati da usare sono sempre quelli. In generale pensiamo di fare un'analisi sulla weak e sulla strong scalability.
+Da notare che questi grafici servono per la strong scalability perchè aumenta il numero di processori ma i dati da usare sono sempre quelli.  (visuals_2d_tempo_core.py)
+
+- un grafico che rappresenta l'efficiency in base al numero di core. I dati sono raggruppati per numero di processi. (visuals_2d_proc_efficiency) -> vediamo che l'efficiency decresce esponenzialmente all'aumentare dei thread: capiamo come cambia la curva all'aumentare dei pesci (tipo 128000)? Anche perché questo è di fatto un'analisi sulla strong scalability: il nostro algoritmo non sembra essere strongly scalable (se no avrebbe tenuto l'efficiency quasi costante all'aumentare delle risorse)
+
 
 Cose da tenera a mente: scrivere tutte le scelte fatte sul report tipo come decidiamo di calcolare l'efficiency se per processo o per #thread*#processi. Poi fare studio con scatter e pack, fare studio sulla strong e weak scalability.
 
 Attenzione: abbiamo modificato il calcolo della efficiency per tenere conto del numero di thread*processi così da avere una misura valida dell'occupazione di ogni core. Inoltre abbiamo trovato che per una versione ibrida, un aumento superlineare è normale.
+
