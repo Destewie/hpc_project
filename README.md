@@ -433,3 +433,5 @@ Cose da tenera a mente: scrivere tutte le scelte fatte sul report tipo come deci
 
 Attenzione: abbiamo modificato il calcolo della efficiency per tenere conto del numero di thread*processi così da avere una misura valida dell'occupazione di ogni core. Inoltre abbiamo trovato che per una versione ibrida, un aumento superlineare è normale.
 
+RICORDIAMOCELOOO
+Ora tutti i dati che abbiamo sono con "scatter", ma dovremmo anche prendere i dati con "pack".
