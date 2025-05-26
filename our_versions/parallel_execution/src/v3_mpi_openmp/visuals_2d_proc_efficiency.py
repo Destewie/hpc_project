@@ -6,7 +6,7 @@ import numpy as np
 from collections import defaultdict
 
 # === Leggi il file JSON ===
-with open("results.json", "r") as f:
+with open("results_modified.json", "r") as f:
     data = json.load(f)
 
 # === Trova i valori unici di total_fishes ===
@@ -35,7 +35,7 @@ for nodes, values in sorted(grouped_by_nodes.items()):
     values.sort()
     x = [cores for cores, _ in values]
     y = [time for _, time in values]
-    plt.plot(x, y, marker='o', label=f"{nodes} nodo{'i' if nodes > 1 else ''}")
+    plt.plot(x, y, marker='o', label=f"{nodes} thread")
 
 plt.xlabel("Numero di processi")
 plt.ylabel("Speedup")
