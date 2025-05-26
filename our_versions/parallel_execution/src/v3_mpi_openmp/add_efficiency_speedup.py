@@ -33,8 +33,9 @@ for config, entries in groups.items():
     for key, entry in entries:
         time = entry["time"]
         nodes = entry["nodes"]
+        cores = entry["cores"]
         speedup = baseline_time / time
-        efficiency = speedup / nodes if nodes > 0 else 0.0
+        efficiency = speedup / (nodes*cores) if nodes > 0 else 0.0
 
         # Update entry
         entry["speedup"] = speedup
