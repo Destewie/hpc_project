@@ -15,7 +15,7 @@
 #PBS -l walltime=06:00:00
 
 # chunks (~nodes) : cores per chunk : shared memory per chunk (?)
-#PBS -l select=16:ncpus=64:mem=2gb
+#PBS -l select=64:ncpus=64:mem=2gb
 #PBS -l place=scatter
 
 export OMP_NUM_THREADS=64
@@ -35,6 +35,6 @@ mpicc $C_PROGRAM_PATH -g -Wall -fopenmp -lm -std=c99 -o $EXECUTABLE_PATH_AND_NAM
 
 # run
 # <"Usage: N_FISHES_PER_PROCESS DIMENSIONS MAX_ITER UPDATE_FREQUENCY">
-mpirun.actual -n 16 $EXECUTABLE_PATH_AND_NAME 4000 1000 200 1 scatter
+mpirun.actual -n 64 $EXECUTABLE_PATH_AND_NAME 1000 1000 200 1 scatter
 
 
