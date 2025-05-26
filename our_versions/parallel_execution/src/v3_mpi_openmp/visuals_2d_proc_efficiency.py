@@ -26,7 +26,7 @@ filtered = [entry for entry in data.values() if entry["total_fishes"] == selecte
 grouped_by_nodes = defaultdict(list)
 for entry in filtered:
     nodes = entry["cores"]
-    grouped_by_nodes[nodes].append((entry["nodes"], entry["speedup"]))
+    grouped_by_nodes[nodes].append((entry["nodes"], entry["speedup"]/ entry["cores"]))
 
 # === Crea grafico 2D ===
 plt.figure()
