@@ -289,6 +289,8 @@ void individualMovement(Fish *fish,
         weighted_move_out[d] = 0.0f;
     }
 
+    fish->new_fitness = (float)new_fit;
+
     // If fitness improves, update outputs and fish state
     if (delta > 0.0) {
         *delta_fitness_out = (float)delta;
@@ -297,7 +299,6 @@ void individualMovement(Fish *fish,
             weighted_move_out[d] = (float)((new_pos[d] - fish->position[d]) * delta);
             fish->position[d] = new_pos[d];
         }
-        fish->fitness = (float)new_fit;
     }
 
     free(new_pos);

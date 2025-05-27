@@ -281,6 +281,8 @@ void individualMovement(Fish *fish,
         weighted_move_out[d] = 0.0f;
     }
 
+    fish->new_fitness = (float)new_fit; // the new fitness is updated in every case
+
     // If fitness improves, update outputs and fish state
     if (delta > 0.0) {
         *delta_fitness_out = (float)delta;
@@ -289,7 +291,6 @@ void individualMovement(Fish *fish,
             weighted_move_out[d] = (float)((new_pos[d] - fish->position[d]) * delta);
             fish->position[d] = new_pos[d];
         }
-        fish->fitness = (float)new_fit;
     }
 
     free(new_pos);
@@ -459,15 +460,15 @@ void collectiveMovementArray(Fish *fishArray,
                                     DIMENSIONS);
         }
 
-        // Barrier before merging local back to shared
-        #pragma omp barrier
-        #pragma omp single
-        {
-            *tot_delta_fitness = local_tot;
-            for (int d = 0; d < DIMENSIONS; ++d) {
-                weighted_tot_delta_fitness[d] = local_weight[d];
-            }
-        }
+        // // Barrier before merging local back to shared
+        // #pragma omp barrier
+        // #pragma omp single
+        // {
+        //     *tot_delta_fitness = local_tot;
+        //     for (int d = 0; d < DIMENSIONS; ++d) {
+        //         weighted_tot_delta_fitness[d] = local_weight[d];
+        //     }
+        // }
 
         free(local_weight);
     }
@@ -550,9 +551,9 @@ void volitivePositionUpdateArray(Fish *fishArray,
 
             double delta = fish->position[d] - barycenter[d];
 
-            if (shrink == 1) {
+            if (shrink == 1) { //attracted
                 fish->position[d] -= fish->max_volitive_step * rand_mult * delta;
-            } else {
+            } else { // repelled
                 fish->position[d] += fish->max_volitive_step * rand_mult * delta;
             }
             if (fish->position[d] > 1000.0 || fish->position[d] < -1000.0) {
@@ -574,12 +575,6 @@ void collectiveVolitiveArray(Fish *fishes,
     float old_weights;
     float new_weights;
 
-    // calculateBarycenters(fishes, barycenter,
-    //                      current_iter, UPDATE_FREQUENCY,
-    //                      DIMENSIONS, N_FISHES_PER_PROCESS);
-    // calculateSumWeights(fishes, old_weights, new_weights,
-    //                     current_iter, UPDATE_FREQUENCY,
-    //                     N_FISHES_PER_PROCESS);
     calculateBarycentersAndSumWeights(fishes, barycenter, &old_weights, &new_weights, current_iter, UPDATE_FREQUENCY, DIMENSIONS, N_FISHES_PER_PROCESS);
 
 
