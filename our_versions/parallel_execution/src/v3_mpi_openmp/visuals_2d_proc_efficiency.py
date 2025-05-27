@@ -26,7 +26,7 @@ filtered = [entry for entry in data.values() if entry["total_fishes"] == selecte
 grouped_by_nodes = defaultdict(list)
 for entry in filtered:
     nodes = entry["cores"]
-    grouped_by_nodes[nodes].append((entry["nodes"], entry["speedup"]/ entry["cores"]))
+    grouped_by_nodes[nodes].append((entry["nodes"], entry["efficiency"]))
 
 # === Crea grafico 2D ===
 plt.figure()
@@ -38,8 +38,8 @@ for nodes, values in sorted(grouped_by_nodes.items()):
     plt.plot(x, y, marker='o', label=f"{nodes} thread")
 
 plt.xlabel("Numero di processi")
-plt.ylabel("Speedup")
-plt.title(f"Speedup vs processes per total_fishes = {selected_fishes}")
+plt.ylabel("Efficiency")
+plt.title(f"Efficiency vs processes per total_fishes = {selected_fishes}")
 plt.legend(title="Numero di threads")
 plt.grid(True)
 plt.tight_layout()
