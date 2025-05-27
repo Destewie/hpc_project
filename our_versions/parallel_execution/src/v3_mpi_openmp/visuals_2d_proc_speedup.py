@@ -48,7 +48,7 @@ for nodes, values in sorted(grouped_by_nodes.items()):
 
 # === Aggiungi una linea tratteggiata y = x ===
 max_val = max(max(all_cores), max(all_speedups))
-plt.plot([0, max_val], [0, max_val], 'k--', label="ideal speedup")
+plt.plot([0, max_val], [0, max_val], 'k--', label="linear speedup")
 
 plt.xlabel("Numero di processi")
 plt.ylabel("Speedup")
