@@ -440,3 +440,7 @@ TODO:
 - sistemare pack e scatter (zio pera speriamo bene) -> capire perchè non parte pack con tante risorse
 - finire di lanciare cose da 128000 per tirare delle conclusioni sensare -> bot
 - REPORT e capire che cosa metterci dentro 
+
+# 27/05/25
+Abbiamo cambiato l'openMP scheduling da "dynamic,1" a "static,1" perchè il nostro carico è molto bilanciato
+
