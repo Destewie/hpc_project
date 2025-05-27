@@ -16,9 +16,6 @@
 *.sh.o*
 .nfs*
 
-# ignora il file per il submit del job perché tra me e annina andiamo a modificarne sempre i params
-*mpi_openmp_FSO.sh
-
 # Everything under the FishSchoolSearch directory
 FishSchoolSearch/
 

@@ -437,6 +437,6 @@ RICORDIAMOCELOOO
 Ora tutti i dati che abbiamo sono con "scatter", ma dovremmo anche prendere i dati con "pack".
 
 TODO:
-- sistemare pack e scatter (zio pera speriamo bene) -> capire perchè
+- sistemare pack e scatter (zio pera speriamo bene) -> capire perchè non parte pack con tante risorse
 - finire di lanciare cose da 128000 per tirare delle conclusioni sensare -> bot
 - REPORT e capire che cosa metterci dentro 
