@@ -444,3 +444,6 @@ TODO:
 # 27/05/25
 Abbiamo cambiato l'openMP scheduling da "dynamic,1" a "static,1" perchè il nostro carico è molto bilanciato
 
+Ricordiamoci che tutti i test fatti finora sono per la strong scalability (che, spoiler, non abbiamo eheh).
+Rifacciamo tutti i test tenendo fissi i fishes per CORE!!! E non per process: quindi cpu:1 core:5 5000 pesci e anche cpu:5 core:1 si becca 5000 pesci...
+
