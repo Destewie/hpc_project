@@ -568,5 +568,165 @@
         "cores": 32,
         "places": "scatter",
         "time": 11355.762491
+    },
+    "3149689": {
+        "total_fishes": 128000,
+        "dimensions": 1000,
+        "iterations": 200,
+        "update_frequency": 1,
+        "nodes": 2,
+        "cores": 64,
+        "places": "scatter",
+        "time": 769.947157
+    },
+    "3149687": {
+        "total_fishes": 128000,
+        "dimensions": 1000,
+        "iterations": 200,
+        "update_frequency": 1,
+        "nodes": 4,
+        "cores": 2,
+        "places": "scatter",
+        "time": 803.351099
+    },
+    "3149690": {
+        "total_fishes": 128000,
+        "dimensions": 1000,
+        "iterations": 200,
+        "update_frequency": 1,
+        "nodes": 4,
+        "cores": 4,
+        "places": "scatter",
+        "time": 724.536281
+    },
+    "3149698": {
+        "total_fishes": 128000,
+        "dimensions": 1000,
+        "iterations": 200,
+        "update_frequency": 1,
+        "nodes": 4,
+        "cores": 8,
+        "places": "scatter",
+        "time": 618.877469
+    },
+    "3149699": {
+        "total_fishes": 128000,
+        "dimensions": 1000,
+        "iterations": 200,
+        "update_frequency": 1,
+        "nodes": 4,
+        "cores": 16,
+        "places": "scatter",
+        "time": 679.910759
+    },
+    "3149686": {
+        "total_fishes": 128000,
+        "dimensions": 1000,
+        "iterations": 200,
+        "update_frequency": 1,
+        "nodes": 4,
+        "cores": 1,
+        "places": "scatter",
+        "time": 1623.914548
+    },
+    "3149705": {
+        "total_fishes": 128000,
+        "dimensions": 1000,
+        "iterations": 200,
+        "update_frequency": 1,
+        "nodes": 4,
+        "cores": 64,
+        "places": "scatter",
+        "time": 439.696613
+    },
+    "3149706": {
+        "total_fishes": 128000,
+        "dimensions": 1000,
+        "iterations": 200,
+        "update_frequency": 1,
+        "nodes": 8,
+        "cores": 1,
+        "places": "scatter",
+        "time": 1200.329188
+    },
+    "3149712": {
+        "total_fishes": 128000,
+        "dimensions": 1000,
+        "iterations": 200,
+        "update_frequency": 1,
+        "nodes": 8,
+        "cores": 4,
+        "places": "scatter",
+        "time": 766.270256
+    },
+    "3149707": {
+        "total_fishes": 128000,
+        "dimensions": 1000,
+        "iterations": 200,
+        "update_frequency": 1,
+        "nodes": 8,
+        "cores": 2,
+        "places": "scatter",
+        "time": 1688.978982
+    },
+    "3149722": {
+        "total_fishes": 128000,
+        "dimensions": 1000,
+        "iterations": 200,
+        "update_frequency": 1,
+        "nodes": 8,
+        "cores": 8,
+        "places": "scatter",
+        "time": 153.981411
+    },
+    "3149728": {
+        "total_fishes": 128000,
+        "dimensions": 1000,
+        "iterations": 200,
+        "update_frequency": 1,
+        "nodes": 8,
+        "cores": 32,
+        "places": "scatter",
+        "time": 118.824759
+    },
+    "3149734": {
+        "total_fishes": 128000,
+        "dimensions": 1000,
+        "iterations": 200,
+        "update_frequency": 1,
+        "nodes": 8,
+        "cores": 64,
+        "places": "scatter",
+        "time": 121.911076
+    },
+    "3149736": {
+        "total_fishes": 128000,
+        "dimensions": 1000,
+        "iterations": 200,
+        "update_frequency": 1,
+        "nodes": 16,
+        "cores": 1,
+        "places": "scatter",
+        "time": 331.894175
+    },
+    "3149739": {
+        "total_fishes": 128000,
+        "dimensions": 1000,
+        "iterations": 200,
+        "update_frequency": 1,
+        "nodes": 16,
+        "cores": 2,
+        "places": "scatter",
+        "time": 152.247577
+    },
+    "3153703": {
+        "total_fishes": 128000,
+        "dimensions": 1000,
+        "iterations": 200,
+        "update_frequency": 1,
+        "nodes": 16,
+        "cores": 16,
+        "places": "scatter",
+        "time": 75.831514
     }
 }
