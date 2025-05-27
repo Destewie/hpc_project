@@ -445,5 +445,16 @@ TODO:
 Abbiamo cambiato l'openMP scheduling da "dynamic,1" a "static,1" perchè il nostro carico è molto bilanciato
 
 Ricordiamoci che tutti i test fatti finora sono per la strong scalability (che, spoiler, non abbiamo eheh).
-Rifacciamo tutti i test tenendo fissi i fishes per CORE!!! E non per process: quindi cpu:1 core:5 5000 pesci e anche cpu:5 core:1 si becca 5000 pesci...
+Rifacciamo tutti i test tenendo fissi i fishes per CORE!
+Per farlo, questi sono i parametri dei test:
+- select: [1,2,4,8,16,32,64] -> da variare ad ogni esecuzione
+- core: 2 (o 4, ma se lo facciamo con 2 possiamo motivare la scelta dicendo che, guardando i grafici dell'efficienza, con 2 thread questa è la migliore)
+- 2000 pesci PER CORE (con due thread saranno 4000 pesci e con 4 thread saranno 8000. Questo numero è da lasciare fisso!)
+- dimensioni, iterazioni e update frequency le lasciamo come al solito
+
+E' già stato fatto uno script che devrebbe plottare le efficiency per la weak scalability, ma ritestiamolo una volta raccolti i dati qui sopra
+
+Ricordiamoci anche di raccogliere gli stessi dati che abbiamo raccolto con scatter e 64000 pesci, ma ora con pack e sempre 64000 pesci.
+
+
 
