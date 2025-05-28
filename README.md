@@ -458,3 +458,5 @@ Ricordiamoci anche di raccogliere gli stessi dati che abbiamo raccolto con scatt
 
 
 
+# 28/05/25
+Completati i test per la weak scalability, per fare una cosa sensata e dare un tempo per il calcolo dello speedup ho preso fatto 1 core 1 processo e 2000 pesci, spero abbia senso altrimenti si può cambiare
