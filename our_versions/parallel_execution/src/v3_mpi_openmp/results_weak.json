@@ -1,4 +1,14 @@
 {
+    "3177388": {
+        "total_fishes": 2000,
+        "dimensions": 1000,
+        "iterations": 200,
+        "update_frequency": 1,
+        "nodes": 1,
+        "cores": 1,
+        "places": "scatter",
+        "time": 48.451787
+    },
     "3175393": {
         "total_fishes": 4000,
         "dimensions": 1000,
@@ -59,6 +69,26 @@
         "places": "scatter",
         "time": 66.17513
     },
+    "3177296": {
+        "total_fishes": 32000,
+        "dimensions": 1000,
+        "iterations": 200,
+        "update_frequency": 1,
+        "nodes": 8,
+        "cores": 2,
+        "places": "scatter",
+        "time": 68.064075
+    },
+    "3177373": {
+        "total_fishes": 64000,
+        "dimensions": 1000,
+        "iterations": 200,
+        "update_frequency": 1,
+        "nodes": 16,
+        "cores": 2,
+        "places": "scatter",
+        "time": 76.284143
+    },
     "3176160": {
         "total_fishes": 128000,
         "dimensions": 1000,
@@ -109,16 +139,6 @@
         "places": "scatter",
         "time": 66.068037
     },
-    "3177296": {
-        "total_fishes": 32000,
-        "dimensions": 1000,
-        "iterations": 200,
-        "update_frequency": 1,
-        "nodes": 8,
-        "cores": 2,
-        "places": "scatter",
-        "time": 68.064075
-    },
     "3177357": {
         "total_fishes": 40000,
         "dimensions": 1000,
@@ -128,26 +148,6 @@
         "cores": 2,
         "places": "scatter",
         "time": 66.601406
-    },
-    "3177373": {
-        "total_fishes": 64000,
-        "dimensions": 1000,
-        "iterations": 200,
-        "update_frequency": 1,
-        "nodes": 16,
-        "cores": 2,
-        "places": "scatter",
-        "time": 76.284143
-    },
-    "3177388": {
-        "total_fishes": 2000,
-        "dimensions": 1000,
-        "iterations": 200,
-        "update_frequency": 1,
-        "nodes": 1,
-        "cores": 1,
-        "places": "scatter",
-        "time": 48.451787
     },
     "3181144": {
         "total_fishes": 4000,

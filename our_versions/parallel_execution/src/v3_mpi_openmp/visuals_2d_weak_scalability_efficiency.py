@@ -6,10 +6,10 @@ from collections import defaultdict
 import sys
 
 # === Carica il file JSON ===
-with open('results_modified.json', 'r') as f:
+with open('results_weak_modified.json', 'r') as f:
     data = json.load(f)
 
-# === Raggruppa per (cores, fishes_per_core) ===
+# === Raggruppa per fishes_per_core e config costante ===
 groups = defaultdict(list)
 
 for key, entry in data.items():
@@ -19,7 +19,13 @@ for key, entry in data.items():
         total_fishes = entry["total_fishes"]
         fishes_per_core = total_fishes // (cores * nodes)
 
-        group_key = (cores, fishes_per_core)
+        group_key = (
+            fishes_per_core,
+            entry["dimensions"],
+            entry["iterations"],
+            entry["places"],
+            entry["update_frequency"]
+        )
         groups[group_key].append((key, entry))
     except KeyError:
         continue
@@ -28,9 +34,10 @@ for key, entry in data.items():
 valid_groups = {}
 
 for group_key, entries in groups.items():
-    if len(entries) < 3:
+    if len(entries) < 2:  # almeno 2 entry per avere un grafico utile
         continue
 
+    # Tutti i parametri sono già nella chiave, quindi il check è ridondante ma lasciato per sicurezza
     iterations_set = {e["iterations"] for _, e in entries}
     dimensions_set = {e["dimensions"] for _, e in entries}
     places_set = {e["places"] for _, e in entries}
@@ -39,14 +46,15 @@ for group_key, entries in groups.items():
         valid_groups[group_key] = entries
 
 if not valid_groups:
-    print("Nessun gruppo valido trovato con almeno 3 elementi.")
+    print("Nessun gruppo valido trovato con almeno 2 elementi.")
     sys.exit()
 
 # === Mostra i gruppi e chiedi input CLI ===
 print("Gruppi validi:")
 group_keys = list(valid_groups.keys())
-for i, (cores, fishes_per_core) in enumerate(group_keys):
-    print(f"[{i}] Cores per proc: {cores}, Fishes/core: {fishes_per_core}, Entries: {len(valid_groups[(cores, fishes_per_core)])}")
+for i, group_key in enumerate(group_keys):
+    fishes_per_core, dimensions, iterations, places, freq = group_key
+    print(f"[{i}] Fishes/core: {fishes_per_core}, Dim: {dimensions}, Iter: {iterations}, Places: {places}, Freq: {freq}, Entries: {len(valid_groups[group_key])}")
 
 try:
     selected_index = int(input("Seleziona il numero del gruppo da analizzare: "))
@@ -72,7 +80,7 @@ for _, entry in sorted(selected_group, key=lambda e: e[1]["nodes"] * e[1]["cores
 # === Plot ===
 plt.figure(figsize=(10, 6))
 plt.plot(x, y, marker='o', linestyle='-', color='darkorange')
-plt.title(f"Efficiency vs Total Cores (Group {selected_index})")
+plt.title(f"Efficiency vs Total Cores (Weak Scaling Group {selected_index})")
 plt.xlabel("Total Cores (nodes × cores)")
 plt.ylabel("Efficiency")
 plt.xticks(x)
