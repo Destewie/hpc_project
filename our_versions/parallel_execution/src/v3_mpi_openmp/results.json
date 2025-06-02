@@ -818,5 +818,335 @@
         "cores": 1,
         "places": "scatter",
         "time": 81.639979
+    },
+    "3174794": {
+        "total_fishes": 128000,
+        "dimensions": 1000,
+        "iterations": 200,
+        "update_frequency": 1,
+        "nodes": 64,
+        "cores": 2,
+        "places": "scatter",
+        "time": 43.51445
+    },
+    "3174822": {
+        "total_fishes": 128000,
+        "dimensions": 1000,
+        "iterations": 200,
+        "update_frequency": 1,
+        "nodes": 64,
+        "cores": 1,
+        "places": "scatter",
+        "time": 74.007094
+    },
+    "3174885": {
+        "total_fishes": 128000,
+        "dimensions": 1000,
+        "iterations": 200,
+        "update_frequency": 1,
+        "nodes": 64,
+        "cores": 4,
+        "places": "scatter",
+        "time": 28.376138
+    },
+    "3174921": {
+        "total_fishes": 128000,
+        "dimensions": 1000,
+        "iterations": 200,
+        "update_frequency": 1,
+        "nodes": 64,
+        "cores": 8,
+        "places": "scatter",
+        "time": 20.562754
+    },
+    "3175108": {
+        "total_fishes": 128000,
+        "dimensions": 1000,
+        "iterations": 200,
+        "update_frequency": 1,
+        "nodes": 64,
+        "cores": 16,
+        "places": "scatter",
+        "time": 16.97981
+    },
+    "3188044": {
+        "total_fishes": 64000,
+        "dimensions": 1000,
+        "iterations": 200,
+        "update_frequency": 1,
+        "nodes": 1,
+        "cores": 8,
+        "places": "pack",
+        "time": 886.299033
+    },
+    "3188043": {
+        "total_fishes": 64000,
+        "dimensions": 1000,
+        "iterations": 200,
+        "update_frequency": 1,
+        "nodes": 1,
+        "cores": 4,
+        "places": "pack",
+        "time": 1027.263456
+    },
+    "3188042": {
+        "total_fishes": 64000,
+        "dimensions": 1000,
+        "iterations": 200,
+        "update_frequency": 1,
+        "nodes": 1,
+        "cores": 2,
+        "places": "pack",
+        "time": 1219.142761
+    },
+    "3188041": {
+        "total_fishes": 64000,
+        "dimensions": 1000,
+        "iterations": 200,
+        "update_frequency": 1,
+        "nodes": 1,
+        "cores": 1,
+        "places": "pack",
+        "time": 1768.008944
+    },
+    "3188368": {
+        "total_fishes": 64000,
+        "dimensions": 1000,
+        "iterations": 200,
+        "update_frequency": 1,
+        "nodes": 1,
+        "cores": 32,
+        "places": "pack",
+        "time": 443.171028
+    },
+    "3188369": {
+        "total_fishes": 64000,
+        "dimensions": 1000,
+        "iterations": 200,
+        "update_frequency": 1,
+        "nodes": 1,
+        "cores": 64,
+        "places": "pack",
+        "time": 436.952086
+    },
+    "3188575": {
+        "total_fishes": 64000,
+        "dimensions": 1000,
+        "iterations": 200,
+        "update_frequency": 1,
+        "nodes": 2,
+        "cores": 2,
+        "places": "pack",
+        "time": 4149.862788
+    },
+    "3188360": {
+        "total_fishes": 64000,
+        "dimensions": 1000,
+        "iterations": 200,
+        "update_frequency": 1,
+        "nodes": 1,
+        "cores": 16,
+        "places": "pack",
+        "time": 3090.310448
+    },
+    "3188574": {
+        "total_fishes": 64000,
+        "dimensions": 1000,
+        "iterations": 200,
+        "update_frequency": 1,
+        "nodes": 2,
+        "cores": 1,
+        "places": "pack",
+        "time": 2007.704406
+    },
+    "3188576": {
+        "total_fishes": 64000,
+        "dimensions": 1000,
+        "iterations": 200,
+        "update_frequency": 1,
+        "nodes": 2,
+        "cores": 4,
+        "places": "pack",
+        "time": 3776.383464
+    },
+    "3196599": {
+        "total_fishes": 64000,
+        "dimensions": 1000,
+        "iterations": 200,
+        "update_frequency": 1,
+        "nodes": 2,
+        "cores": 32,
+        "places": "pack",
+        "time": 476.874675
+    },
+    "3196598": {
+        "total_fishes": 64000,
+        "dimensions": 1000,
+        "iterations": 200,
+        "update_frequency": 1,
+        "nodes": 2,
+        "cores": 16,
+        "places": "pack",
+        "time": 496.046402
+    },
+    "3196597": {
+        "total_fishes": 64000,
+        "dimensions": 1000,
+        "iterations": 200,
+        "update_frequency": 1,
+        "nodes": 2,
+        "cores": 8,
+        "places": "pack",
+        "time": 583.364207
+    },
+    "3196602": {
+        "total_fishes": 64000,
+        "dimensions": 1000,
+        "iterations": 200,
+        "update_frequency": 1,
+        "nodes": 4,
+        "cores": 2,
+        "places": "pack",
+        "time": 1291.746773
+    },
+    "3196601": {
+        "total_fishes": 64000,
+        "dimensions": 1000,
+        "iterations": 200,
+        "update_frequency": 1,
+        "nodes": 4,
+        "cores": 1,
+        "places": "pack",
+        "time": 1917.905182
+    },
+    "3196652": {
+        "total_fishes": 64000,
+        "dimensions": 1000,
+        "iterations": 200,
+        "update_frequency": 1,
+        "nodes": 4,
+        "cores": 8,
+        "places": "pack",
+        "time": 659.489041
+    },
+    "3196651": {
+        "total_fishes": 64000,
+        "dimensions": 1000,
+        "iterations": 200,
+        "update_frequency": 1,
+        "nodes": 4,
+        "cores": 4,
+        "places": "pack",
+        "time": 846.280141
+    },
+    "3196669": {
+        "total_fishes": 64000,
+        "dimensions": 1000,
+        "iterations": 200,
+        "update_frequency": 1,
+        "nodes": 4,
+        "cores": 16,
+        "places": "pack",
+        "time": 522.979694
+    },
+    "3197613": {
+        "total_fishes": 64000,
+        "dimensions": 1000,
+        "iterations": 200,
+        "update_frequency": 1,
+        "nodes": 8,
+        "cores": 1,
+        "places": "pack",
+        "time": 1714.583449
+    },
+    "3197720": {
+        "total_fishes": 64000,
+        "dimensions": 1000,
+        "iterations": 200,
+        "update_frequency": 1,
+        "nodes": 8,
+        "cores": 2,
+        "places": "pack",
+        "time": 1371.380117
+    },
+    "3197771": {
+        "total_fishes": 64000,
+        "dimensions": 1000,
+        "iterations": 200,
+        "update_frequency": 1,
+        "nodes": 8,
+        "cores": 8,
+        "places": "pack",
+        "time": 635.329482
+    },
+    "3197769": {
+        "total_fishes": 64000,
+        "dimensions": 1000,
+        "iterations": 200,
+        "update_frequency": 1,
+        "nodes": 8,
+        "cores": 4,
+        "places": "pack",
+        "time": 854.473635
+    },
+    "3199071": {
+        "total_fishes": 64000,
+        "dimensions": 1000,
+        "iterations": 200,
+        "update_frequency": 1,
+        "nodes": 16,
+        "cores": 1,
+        "places": "pack",
+        "time": 2106.434042
+    },
+    "3199134": {
+        "total_fishes": 64000,
+        "dimensions": 1000,
+        "iterations": 200,
+        "update_frequency": 1,
+        "nodes": 16,
+        "cores": 4,
+        "places": "pack",
+        "time": 1006.929048
+    },
+    "3199133": {
+        "total_fishes": 64000,
+        "dimensions": 1000,
+        "iterations": 200,
+        "update_frequency": 1,
+        "nodes": 16,
+        "cores": 2,
+        "places": "pack",
+        "time": 1420.967335
+    },
+    "3155682": {
+        "total_fishes": 128000,
+        "dimensions": 1000,
+        "iterations": 200,
+        "update_frequency": 1,
+        "nodes": 32,
+        "cores": 64,
+        "places": "scatter",
+        "time": 35.204498
+    },
+    "3203182": {
+        "total_fishes": 64000,
+        "dimensions": 1000,
+        "iterations": 200,
+        "update_frequency": 1,
+        "nodes": 32,
+        "cores": 2,
+        "places": "pack",
+        "time": 1298.639873
+    },
+    "3203181": {
+        "total_fishes": 64000,
+        "dimensions": 1000,
+        "iterations": 200,
+        "update_frequency": 1,
+        "nodes": 32,
+        "cores": 1,
+        "places": "pack",
+        "time": 2084.269367
     }
 }
