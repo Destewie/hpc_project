@@ -557,7 +557,7 @@
         "nodes": 2,
         "cores": 8,
         "places": "scatter",
-        "time": 10554.948179
+        "time": 1976.198250
     },
     "3147419": {
         "total_fishes": 128000,
@@ -969,15 +969,15 @@
         "places": "pack",
         "time": 3776.383464
     },
-    "3196599": {
+    "3196597": {
         "total_fishes": 64000,
         "dimensions": 1000,
         "iterations": 200,
         "update_frequency": 1,
         "nodes": 2,
-        "cores": 32,
+        "cores": 8,
         "places": "pack",
-        "time": 476.874675
+        "time": 583.364207
     },
     "3196598": {
         "total_fishes": 64000,
@@ -989,15 +989,15 @@
         "places": "pack",
         "time": 496.046402
     },
-    "3196597": {
+    "3196599": {
         "total_fishes": 64000,
         "dimensions": 1000,
         "iterations": 200,
         "update_frequency": 1,
         "nodes": 2,
-        "cores": 8,
+        "cores": 32,
         "places": "pack",
-        "time": 583.364207
+        "time": 476.874675
     },
     "3196602": {
         "total_fishes": 64000,
