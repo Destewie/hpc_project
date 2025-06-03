@@ -18,7 +18,7 @@ for key, entry in data.items():
 
 # Step 2: Process each group
 for config, entries in groups.items():
-    # Find the baseline with nodes == 1 and cores == 1 and smallest total_fishes
+    # Find the baseline with nodes == 1 and cores == 1 and smallest total_fishes (i.e., per-core problem size)
     baseline_time = None
     baseline_fishes = None
     for key, entry in entries:
@@ -28,19 +28,19 @@ for config, entries in groups.items():
                 baseline_fishes = entry["total_fishes"]
 
     if baseline_time is None:
-        continue  # No baseline found
+        continue  # No suitable baseline found
 
-    # Compute speedup and efficiency for each entry
+    # Compute weak efficiency for each entry
     for key, entry in entries:
         time = entry["time"]
-        nodes = entry["nodes"]
-        cores = entry["cores"]
-        speedup = baseline_time / time
-        efficiency = speedup / (nodes * cores) if nodes > 0 and cores > 0 else 0.0
+        if time > 0:
+            entry["efficiency_weak"] = baseline_time / time
+        else:
+            entry["efficiency_weak"] = 0.0
 
-        # Update entry
-        entry["speedup"] = speedup
-        entry["efficiency"] = efficiency
+        # Clean up old metrics
+        entry.pop("speedup", None)
+        entry.pop("efficiency", None)
 
 # Save modified JSON
 with open("results_weak_modified.json", "w") as f:

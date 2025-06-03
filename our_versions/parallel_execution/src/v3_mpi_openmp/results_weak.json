@@ -7,7 +7,7 @@
         "nodes": 1,
         "cores": 1,
         "places": "scatter",
-        "time": 48.451787
+        "time": 57.451787
     },
     "3175393": {
         "total_fishes": 4000,

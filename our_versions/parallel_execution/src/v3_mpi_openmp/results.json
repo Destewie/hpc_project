@@ -999,16 +999,6 @@
         "places": "pack",
         "time": 476.874675
     },
-    "3196602": {
-        "total_fishes": 64000,
-        "dimensions": 1000,
-        "iterations": 200,
-        "update_frequency": 1,
-        "nodes": 4,
-        "cores": 2,
-        "places": "pack",
-        "time": 1291.746773
-    },
     "3196601": {
         "total_fishes": 64000,
         "dimensions": 1000,
@@ -1018,6 +1008,16 @@
         "cores": 1,
         "places": "pack",
         "time": 1917.905182
+    },
+    "3196602": {
+        "total_fishes": 64000,
+        "dimensions": 1000,
+        "iterations": 200,
+        "update_frequency": 1,
+        "nodes": 4,
+        "cores": 2,
+        "places": "pack",
+        "time": 1291.746773
     },
     "3196652": {
         "total_fishes": 64000,
