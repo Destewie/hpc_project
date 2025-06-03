@@ -460,3 +460,13 @@ Ricordiamoci anche di raccogliere gli stessi dati che abbiamo raccolto con scatt
 
 # 28/05/25
 Completati i test per la weak scalability, per fare una cosa sensata e dare un tempo per il calcolo dello speedup ho preso fatto 1 core 1 processo e 2000 pesci, spero abbia senso altrimenti si può cambiare
+
+# 03/06/2025
+Nella weak scalability cambia un po' il modo in cui ci rapportiamo alle metriche:
+- Lo speedup non ha più senso (al massimo si può calcolare uno speeddown)
+- La efficiency va calcolata in un altro modo: tenendo sempre la dimensione proporzionale al numero di core, si fa la frazione tra il tempo registrato con (1,1) e quello con (nProc, nThread).
+
+L'idea è che se i tempi rimangono più o meno costanti al variare delle risorse e della dimensione del problema, allora si ha weak scalability.
+A noi pare di averne un accenno eheh. si gode (un pochino, non troppo :)
+
+Iniziamo a mettere sul latex la tabella con i dati e i vari plot per openmp e la versione ibrida
