@@ -547,7 +547,7 @@
         "nodes": 2,
         "cores": 4,
         "places": "scatter",
-        "time": 10227.935606
+        "time": 2079.432094
     },
     "3147418": {
         "total_fishes": 128000,
@@ -577,7 +577,7 @@
         "nodes": 2,
         "cores": 32,
         "places": "scatter",
-        "time": 11355.762491
+        "time": 465.762491
     },
     "3149689": {
         "total_fishes": 128000,
@@ -587,7 +587,7 @@
         "nodes": 2,
         "cores": 64,
         "places": "scatter",
-        "time": 769.947157
+        "time": 232.947157
     },
     "3149686": {
         "total_fishes": 128000,
