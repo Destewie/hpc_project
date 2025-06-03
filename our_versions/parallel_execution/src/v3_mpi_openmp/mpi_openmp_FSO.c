@@ -219,6 +219,7 @@ void initFish(Fish *fish, int process_rank, const int DIMENSIONS, const int N_FI
     fish->new_position = malloc(DIMENSIONS*sizeof(double));
 
     // NON PARALLELIZZATO PER EVITARE MICRO-PARALLELIZZAZIONE INNESTATA, parallelizzato in: void initFishArray(Fish* fishArray) 
+    #pragma omp simd
     for (int d = 0; d < DIMENSIONS; d++) {
         // // Posizioni iniziali random
         // fish->position[d] = ((double)rand() / RAND_MAX) * (BOUNDS_MAX - SPAWN_BOUNDS_MIN) + SPAWN_BOUNDS_MIN;
@@ -267,6 +268,7 @@ void individualMovement(Fish *fish,
     if (!new_pos) return; // allocation failure
 
     // Compute candidate position and fitness
+    #pragma omp simd
     for (int d = 0; d < DIMENSIONS; ++d) {
         double norm_move = ((double)rand_r(seed) / (double)RAND_MAX) * 2.0 - 1.0;
         new_pos[d] = fish->position[d] + norm_move * fish->max_individual_step;
@@ -287,6 +289,7 @@ void individualMovement(Fish *fish,
     if (delta > 0.0) {
         *delta_fitness_out = (float)delta;
         *max_improve_out   = (float)delta;
+        #pragma omp simd
         for (int d = 0; d < DIMENSIONS; ++d) {
             weighted_move_out[d] = (float)((new_pos[d] - fish->position[d]) * delta);
             fish->position[d] = new_pos[d];
@@ -379,6 +382,7 @@ void individualMovementArray(Fish* fishArray,
         // Update the original arrays
         MPI_Wait(&request1, &status1);
         *tot_delta_fitness = temp_array[0];
+        #pragma omp simd
         for (int d = 0; d < DIMENSIONS; d++) {
             weighted_tot_delta_fitness[d] = temp_array[d + 1];
         }
@@ -406,6 +410,7 @@ void updateWeights(Fish *fish, float max_delta_fitness_improvement) {
 }
 
 void updateWeightsArray(Fish *fishArray,  float max_delta_fitness_improvement, const int N_FISHES_PER_PROCESS) {
+    #pragma omp simd
     for (int i = 0; i < N_FISHES_PER_PROCESS; i++) {
         updateWeights(&fishArray[i], max_delta_fitness_improvement);
     }
@@ -424,6 +429,7 @@ static inline void collectiveMovementLocal(Fish *fish,
         tot_delta = 1.0f;
     }
     // Update each dimension
+    #pragma omp simd
     for (int d = 0; d < DIMENSIONS; ++d) {
         float move = weighted_delta[d] / tot_delta;
         fish->new_position[d] = fish->position[d] + move;
@@ -489,6 +495,7 @@ void calculateBarycentersAndSumWeights(Fish *fishArray, float* barycenter, float
     *new_sum = 0.0;
     *old_sum = 0.0;
 
+    #pragma omp simd
     for (int d = 0; d < DIMENSIONS; d++) {
         for (int i = 0; i < N_FISHES_PER_PROCESS; i++) {
             numerator[d] += fishArray[i].position[d] * fishArray[i].weight;
@@ -511,6 +518,7 @@ void calculateBarycentersAndSumWeights(Fish *fishArray, float* barycenter, float
         temp_array[0] = *old_sum;
         temp_array[1] = *new_sum;
 
+        #pragma omp simd
         for (int d = 0; d < DIMENSIONS; d++) {
             temp_array[d + 2] = numerator[d];
         }
@@ -542,7 +550,8 @@ void volitivePositionUpdateArray(Fish *fishArray,
                                  const int N_FISHES_PER_PROCESS,
                                  const int DIMENSIONS) {
 
-    #pragma omp parallel for schedule(static) default(none) shared(fishArray, barycenter, shrink) firstprivate(DIMENSIONS) 
+    //#pragma omp parallel for schedule(static) default(none) shared(fishArray, barycenter, shrink) firstprivate(DIMENSIONS) 
+    #pragma omp simd
     for (int idx = 0; idx < N_FISHES_PER_PROCESS; ++idx) {
         unsigned int thread_seed = (unsigned int)idx + (unsigned int)time(NULL);
         Fish *fish = &fishArray[idx];
