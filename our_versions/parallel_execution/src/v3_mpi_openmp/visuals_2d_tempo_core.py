@@ -19,8 +19,20 @@ for i, val in enumerate(fishes_options):
 index = int(input("Seleziona l'indice del valore di 'total_fishes' da visualizzare: "))
 selected_fishes = fishes_options[index]
 
+# === Trova i valori unici per 'places' ===
+places_options = sorted({entry["places"] for entry in data.values() if entry["total_fishes"] == selected_fishes})
+print("\nValori disponibili per 'places':")
+for i, val in enumerate(places_options):
+    print(f"[{i}] {val}")
+
+place_index = int(input("Seleziona l'indice del valore di 'places' da visualizzare: "))
+selected_place = places_options[place_index]
+
 # === Filtra i dati ===
-filtered = [entry for entry in data.values() if entry["total_fishes"] == selected_fishes]
+filtered = [
+    entry for entry in data.values()
+    if entry["total_fishes"] == selected_fishes and entry["places"] == selected_place
+]
 
 # === Raggruppa per numero di nodi ===
 grouped_by_nodes = defaultdict(list)
@@ -31,7 +43,6 @@ for entry in filtered:
 # === Crea grafico 2D ===
 plt.figure()
 for nodes, values in sorted(grouped_by_nodes.items()):
-    # Ordina i punti per numero di core crescente
     values.sort()
     x = [cores for cores, _ in values]
     y = [time for _, time in values]
@@ -39,7 +50,7 @@ for nodes, values in sorted(grouped_by_nodes.items()):
 
 plt.xlabel("Numero di core")
 plt.ylabel("Tempo (s)")
-plt.title(f"Tempo di esecuzione vs Core per total_fishes = {selected_fishes}")
+plt.title(f"Tempo vs Core (fishes={selected_fishes}, places={selected_place})")
 plt.legend(title="Numero di nodi")
 plt.grid(True)
 plt.tight_layout()
