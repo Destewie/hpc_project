@@ -2,7 +2,7 @@ import json
 from collections import defaultdict
 
 # Load your JSON data
-with open("results_weak.json", "r") as f:
+with open("results_mpi_weak.json", "r") as f:
     data = json.load(f)
 
 # Step 1: Organize entries by config (weak scaling: exclude total_fishes)
@@ -43,5 +43,5 @@ for config, entries in groups.items():
         entry.pop("efficiency", None)
 
 # Save modified JSON
-with open("results_weak_modified.json", "w") as f:
+with open("results_mpi_weak_modified.json", "w") as f:
     json.dump(data, f, indent=4)
