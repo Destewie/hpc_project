@@ -3,7 +3,7 @@
 *json
 
 #Però per collezionare i dati sui tempi devo fare un'eccezione per results.json
-!results*.json
+!results*
 
 # Assicurati che i file in parallel_execution/evolution_logs/*.json siano tracciati
 !our_versions/evolution_logs/*.json
