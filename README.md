@@ -470,3 +470,13 @@ L'idea è che se i tempi rimangono più o meno costanti al variare delle risorse
 A noi pare di averne un accenno eheh. si gode (un pochino, non troppo :)
 
 Iniziamo a mettere sul latex la tabella con i dati e i vari plot per openmp e la versione ibrida
+
+# 04/05/2025
+TODO:
+- finire di raccogliere i dati (o controllare che ci siano già)
+  - weak scalability MPI
+  - strong scalability MPI
+- script per weak openMP (2 gruppi poi scegliamo quello che va meglio)
+- overleaf -> leggi commenti ovunque e correggi quello che vuoi
+- rimpinguare gli altri dati
+- analisi dei risultati che abbiamo
