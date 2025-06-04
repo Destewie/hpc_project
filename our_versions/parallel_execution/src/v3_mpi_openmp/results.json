@@ -557,7 +557,7 @@
         "nodes": 2,
         "cores": 8,
         "places": "scatter",
-        "time": 1976.198250
+        "time": 1976.19825
     },
     "3147419": {
         "total_fishes": 128000,
@@ -1148,5 +1148,95 @@
         "cores": 1,
         "places": "pack",
         "time": 2084.269367
+    },
+    "3211946": {
+        "total_fishes": 16000,
+        "dimensions": 1000,
+        "iterations": 200,
+        "update_frequency": 1,
+        "nodes": 1,
+        "cores": 16,
+        "places": "scatter",
+        "time": 105.120543
+    },
+    "3211945": {
+        "total_fishes": 16000,
+        "dimensions": 1000,
+        "iterations": 200,
+        "update_frequency": 1,
+        "nodes": 1,
+        "cores": 8,
+        "places": "scatter",
+        "time": 160.965204
+    },
+    "3211885": {
+        "total_fishes": 16000,
+        "dimensions": 1000,
+        "iterations": 200,
+        "update_frequency": 1,
+        "nodes": 1,
+        "cores": 4,
+        "places": "scatter",
+        "time": 253.335888
+    },
+    "3212392": {
+        "total_fishes": 16000,
+        "dimensions": 1000,
+        "iterations": 200,
+        "update_frequency": 1,
+        "nodes": 1,
+        "cores": 64,
+        "places": "scatter",
+        "time": 98.996883
+    },
+    "3212298": {
+        "total_fishes": 16000,
+        "dimensions": 1000,
+        "iterations": 200,
+        "update_frequency": 1,
+        "nodes": 1,
+        "cores": 32,
+        "places": "scatter",
+        "time": 104.304919
+    },
+    "3212296": {
+        "total_fishes": 16000,
+        "dimensions": 1000,
+        "iterations": 200,
+        "update_frequency": 1,
+        "nodes": 1,
+        "cores": 2,
+        "places": "scatter",
+        "time": 395.864828
+    },
+    "3212394": {
+        "total_fishes": 16000,
+        "dimensions": 1000,
+        "iterations": 200,
+        "update_frequency": 1,
+        "nodes": 2,
+        "cores": 2,
+        "places": "scatter",
+        "time": 142.597858
+    },
+    "3212395": {
+        "total_fishes": 16000,
+        "dimensions": 1000,
+        "iterations": 200,
+        "update_frequency": 1,
+        "nodes": 2,
+        "cores": 8,
+        "places": "scatter",
+        "time": 88.668392
+    },
+    "3212393": {
+        "total_fishes": 16000,
+        "dimensions": 1000,
+        "iterations": 200,
+        "update_frequency": 1,
+        "nodes": 2,
+        "cores": 1,
+        "places": "scatter",
+        "time": 250.453729
     }
 }
