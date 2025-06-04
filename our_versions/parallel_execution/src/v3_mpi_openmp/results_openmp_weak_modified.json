@@ -1,0 +1,156 @@
+{
+    "3215456": {
+        "total_fishes": 2000,
+        "dimensions": 1000,
+        "iterations": 200,
+        "update_frequency": 1,
+        "nodes": 1,
+        "cores": 1,
+        "places": "scatter",
+        "time": 133.988405,
+        "efficiency_weak": 1.0
+    },
+    "3215488": {
+        "total_fishes": 4000,
+        "dimensions": 1000,
+        "iterations": 200,
+        "update_frequency": 1,
+        "nodes": 1,
+        "cores": 1,
+        "places": "scatter",
+        "time": 126.026166,
+        "efficiency_weak": 1.0631792527910433
+    },
+    "3215527": {
+        "total_fishes": 16000,
+        "dimensions": 1000,
+        "iterations": 200,
+        "update_frequency": 1,
+        "nodes": 1,
+        "cores": 8,
+        "places": "scatter",
+        "time": 152.551602,
+        "efficiency_weak": 0.8783152929459239
+    },
+    "3215526": {
+        "total_fishes": 32000,
+        "dimensions": 1000,
+        "iterations": 200,
+        "update_frequency": 1,
+        "nodes": 1,
+        "cores": 8,
+        "places": "scatter",
+        "time": 270.898222,
+        "efficiency_weak": 0.4946079158836266
+    },
+    "3215531": {
+        "total_fishes": 32000,
+        "dimensions": 1000,
+        "iterations": 200,
+        "update_frequency": 1,
+        "nodes": 1,
+        "cores": 16,
+        "places": "scatter",
+        "time": 367.303962,
+        "efficiency_weak": 0.3647888911146567
+    },
+    "3215533": {
+        "total_fishes": 64000,
+        "dimensions": 1000,
+        "iterations": 200,
+        "update_frequency": 1,
+        "nodes": 1,
+        "cores": 16,
+        "places": "scatter",
+        "time": 647.71514,
+        "efficiency_weak": 0.2068631667309799
+    },
+    "3215569": {
+        "total_fishes": 4000,
+        "dimensions": 1000,
+        "iterations": 200,
+        "update_frequency": 1,
+        "nodes": 1,
+        "cores": 2,
+        "places": "scatter",
+        "time": 147.0776,
+        "efficiency_weak": 0.9110048369024244
+    },
+    "3215574": {
+        "total_fishes": 8000,
+        "dimensions": 1000,
+        "iterations": 200,
+        "update_frequency": 1,
+        "nodes": 1,
+        "cores": 4,
+        "places": "scatter",
+        "time": 147.594667,
+        "efficiency_weak": 0.9078133222794561
+    },
+    "3215575": {
+        "total_fishes": 16000,
+        "dimensions": 1000,
+        "iterations": 200,
+        "update_frequency": 1,
+        "nodes": 1,
+        "cores": 4,
+        "places": "scatter",
+        "time": 230.923838,
+        "efficiency_weak": 0.5802276896160024
+    },
+    "3215571": {
+        "total_fishes": 8000,
+        "dimensions": 1000,
+        "iterations": 200,
+        "update_frequency": 1,
+        "nodes": 1,
+        "cores": 2,
+        "places": "scatter",
+        "time": 339.663762,
+        "efficiency_weak": 0.3944736530357336
+    },
+    "3215604": {
+        "total_fishes": 64000,
+        "dimensions": 1000,
+        "iterations": 200,
+        "update_frequency": 1,
+        "nodes": 1,
+        "cores": 32,
+        "places": "scatter",
+        "time": 661.344877,
+        "efficiency_weak": 0.20259989857001645
+    },
+    "3215607": {
+        "total_fishes": 128000,
+        "dimensions": 1000,
+        "iterations": 200,
+        "update_frequency": 1,
+        "nodes": 1,
+        "cores": 64,
+        "places": "scatter",
+        "time": 1001.99699,
+        "efficiency_weak": 0.13372136477176444
+    },
+    "3215605": {
+        "total_fishes": 128000,
+        "dimensions": 1000,
+        "iterations": 200,
+        "update_frequency": 1,
+        "nodes": 1,
+        "cores": 32,
+        "places": "scatter",
+        "time": 1081.042187,
+        "efficiency_weak": 0.12394373375180778
+    },
+    "3215608": {
+        "total_fishes": 256000,
+        "dimensions": 1000,
+        "iterations": 200,
+        "update_frequency": 1,
+        "nodes": 1,
+        "cores": 64,
+        "places": "scatter",
+        "time": 2179.353149,
+        "efficiency_weak": 0.06148081372744973
+    }
+}
