@@ -4,7 +4,7 @@ import os
 import re
 
 # Percorso del file JSON
-json_file = 'results.json'
+json_file = 'results_openmp_weak.json'
 
 # Carica o crea il file JSON
 if os.path.exists(json_file):
