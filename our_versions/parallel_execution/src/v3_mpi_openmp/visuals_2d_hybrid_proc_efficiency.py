@@ -1,8 +1,7 @@
 import json
 import matplotlib
-matplotlib.use("TkAgg")  # Usa TkAgg per evitare problemi con Qt
+matplotlib.use("TkAgg")
 import matplotlib.pyplot as plt
-import numpy as np
 from collections import defaultdict
 
 # === Leggi il file JSON ===
@@ -15,31 +14,49 @@ print("Valori disponibili per 'total_fishes':")
 for i, val in enumerate(fishes_options):
     print(f"[{i}] {val}")
 
-# === Scelta utente ===
-index = int(input("Seleziona l'indice del valore di 'total_fishes' da visualizzare: "))
-selected_fishes = fishes_options[index]
+# === Scelta total_fishes ===
+try:
+    index = int(input("Seleziona l'indice del valore di 'total_fishes' da visualizzare: "))
+    selected_fishes = fishes_options[index]
+except (IndexError, ValueError):
+    print("Indice non valido.")
+    exit()
+
+# === Trova i valori unici di places per quel numero di pesci ===
+places_options = sorted({entry["places"] for entry in data.values() if entry["total_fishes"] == selected_fishes})
+print("\nValori disponibili per 'places':")
+for i, val in enumerate(places_options):
+    print(f"[{i}] {val}")
+
+# === Scelta places ===
+try:
+    places_index = int(input("Seleziona l'indice del placement ('places') da visualizzare: "))
+    selected_places = places_options[places_index]
+except (IndexError, ValueError):
+    print("Indice non valido.")
+    exit()
 
 # === Filtra i dati ===
-filtered = [entry for entry in data.values() if entry["total_fishes"] == selected_fishes]
+filtered = [entry for entry in data.values()
+            if entry["total_fishes"] == selected_fishes and entry["places"] == selected_places]
 
-# === Raggruppa per numero di nodi ===
-grouped_by_nodes = defaultdict(list)
+# === Raggruppa per numero di thread (cores per nodo) ===
+grouped_by_threads = defaultdict(list)
 for entry in filtered:
-    nodes = entry["cores"]
-    grouped_by_nodes[nodes].append((entry["nodes"], entry["efficiency"]))
+    threads = entry["cores"]
+    grouped_by_threads[threads].append((entry["nodes"], entry["efficiency"]))
 
-# === Crea grafico 2D ===
+# === Crea grafico ===
 plt.figure()
-for nodes, values in sorted(grouped_by_nodes.items()):
-    # Ordina i punti per numero di core crescente
+for threads, values in sorted(grouped_by_threads.items()):
     values.sort()
-    x = [cores for cores, _ in values]
-    y = [time for _, time in values]
-    plt.plot(x, y, marker='o', label=f"{nodes} thread")
+    x = [nodes for nodes, _ in values]
+    y = [eff for _, eff in values]
+    plt.plot(x, y, marker='o', label=f"{threads} thread")
 
-plt.xlabel("Numero di processi")
+plt.xlabel("Numero di processi (nodes)")
 plt.ylabel("Efficiency")
-plt.title(f"Efficiency vs processes per total_fishes = {selected_fishes}")
+plt.title(f"Efficiency vs processes - fishes={selected_fishes}, places={selected_places}")
 plt.legend(title="Numero di threads")
 plt.grid(True)
 plt.tight_layout()

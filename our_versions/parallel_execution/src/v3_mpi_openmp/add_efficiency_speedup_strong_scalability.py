@@ -12,7 +12,8 @@ for key, entry in data.items():
         entry["total_fishes"],
         entry["dimensions"],
         entry["iterations"],
-        entry["update_frequency"]
+        entry["update_frequency"],
+        entry["places"]
     )
     groups[config].append((key, entry))
 
