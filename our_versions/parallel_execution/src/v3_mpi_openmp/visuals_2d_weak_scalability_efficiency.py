@@ -6,6 +6,7 @@ from collections import defaultdict
 import sys
 
 # === Carica il file JSON ===
+# with open('results_mpi_weak_modified.json', 'r') as f:
 with open('results_openmp_weak_modified.json', 'r') as f:
     data = json.load(f)
 

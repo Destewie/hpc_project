@@ -1,36 +1,43 @@
 import json
 from collections import defaultdict
 
-# Load your JSON data
-with open("results_mpi_weak.json", "r") as f:
+# === Carica il file JSON ===
+with open("results_openmp_weak.json", "r") as f:
     data = json.load(f)
 
-# Step 1: Organize entries by config (weak scaling: exclude total_fishes)
+# === Raggruppa per configurazione costante tranne i processi (weak scaling) ===
 groups = defaultdict(list)
 for key, entry in data.items():
-    config = (
-        entry["places"],
-        entry["dimensions"],
-        entry["iterations"],
-        entry["update_frequency"]
-    )
-    groups[config].append((key, entry))
+    try:
+        nodes = entry["nodes"]
+        cores = entry["cores"]
+        total_fishes = entry["total_fishes"]
+        fishes_per_core = total_fishes // (nodes * cores)
 
-# Step 2: Process each group
+        config = (
+            entry["places"],
+            entry["dimensions"],
+            entry["iterations"],
+            entry["update_frequency"],
+            fishes_per_core
+        )
+
+        groups[config].append((key, entry))
+    except KeyError:
+        continue
+
+# === Calcola efficiency_weak per ogni gruppo ===
 for config, entries in groups.items():
-    # Find the baseline with nodes == 1 and cores == 1 and smallest total_fishes (i.e., per-core problem size)
+    # Trova la baseline: config con 1 nodo e 1 core
     baseline_time = None
-    baseline_fishes = None
     for key, entry in entries:
         if entry["nodes"] == 1 and entry["cores"] == 1:
-            if baseline_fishes is None or entry["total_fishes"] < baseline_fishes:
-                baseline_time = entry["time"]
-                baseline_fishes = entry["total_fishes"]
+            baseline_time = entry["time"]
+            break
 
-    if baseline_time is None:
-        continue  # No suitable baseline found
+    if baseline_time is None or baseline_time <= 0:
+        continue  # Nessuna baseline valida
 
-    # Compute weak efficiency for each entry
     for key, entry in entries:
         time = entry["time"]
         if time > 0:
@@ -38,10 +45,10 @@ for config, entries in groups.items():
         else:
             entry["efficiency_weak"] = 0.0
 
-        # Clean up old metrics
+        # Pulisce eventuali metriche obsolete
         entry.pop("speedup", None)
         entry.pop("efficiency", None)
 
-# Save modified JSON
-with open("results_mpi_weak_modified.json", "w") as f:
+# === Salva il file modificato ===
+with open("results_openmp_weak_modified.json", "w") as f:
     json.dump(data, f, indent=4)
