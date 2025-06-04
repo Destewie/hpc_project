@@ -6,7 +6,7 @@ from collections import defaultdict
 import sys
 
 # === Carica il file JSON ===
-with open('results_weak_modified.json', 'r') as f:
+with open('results_mpi_weak_modified.json', 'r') as f:
     data = json.load(f)
 
 # === Raggruppa per fishes_per_core e config costante ===
@@ -34,7 +34,7 @@ for key, entry in data.items():
 valid_groups = {}
 
 for group_key, entries in groups.items():
-    if len(entries) < 2:  # almeno 2 entry per avere un grafico utile
+    if len(entries) < 2:
         continue
 
     iterations_set = {e["iterations"] for _, e in entries}
@@ -71,19 +71,18 @@ selected_group = valid_groups[selected_key]
 x = []
 y = []
 
+# Ordina per numero di core totali (nodes × cores)
 for _, entry in sorted(selected_group, key=lambda e: e[1]["nodes"] * e[1]["cores"]):
     total_cores = entry["nodes"] * entry["cores"]
-    efficiency_weak = entry.get("efficiency_weak", None)
-    if efficiency_weak is not None:
-        x.append(total_cores)
-        y.append(efficiency_weak)
+    x.append(total_cores)
+    y.append(entry["time"])
 
 # === Plot ===
 plt.figure(figsize=(10, 6))
-plt.plot(x, y, marker='o', linestyle='-', color='darkorange')
-plt.title(f"Weak Scalability Efficiency vs Total Cores (Group {selected_index})")
+plt.plot(x, y, marker='o', linestyle='-', color='royalblue')
+plt.title(f"Execution Time vs Total Cores (Weak Scaling Group {selected_index})")
 plt.xlabel("Total Cores (nodes × cores)")
-plt.ylabel("Efficiency (Weak)")
+plt.ylabel("Execution Time (s)")
 plt.xticks(x)
 plt.grid(True)
 plt.tight_layout()
