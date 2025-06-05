@@ -15,10 +15,10 @@
 #PBS -l walltime=06:00:00
 
 # chunks (~nodes) : cores per chunk : shared memory per chunk (?)
-#PBS -l select=1:ncpus=4:mem=4gb
+#PBS -l select=4:ncpus=1:mem=2gb
 #PBS -l place=scatter
 
-export OMP_NUM_THREADS=4
+export OMP_NUM_THREADS=1
 export OMP_PROC_BIND=close
 export OMP_PLACES=cores
 export OMP_SCHEDULE="static, 1"
@@ -31,10 +31,11 @@ readonly EXECUTABLE_PATH_AND_NAME=~/hpc_project/our_versions/parallel_execution/
 module load mpich-3.2
 
 # build
-mpicc $C_PROGRAM_PATH -g -Wall -fopenmp -lm -std=c99 -o $EXECUTABLE_PATH_AND_NAME 
+# mpicc $C_PROGRAM_PATH -g -Wall -fopenmp -lm -std=c99 -o $EXECUTABLE_PATH_AND_NAME 
+mpicc $C_PROGRAM_PATH -g -Wall -lm -std=c99 -o $EXECUTABLE_PATH_AND_NAME
 
 # run
 # <"Usage: N_FISHES_PER_PROCESS DIMENSIONS MAX_ITER UPDATE_FREQUENCY">
-mpirun.actual -n 1 $EXECUTABLE_PATH_AND_NAME 16000 1000 200 1 scatter
-
-
+# mpirun.actual -n 4 $EXECUTABLE_PATH_AND_NAME 2000 1000 200 1 pack
+# mpirun.actual -n 1 $EXECUTABLE_PATH_AND_NAME 4000 1000 200 1 pack
+mpirun.actual -n 4 $EXECUTABLE_PATH_AND_NAME 16000 1000 200 1 scatter
