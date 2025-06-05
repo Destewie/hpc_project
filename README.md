@@ -480,3 +480,9 @@ TODO:
 - overleaf -> leggi commenti ovunque e correggi quello che vuoi
 - rimpinguare gli altri dati
 - analisi dei risultati che abbiamo
+
+# 05/05/2025
+Grande refactory della repository (hybrid e openmp_only funzionano)
+Cose da sistemare del refactory:
+- colleganti grafi corretti
+- mpi_only per seeds e tutto (è un po un casino)
