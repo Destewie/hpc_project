@@ -31,10 +31,8 @@ readonly EXECUTABLE_PATH_AND_NAME=~/hpc_project/implementations/mpi_only/mpi_ope
 module load mpich-3.2
 
 # build
-mpicc $C_PROGRAM_PATH -g -Wall -lm -std=c99 -o $EXECUTABLE_PATH_AND_NAME 
+mpicc $C_PROGRAM_PATH -g -Wall -lm -std=c99 -o $EXECUTABLE_PATH_AND_NAME
 
 # run
 # <"Usage: N_FISHES_PER_PROCESS DIMENSIONS MAX_ITER UPDATE_FREQUENCY">
-mpirun.actual -n 1 $EXECUTABLE_PATH_AND_NAME 16000 1000 200 1 scatter
-
-
+mpirun.actual -n 2 $EXECUTABLE_PATH_AND_NAME 1000 200 1 scatter
