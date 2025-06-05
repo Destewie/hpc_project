@@ -11,7 +11,7 @@
 #include <unistd.h>
 #include <sys/time.h>
 #include <string.h> // Include for strcmp
-#include <mpi.h> 
+#include <mpi.h>
 
 #define FUNCTION "min_ackley"   //TODO: Capire se, al posto di fare un controllo su una stringa, possiamo passare alle funzioni direttamente un puntatore ad una funzione (in modo comodo, se no lasciamo perdere)
 #define MULTIPLIER -1   // 1 in case of maximization, -1 in case of minimization
@@ -27,14 +27,6 @@
 #define A 10.0 //rastrigin param
 
 #define LOG 0 // 1 to log the results, 0 otherwise
-
-// è una struct per fare in modo che la cache dei thread non subisca del false sharing e conseguenti race conditions
-// Seed da usare in combo con rand_r() 
-typedef struct { 
-    unsigned int seed; 
-    char pad[64 - sizeof(unsigned int)]; 
-} padded_seed_t;
-
 
 //10 very different colors that will be used by a python script to plot the results
 const char *COLORS[] = {"#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf"};
@@ -200,7 +192,7 @@ void printFish(Fish fish,const int DIMENSIONS){
     printf("\tweight: %f \tfitness: %f\n", fish.weight, fish.fitness);
 }
 
-// Funzione per inizializzare un singolo pesce 
+// Funzione per inizializzare un singolo pesce
 void initFish(Fish *fish, int process_rank, const int DIMENSIONS, const int N_FISHES_PER_PROCESS, const int N_SCHOOLS ) { // the number of schools is needed to divide the space
 
     // Posizioni iniziali divise per banco
@@ -209,7 +201,7 @@ void initFish(Fish *fish, int process_rank, const int DIMENSIONS, const int N_FI
     double upper_bound = lower_bound + portion_bounds; // Limite superiore per il banco
     fish->position = malloc(DIMENSIONS*sizeof(double));
     fish->new_position = malloc(DIMENSIONS*sizeof(double));
- 
+
     for (int d = 0; d < DIMENSIONS; d++) {
         // // Posizioni iniziali random
         // fish->position[d] = ((double)rand() / RAND_MAX) * (BOUNDS_MAX - SPAWN_BOUNDS_MIN) + SPAWN_BOUNDS_MIN;
@@ -237,20 +229,16 @@ void initFish(Fish *fish, int process_rank, const int DIMENSIONS, const int N_FI
 
 // Funzione per inizializzare un array di pesci
 void initFishArray(Fish* fishArray, const int DIMENSIONS, const int N_FISHES_PER_PROCESS, const int N_SCHOOLS, int rank) {
-    #pragma omp parallel for default(none) private(rank) shared(fishArray)
     for (int i = 0; i < N_FISHES_PER_PROCESS; i++){
         initFish(&fishArray[i], rank, DIMENSIONS, N_FISHES_PER_PROCESS, N_SCHOOLS);  // Inizializza ciascun pesce
         // printFish(fishArray[i]);
     }
 }
 
-// Assumes Fish and padded_seed_t defined elsewhere
-
 void individualMovement(Fish *fish,
                         float *delta_fitness_out,
                         float *weighted_move_out,
                         float *max_improve_out,
-                        unsigned int *seed,
                         int DIMENSIONS) {
 
     // Local new position buffer
@@ -259,7 +247,7 @@ void individualMovement(Fish *fish,
 
     // Compute candidate position and fitness
     for (int d = 0; d < DIMENSIONS; ++d) {
-        double norm_move = ((double)rand_r(seed) / (double)RAND_MAX) * 2.0 - 1.0;
+        double norm_move = ((double)rand() / (double)RAND_MAX) * 2.0 - 1.0;
         new_pos[d] = fish->position[d] + norm_move * fish->max_individual_step;
     }
     double new_fit = objectiveFunction(new_pos, DIMENSIONS) * MULTIPLIER;
@@ -292,19 +280,10 @@ void individualMovementArray(Fish* fishArray,
                              float* weighted_tot_delta_fitness,
                              float* max_delta_fitness_improvement,
                              int current_iter,
-                             padded_seed_t *seeds,
                              int N_FISHES_PER_PROCESS,
                              int DIMENSIONS,
                              int UPDATE_FREQUENCY) {
-    
 
-        int tid = omp_get_thread_num();
-        unsigned int seed = seeds[tid].seed;
-
-        // Thread-local accumulators matching original data structure
-        float local_tot = *tot_delta_fitness; //(?)
-        float *local_weighted = (float *)calloc(DIMENSIONS, sizeof(float));
-        float local_max = *max_delta_fitness_improvement;
 
         // Work distribution: each fish
         for (int idx = 0; idx < N_FISHES_PER_PROCESS; ++idx) {
@@ -314,29 +293,18 @@ void individualMovementArray(Fish* fishArray,
             float *wmove = (float *)malloc(DIMENSIONS * sizeof(float));
             float improve;
 
-            individualMovement(fish, &dfit, wmove, &improve, &seed, DIMENSIONS);
+            individualMovement(fish, &dfit, wmove, &improve, DIMENSIONS);
 
             // Accumulate into thread-local buffers
-            local_tot += dfit;
-            local_max = fmaxf(local_max, improve);
+            *tot_delta_fitness += dfit;
+            *max_delta_fitness_improvement = fmaxf(*max_delta_fitness_improvement, improve);
             for (int d = 0; d < DIMENSIONS; ++d) {
-                local_weighted[d] += wmove[d];
+                weighted_tot_delta_fitness[d] += wmove[d];
             }
 
             free(wmove);
         }
 
-        *tot_delta_fitness += local_tot;
-
-        *max_delta_fitness_improvement = fmaxf(*max_delta_fitness_improvement, local_max);
-
-        for (int d = 0; d < DIMENSIONS; ++d) {
-
-            weighted_tot_delta_fitness[d] += local_weighted[d];
-        }
-        
-        free(local_weighted);
-    
 
     // Periodic global update broadcasting complete totals
     if (current_iter % UPDATE_FREQUENCY == 0) {
@@ -348,16 +316,17 @@ void individualMovementArray(Fish* fishArray,
             temp_array[d + 1] = weighted_tot_delta_fitness[d];
         }
 
+        //TODO: SCRIVERE A COSA SERVONO LE REQUEST E GLI STATUS IN MPI
         MPI_Request request0;
         MPI_Status status0;
         MPI_Request request1;
         MPI_Status status1;
 
 
-        MPI_Iallreduce(MPI_IN_PLACE, temp_array, DIMENSIONS + 1, MPI_FLOAT, MPI_SUM, MPI_COMM_WORLD, &request1);        
+        MPI_Iallreduce(MPI_IN_PLACE, temp_array, DIMENSIONS + 1, MPI_FLOAT, MPI_SUM, MPI_COMM_WORLD, &request1);
         MPI_Iallreduce(MPI_IN_PLACE, &max_delta_fitness_improvement, 1, MPI_DOUBLE, MPI_MAX, MPI_COMM_WORLD,  &request0);
 
-        // MPI_Allreduce(MPI_IN_PLACE, temp_array, DIMENSIONS + 1, MPI_FLOAT, MPI_SUM, MPI_COMM_WORLD);        
+        // MPI_Allreduce(MPI_IN_PLACE, temp_array, DIMENSIONS + 1, MPI_FLOAT, MPI_SUM, MPI_COMM_WORLD);
         // MPI_Allreduce(MPI_IN_PLACE, &max_delta_fitness_improvement, 1, MPI_DOUBLE, MPI_MAX, MPI_COMM_WORLD);
 
         // Update the original arrays
@@ -399,17 +368,17 @@ void updateWeightsArray(Fish *fishArray,  float max_delta_fitness_improvement, c
 // Assumes Fish defined elsewhere, and objectiveFunction, MULTIPLIER available
 
 // Local-version of collective movement: uses thread-local tot and weighted arrays
-static inline void collectiveMovementLocal(Fish *fish,
-                                           float tot_delta,
-                                           float *weighted_delta,
+static inline void collectiveMovementLocal(Fish *fish,)
+                                           float *tot_delta_fitness,
+                                           const float *weighted_delta,
                                            int DIMENSIONS) {
     // Avoid division by zero
-    if (tot_delta == 0.0f) {
-        tot_delta = 1.0f;
+    if (*tot_delta_fitness == 0.0f) {
+        *tot_delta_fitness = 1.0f;
     }
     // Update each dimension
     for (int d = 0; d < DIMENSIONS; ++d) {
-        float move = weighted_delta[d] / tot_delta;
+        float move = weighted_delta[d] / *tot_delta_fitness;
         fish->new_position[d] = fish->position[d] + move;
         fish->position[d] = fish->new_position[d];
     }
@@ -422,39 +391,12 @@ void collectiveMovementArray(Fish *fishArray,
                              float *weighted_tot_delta_fitness,
                              int N_FISHES_PER_PROCESS,
                              int DIMENSIONS) {
-    #pragma omp parallel default(none) shared(fishArray, tot_delta_fitness, weighted_tot_delta_fitness, N_FISHES_PER_PROCESS,DIMENSIONS)
-    {
-        int tid = omp_get_thread_num();
-        // Allocate thread-local copies of shared arrays
-        float local_tot;
-        float *local_weight = (float *)malloc(DIMENSIONS * sizeof(float));
-        // Copy global values into local
-        local_tot = *tot_delta_fitness;
-        for (int d = 0; d < DIMENSIONS; ++d) {
-            local_weight[d] = weighted_tot_delta_fitness[d];
-        }
-
-        // Parallel update of fish positions using local buffers
-        #pragma omp for schedule(static)
-        for (int i = 0; i < N_FISHES_PER_PROCESS; ++i) {
-            Fish *fish = &fishArray[i];
-            collectiveMovementLocal(fish,
-                                    local_tot,
-                                    local_weight,
-                                    DIMENSIONS);
-        }
-
-        // // Barrier before merging local back to shared
-        // #pragma omp barrier
-        // #pragma omp single
-        // {
-        //     *tot_delta_fitness = local_tot;
-        //     for (int d = 0; d < DIMENSIONS; ++d) {
-        //         weighted_tot_delta_fitness[d] = local_weight[d];
-        //     }
-        // }
-
-        free(local_weight);
+    for (int i = 0; i < N_FISHES_PER_PROCESS; ++i) {
+        Fish *fish = &fishArray[i];
+        collectiveMovementLocal(fish,
+                                tot_delta_fitness,
+                                weighted_tot_delta_fitness,
+                                DIMENSIONS);
     }
 }
 
@@ -483,7 +425,7 @@ void calculateBarycentersAndSumWeights(Fish *fishArray, float* barycenter, float
         if (*new_sum != 0.0) {
             barycenter[d] = numerator[d] / *new_sum;
         } else {
-            printf("Denominator is zero...\n");
+            // printf("Denominator is zero...\n");
         }
     }
 
@@ -499,8 +441,8 @@ void calculateBarycentersAndSumWeights(Fish *fishArray, float* barycenter, float
             temp_array[d + 2] = numerator[d];
         }
 
-        MPI_Allreduce(MPI_IN_PLACE, temp_array, DIMENSIONS + 2, MPI_FLOAT, MPI_SUM, MPI_COMM_WORLD);        
-    
+        MPI_Allreduce(MPI_IN_PLACE, temp_array, DIMENSIONS + 2, MPI_FLOAT, MPI_SUM, MPI_COMM_WORLD);
+
         // Update the original arrays
         *old_sum = temp_array[0];
         *new_sum = temp_array[1];
@@ -508,17 +450,16 @@ void calculateBarycentersAndSumWeights(Fish *fishArray, float* barycenter, float
         if (*new_sum != 0.0) {
             for (int d = 0; d < DIMENSIONS; d++) {
                 barycenter[d] = temp_array[d + 2] / *new_sum;
-            } 
+            }
         }else {
-            printf("Denominator is zero...\n");
+            // printf("Denominator is zero...\n");
         }
-        
+
     }
 }
 
 
 // Assumes Fish, calculateBarycenters, calculateSumWeights defined elsewhere
-// Uses rand_r for thread-safe RNG
 
 void volitivePositionUpdateArray(Fish *fishArray,
                                  int shrink,
@@ -526,12 +467,10 @@ void volitivePositionUpdateArray(Fish *fishArray,
                                  const int N_FISHES_PER_PROCESS,
                                  const int DIMENSIONS) {
 
-    #pragma omp parallel for schedule(static) default(none) shared(fishArray, barycenter, shrink) firstprivate(DIMENSIONS) 
     for (int idx = 0; idx < N_FISHES_PER_PROCESS; ++idx) {
-        unsigned int thread_seed = (unsigned int)idx + (unsigned int)time(NULL);
         Fish *fish = &fishArray[idx];
         for (int d = 0; d < DIMENSIONS; ++d) {
-            double rand_mult = fmin(((double)rand_r(&thread_seed) / RAND_MAX) + 0.1, 1.0);
+            double rand_mult = fmin(((double)rand() / RAND_MAX) + 0.1, 1.0);
 
             double delta = fish->position[d] - barycenter[d];
 
@@ -562,8 +501,7 @@ void collectiveVolitiveArray(Fish *fishes,
     calculateBarycentersAndSumWeights(fishes, barycenter, &old_weights, &new_weights, current_iter, UPDATE_FREQUENCY, DIMENSIONS, N_FISHES_PER_PROCESS);
 
 
-    // #pragma omp parallel for schedule(dynamic) default(none) shared(fishes, barycenter, old_weights, new_weights)
-    
+
     if (old_weights == new_weights) return;
     int shrink = (old_weights < new_weights) ? 1 : 0;
 
@@ -580,7 +518,7 @@ void collectiveVolitiveArray(Fish *fishes,
     for (int i = 0; i < N_FISHES_PER_PROCESS; ++i) {
         fishes[i].previous_cycle_weight = fishes[i].weight;
     }
-    
+
     free(barycenter);
 }
 
@@ -599,7 +537,7 @@ void breeding(Fish *fishes, int current_iter, const int N_FISHES_PER_PROCESS, co
         if (fishes[current_index].weight > fishes[first_index].weight) {
             second_index = first_index; // Aggiorna il secondo con il vecchio primo
             first_index = current_index;
-        } 
+        }
         // Controlla se il peso corrente è maggiore del secondo (solo se valido)
         else if (second_index == -1 || fishes[current_index].weight > fishes[second_index].weight) {
             second_index = current_index;
@@ -640,36 +578,15 @@ int main(int argc, char *argv[]) {
     MPI_Comm_size(MPI_COMM_WORLD, &size);
 
     //prendiamo in input n_fishes_per_process
-    const int N_FISHES_PER_PROCESS = atoi(argv[1]); 
+    const int N_FISHES_PER_PROCESS = atoi(argv[1]);
     const int DIMENSIONS = atoi(argv[2]);
     const int MAX_ITER = atoi(argv[3]);
     const int UPDATE_FREQUENCY = atoi(argv[4]);
     char *place = argv[5];
 
 
-    int n_threads;
-
-    #pragma omp parallel
-    {
-        n_threads = omp_get_num_threads();
-
-        int thread_id = omp_get_thread_num();
-        int core_id = sched_getcpu();  // Ottiene il core in cui sta girando il thread
-        printf("MPI Process %d - OpenMP Thread %d out of %d running on core %d\n",
-               rank, thread_id, n_threads, core_id);
-        fflush(stdout);
-    }
-
     if (rank == 0) {
-        printf("\nRUNNING WITH: N-PROCESSES %d - N_FISHES_PER_PROCESS %d - N_THREADS %d - DIMENSIONS %d - MAX_ITER %d - UPDATE_FREQUENCY %d - PLACE %s\n", size, N_FISHES_PER_PROCESS, n_threads, DIMENSIONS, MAX_ITER, UPDATE_FREQUENCY, place);
-    }
-
-    // Vettore contenente un seed diverso per ogni thread. 
-    padded_seed_t *seeds = malloc(n_threads * sizeof(padded_seed_t));
-
-    // inizializziamo i seeds
-    for (int i = 0; i < n_threads; i++) {
-        seeds[i].seed = (unsigned int)time(NULL) + i;
+        printf("\nRUNNING WITH: N-PROCESSES %d - N_FISHES_PER_PROCESS %d - DIMENSIONS %d - MAX_ITER %d - UPDATE_FREQUENCY %d - PLACE %s\n", size, N_FISHES_PER_PROCESS, DIMENSIONS, MAX_ITER, UPDATE_FREQUENCY, place);
     }
 
     // Simulo la chiamata a whoami per ottenere il nome dell'utente corrente
@@ -686,7 +603,7 @@ int main(int argc, char *argv[]) {
 
 
     //create a timer
-    double start = MPI_Wtime(); 
+    double start = MPI_Wtime();
     double end = 0.0;
 
     FILE *file;
@@ -708,11 +625,16 @@ int main(int argc, char *argv[]) {
     }
 
     float max_improvement;
-    srand(time(NULL));  // Seed for random number generation
+
+
+    // Seed for random number generation (different for different processes)
+    const int seed = (unsigned int)time(NULL) + rank;
+    srand(seed);
+
 
     // INITIALIZATION
     Fish *fishes = malloc(N_FISHES_PER_PROCESS*sizeof(Fish));//creiamo un vettore per ogni processo diverso
-    
+
     initFishArray(fishes, DIMENSIONS, N_FISHES_PER_PROCESS, size, rank);
     if (DIMENSIONS <= 2 && LOG) {
         WriteFishesToJson(fishes, file, 1, 0, N_FISHES_PER_PROCESS, size, DIMENSIONS);
@@ -721,15 +643,15 @@ int main(int argc, char *argv[]) {
     // MAIN LOOP
     double a, b, c, d, e, f, g, h, i, l, m, n;
     // le iterazioni devono essere sequenziali quindi non le possiamo parallelizzare
-    for (int iter = 1; iter < MAX_ITER; iter++) { 
+    for (int iter = 1; iter < MAX_ITER; iter++) {
 
         a = MPI_Wtime();
         variablesReset(&total_fitness, weighted_total_fitness, &max_improvement, DIMENSIONS);
         b = MPI_Wtime();
-        
+
         // INDIVIDUAL MOVEMENT
         c = MPI_Wtime();
-        individualMovementArray(fishes, &total_fitness, weighted_total_fitness, &max_improvement, iter, seeds, N_FISHES_PER_PROCESS, DIMENSIONS, UPDATE_FREQUENCY);
+        individualMovementArray(fishes, &total_fitness, weighted_total_fitness, &max_improvement, iter, N_FISHES_PER_PROCESS, DIMENSIONS, UPDATE_FREQUENCY);
         d = MPI_Wtime();
 
         // UPDATE WEIGHTS
@@ -752,7 +674,7 @@ int main(int argc, char *argv[]) {
         breeding(fishes, iter, N_FISHES_PER_PROCESS, DIMENSIONS);
         n = MPI_Wtime();
 
-       
+
         // SAVE ON FILE
         if (DIMENSIONS <= 2 && LOG) {
             WriteFishesToJson(fishes, file, 0, iter==MAX_ITER-1?1:0,  N_FISHES_PER_PROCESS, size, DIMENSIONS);
@@ -766,15 +688,14 @@ int main(int argc, char *argv[]) {
         fclose(file);
     }
 
-    #pragma omp barrier
     MPI_Finalize();
 
     printf("Variablee reset- %f\n", b-a);
     printf("Individual movement- %f\n", d-c);
     printf("Update weights- %f\n", f-e);
-    printf("Collective movement- %f\n", h-g); 
-    printf("Collective volitive- %f\n", l-i); 
-    printf("Breeding- %f\n", n-m); 
+    printf("Collective movement- %f\n", h-g);
+    printf("Collective volitive- %f\n", l-i);
+    printf("Breeding- %f\n", n-m);
 
     printf("END: %f\n", end-start);
 
