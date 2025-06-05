@@ -368,7 +368,7 @@ void updateWeightsArray(Fish *fishArray,  float max_delta_fitness_improvement, c
 // Assumes Fish defined elsewhere, and objectiveFunction, MULTIPLIER available
 
 // Local-version of collective movement: uses thread-local tot and weighted arrays
-static inline void collectiveMovementLocal(Fish *fish,)
+static inline void collectiveMovementLocal(Fish *fish,
                                            float *tot_delta_fitness,
                                            const float *weighted_delta,
                                            int DIMENSIONS) {
