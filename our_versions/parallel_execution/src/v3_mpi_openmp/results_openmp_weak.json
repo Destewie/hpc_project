@@ -57,7 +57,7 @@
         "nodes": 1,
         "cores": 16,
         "places": "scatter",
-        "time": 647.71514
+        "time": 527.18743
     },
     "3215569": {
         "total_fishes": 4000,
@@ -67,7 +67,7 @@
         "nodes": 1,
         "cores": 2,
         "places": "scatter",
-        "time": 147.0776
+        "time": 68.536498
     },
     "3215574": {
         "total_fishes": 8000,
@@ -138,5 +138,95 @@
         "cores": 64,
         "places": "scatter",
         "time": 2179.353149
+    },
+    "3217650": {
+        "total_fishes": 4000,
+        "dimensions": 1000,
+        "iterations": 200,
+        "update_frequency": 1,
+        "nodes": 1,
+        "cores": 1,
+        "places": "pack",
+        "time": 129.937015
+    },
+    "3217651": {
+        "total_fishes": 4000,
+        "dimensions": 1000,
+        "iterations": 200,
+        "update_frequency": 1,
+        "nodes": 1,
+        "cores": 2,
+        "places": "pack",
+        "time": 186.13988
+    },
+    "3217654": {
+        "total_fishes": 16000,
+        "dimensions": 1000,
+        "iterations": 200,
+        "update_frequency": 1,
+        "nodes": 1,
+        "cores": 4,
+        "places": "pack",
+        "time": 223.83833
+    },
+    "3217652": {
+        "total_fishes": 8000,
+        "dimensions": 1000,
+        "iterations": 200,
+        "update_frequency": 1,
+        "nodes": 1,
+        "cores": 2,
+        "places": "pack",
+        "time": 347.708888
+    },
+    "3217653": {
+        "total_fishes": 8000,
+        "dimensions": 1000,
+        "iterations": 200,
+        "update_frequency": 1,
+        "nodes": 1,
+        "cores": 4,
+        "places": "pack",
+        "time": 238.698838
+    },
+    "3217693": {
+        "total_fishes": 16000,
+        "dimensions": 1000,
+        "iterations": 200,
+        "update_frequency": 1,
+        "nodes": 1,
+        "cores": 8,
+        "places": "pack",
+        "time": 198.775898
+    },
+    "3217696": {
+        "total_fishes": 32000,
+        "dimensions": 1000,
+        "iterations": 200,
+        "update_frequency": 1,
+        "nodes": 1,
+        "cores": 16,
+        "places": "pack",
+        "time": 205.031782
+    },
+    "3217694": {
+        "total_fishes": 32000,
+        "dimensions": 1000,
+        "iterations": 200,
+        "update_frequency": 1,
+        "nodes": 1,
+        "cores": 8,
+        "places": "pack",
+        "time": 268.076319
+    },
+    "3217697": {
+        "total_fishes": 64000,
+        "dimensions": 1000,
+        "iterations": 200,
+        "update_frequency": 1,
+        "nodes": 1,
+        "cores": 16,
+        "places": "pack",
+        "time": 521.117356
     }
 }
