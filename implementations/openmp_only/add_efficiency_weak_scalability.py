@@ -5,6 +5,7 @@ from collections import defaultdict
 # === Carica il file JSON ===
 with open("results_openmp_weak.json", "r") as f:
     data = json.load(f)
+
 #-----------------------------------------------------------------------------
 
 # Raggruppa per configurazione senza includere "placement"
@@ -26,7 +27,7 @@ for config, entries in placement_groups.items():
     # Gruppo per placement
     placement_dict = defaultdict(list)
     for key, entry in entries:
-        placement_dict[entry["placement"]].append((key, entry))
+        placement_dict[entry["places"]].append((key, entry))
 
     # Se esistono entrambe le versioni, normalizza al tempo minimo
     if "pack" in placement_dict and "scatter" in placement_dict:
@@ -41,7 +42,7 @@ for config, entries in placement_groups.items():
         inverse_placement = "scatter" if existing_placement == "pack" else "pack"
         for _, original_entry in placement_dict[existing_placement]:
             new_entry = original_entry.copy()
-            new_entry["placement"] = inverse_placement
+            new_entry["places"] = inverse_placement
 
             # Assegna un nuovo ID numerico casuale che inizia per '7'
             while True:

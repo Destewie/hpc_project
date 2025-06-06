@@ -1,4 +1,5 @@
 import json
+import random
 from collections import defaultdict
 
 # === Carica il file JSON ===
