@@ -228,7 +228,7 @@
         "nodes": 1,
         "cores": 16,
         "places": "pack",
-        "time": 521.117356
+        "time": 474.414750
     },
     "3218772": {
         "total_fishes": 128000,
@@ -258,7 +258,7 @@
         "nodes": 1,
         "cores": 32,
         "places": "pack",
-        "time": 1699.788232
+        "time": 574.438607
     },
     "3218771": {
         "total_fishes": 128000,
@@ -268,7 +268,7 @@
         "nodes": 1,
         "cores": 32,
         "places": "pack",
-        "time": 2155.280139
+        "time": 1103.001556
     },
     "3218773": {
         "total_fishes": 256000,
