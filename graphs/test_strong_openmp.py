@@ -21,7 +21,7 @@ for run_id, values in data.items():
         grouped_data[total_fishes].append((cores, efficiency))
 
 # Plotting
-plt.figure(figsize=(10, 6))
+plt.figure(figsize=(8, 8))
 
 for total_fishes, points in grouped_data.items():
     # Sort by number of cores for consistent lines
@@ -29,10 +29,15 @@ for total_fishes, points in grouped_data.items():
     cores, efficiencies = zip(*points)
     plt.plot(cores, efficiencies, marker='o', label=f'{total_fishes} fishes')
 
+plt.axhline(y=1.0, color='gray', linestyle='--', linewidth=1, label='Ideal Efficiency')
+plt.ylim(0, 1.3)
+plt.xticks([1, 2, 4, 8, 16, 32, 64])
+plt.grid(True, which='both', axis='x')
 plt.xlabel('Number of Cores')
 plt.ylabel('Efficiency')
 plt.title(f"Efficiency vs. Cores (places: {place_filter})")
 plt.legend(title='Total Fishes')
 plt.grid(True)
 plt.tight_layout()
-plt.show()
+# plt.show()
+plt.savefig(f"images/efficiency_vs_nodes_openmp_strong_{place_filter}.png", dpi=100)
