@@ -6,7 +6,7 @@ from collections import defaultdict
 import sys
 
 # === Carica il file JSON ===
-with open('../implementations/mpi_only/results_mpi_weak_modified.json', 'r') as f:
+with open('../implementations/openmp_only/results_openmp_weak_modified.json', 'r') as f:
     data = json.load(f)
 
 # === Raggruppa per fishes_per_core e config costante ===
@@ -71,15 +71,12 @@ selected_group = valid_groups[selected_key]
 x = []
 y = []
 
-
 for _, entry in sorted(selected_group, key=lambda e: e[1]["nodes"] * e[1]["cores"]):
     total_cores = entry["nodes"] * entry["cores"]
     efficiency_weak = entry.get("efficiency_weak", None)
     if efficiency_weak is not None:
         x.append(total_cores)
         y.append(efficiency_weak)
-    places = entry.get("places")
-    # fishes_per_core = entry.get("fishes_per_core")
 
 # === Plot ===
 plt.figure(figsize=(8, 8))
@@ -88,11 +85,11 @@ plt.ylim(0, 1.3)
 plt.xticks([1, 2, 4, 8, 16, 32, 64])
 plt.grid(True, which='both', axis='x')
 plt.plot(x, y, marker='o', linestyle='-', color='darkorange')
-plt.title(f"Weak Scalability Efficiency vs Total Cores (Group {places})")
+plt.title(f"Weak Scalability Efficiency vs Total Cores")
 plt.xlabel("Total Cores (nodes × cores)")
 plt.ylabel("Efficiency (Weak)")
 plt.xticks(x)
 plt.grid(True)
 plt.tight_layout()
 # plt.show()
-plt.savefig(f"images/efficiency_vs_nodes_mpi_weak_{places}.png", dpi=100)
+plt.savefig(f"images/efficiency_vs_nodes_openmp_weak.png", dpi=100)
