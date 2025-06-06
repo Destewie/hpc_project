@@ -369,16 +369,6 @@
         "places": "scatter",
         "time": 20.3028
     },
-    "3145602": {
-        "total_fishes": 64000,
-        "dimensions": 1000,
-        "iterations": 200,
-        "update_frequency": 1,
-        "nodes": 32,
-        "cores": 1,
-        "places": "scatter",
-        "time": 107.662675
-    },
     "3145608": {
         "total_fishes": 64000,
         "dimensions": 1000,
