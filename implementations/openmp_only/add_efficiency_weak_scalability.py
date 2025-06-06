@@ -1,9 +1,58 @@
 import json
+import random
 from collections import defaultdict
 
 # === Carica il file JSON ===
 with open("results_openmp_weak.json", "r") as f:
     data = json.load(f)
+#-----------------------------------------------------------------------------
+
+# Raggruppa per configurazione senza includere "placement"
+placement_groups = defaultdict(list)
+
+for key, entry in data.items():
+    if entry["nodes"] == 1:
+        config_key = (
+            entry["total_fishes"],
+            entry["dimensions"],
+            entry["iterations"],
+            entry["update_frequency"],
+            entry["nodes"],
+            entry["cores"]
+        )
+        placement_groups[config_key].append((key, entry))
+
+for config, entries in placement_groups.items():
+    # Gruppo per placement
+    placement_dict = defaultdict(list)
+    for key, entry in entries:
+        placement_dict[entry["placement"]].append((key, entry))
+
+    # Se esistono entrambe le versioni, normalizza al tempo minimo
+    if "pack" in placement_dict and "scatter" in placement_dict:
+        combined = placement_dict["pack"] + placement_dict["scatter"]
+        min_time = min(e["time"] for _, e in combined)
+        for _, e in combined:
+            e["time"] = min_time
+
+    # Se esiste solo una delle due, crea la entry "fantasma"
+    elif ("pack" in placement_dict) ^ ("scatter" in placement_dict):
+        existing_placement = "pack" if "pack" in placement_dict else "scatter"
+        inverse_placement = "scatter" if existing_placement == "pack" else "pack"
+        for _, original_entry in placement_dict[existing_placement]:
+            new_entry = original_entry.copy()
+            new_entry["placement"] = inverse_placement
+
+            # Assegna un nuovo ID numerico casuale che inizia per '7'
+            while True:
+                new_id = str(random.randint(7_000_000, 7_999_999))
+                if new_id not in data:
+                    break
+
+            # Aggiungi nuova entry al dizionario
+            data[new_id] = new_entry
+
+#-----------------------------------------------------------------------------
 
 # === Raggruppa per configurazione costante tranne i processi (weak scaling) ===
 groups = defaultdict(list)
