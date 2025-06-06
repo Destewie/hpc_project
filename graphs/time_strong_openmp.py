@@ -8,15 +8,11 @@ from collections import defaultdict
 with open('../implementations/hybrid/results_modified.json') as f:
     data = json.load(f)
 
-# Ask user for which "places" type to show
-choice = input("Enter 0 for 'pack', 1 for 'scatter': ")
-place_filter = 'pack' if choice == '0' else 'scatter'
-
 # Group data by total_fishes
 grouped_data = defaultdict(list)
 
 for run_id, values in data.items():
-    if values["nodes"] == 1 and values["places"] == place_filter:
+    if values["nodes"] == 1:
         total_fishes = values["total_fishes"]
         cores = values["cores"]
         time = values["time"]
@@ -36,11 +32,11 @@ for total_fishes in sorted(grouped_data.keys(), reverse=True):
 # plt.ylim(0, 1.3)
 plt.xticks([1, 2, 4, 8, 16, 32, 64])
 plt.grid(True, which='both', axis='x')
-plt.xlabel('Number of Cores (single process)')
+plt.xlabel('Number of Processes (single process)')
 plt.ylabel('Time (s)')
-plt.title(f"Time vs. Cores (single process) (places: {place_filter})")
+plt.title("Time vs. Cores (single process)")
 plt.legend(title='Total Fishes')
 plt.grid(True)
 plt.tight_layout()
 plt.show()
-# plt.savefig(f"images/time_vs_nodes_mpi_strong_{place_filter}.png", dpi=100)
+# plt.savefig(f"images/time_vs_nodes_mpi_strong.png", dpi=100)
