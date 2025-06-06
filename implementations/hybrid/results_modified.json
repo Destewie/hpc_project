@@ -971,18 +971,6 @@
         "speedup": 155.2032108386312,
         "efficiency": 0.1515656355846008
     },
-    "3155714": {
-        "total_fishes": 128000,
-        "dimensions": 1000,
-        "iterations": 200,
-        "update_frequency": 1,
-        "nodes": 64,
-        "cores": 1,
-        "places": "scatter",
-        "time": 81.639979,
-        "speedup": 45.07434899021716,
-        "efficiency": 0.7042867029721431
-    },
     "3174794": {
         "total_fishes": 128000,
         "dimensions": 1000,

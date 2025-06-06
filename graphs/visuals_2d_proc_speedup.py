@@ -6,7 +6,7 @@ import numpy as np
 from collections import defaultdict
 
 # === Leggi il file JSON ===
-with open("results_modified.json", "r") as f:
+with open("../implementations/hybrid/results_modified.json", "r") as f:
     data = json.load(f)
 
 # === Trova i valori unici di total_fishes ===
