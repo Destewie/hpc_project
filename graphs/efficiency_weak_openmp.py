@@ -23,7 +23,6 @@ for key, entry in data.items():
             fishes_per_core,
             entry["dimensions"],
             entry["iterations"],
-            entry["places"],
             entry["update_frequency"]
         )
         groups[group_key].append((key, entry))
@@ -39,9 +38,8 @@ for group_key, entries in groups.items():
 
     iterations_set = {e["iterations"] for _, e in entries}
     dimensions_set = {e["dimensions"] for _, e in entries}
-    places_set = {e["places"] for _, e in entries}
 
-    if len(iterations_set) == 1 and len(dimensions_set) == 1 and len(places_set) == 1:
+    if len(iterations_set) == 1 and len(dimensions_set) == 1:
         valid_groups[group_key] = entries
 
 if not valid_groups:
@@ -52,8 +50,8 @@ if not valid_groups:
 print("Gruppi validi:")
 group_keys = list(valid_groups.keys())
 for i, group_key in enumerate(group_keys):
-    fishes_per_core, dimensions, iterations, places, freq = group_key
-    print(f"[{i}] Fishes/core: {fishes_per_core}, Dim: {dimensions}, Iter: {iterations}, Places: {places}, Freq: {freq}, Entries: {len(valid_groups[group_key])}")
+    fishes_per_core, dimensions, iterations, freq = group_key
+    print(f"[{i}] Fishes/core: {fishes_per_core}, Dim: {dimensions}, Iter: {iterations}, Freq: {freq}, Entries: {len(valid_groups[group_key])}")
 
 try:
     selected_index = int(input("Seleziona il numero del gruppo da analizzare: "))
