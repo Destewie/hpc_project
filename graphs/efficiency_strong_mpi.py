@@ -1,5 +1,7 @@
 import json
 import matplotlib.pyplot as plt
+import matplotlib
+matplotlib.use("TkAgg")
 from collections import defaultdict
 
 # Load your JSON data
@@ -42,4 +44,3 @@ plt.grid(True)
 plt.tight_layout()
 # plt.show()
 plt.savefig(f"images/efficiency_vs_nodes_mpi_strong_{place_filter}.png", dpi=100)
-
