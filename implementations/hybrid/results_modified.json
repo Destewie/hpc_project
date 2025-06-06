@@ -559,9 +559,9 @@
         "nodes": 1,
         "cores": 4,
         "places": "scatter",
-        "time": 3569.95149,
-        "speedup": 1.0156374643062727,
-        "efficiency": 0.25390936607656817
+        "time": 1444.583995,
+        "speedup": 2.509910459723735,
+        "efficiency": 0.6274776149309338
     },
     "3147277": {
         "total_fishes": 128000,
@@ -571,9 +571,9 @@
         "nodes": 1,
         "cores": 8,
         "places": "scatter",
-        "time": 3221.71757,
-        "speedup": 1.125417234819873,
-        "efficiency": 0.14067715435248412
+        "time": 1475.795698,
+        "speedup": 2.4568281937084224,
+        "efficiency": 0.3071035242135528
     },
     "3147321": {
         "total_fishes": 128000,
@@ -2147,7 +2147,7 @@
         "speedup": 2.0286596813951787,
         "efficiency": 1.0143298406975894
     },
-    "7930215": {
+    "7961706": {
         "total_fishes": 64000,
         "dimensions": 1000,
         "iterations": 200,
@@ -2159,7 +2159,7 @@
         "speedup": 2.0602181880047374,
         "efficiency": 0.6867393960015792
     },
-    "7626433": {
+    "7545183": {
         "total_fishes": 128000,
         "dimensions": 1000,
         "iterations": 200,
@@ -2171,7 +2171,7 @@
         "speedup": 1.3710920865789062,
         "efficiency": 0.6855460432894531
     },
-    "7101792": {
+    "7693817": {
         "total_fishes": 128000,
         "dimensions": 1000,
         "iterations": 200,
@@ -2179,11 +2179,11 @@
         "nodes": 1,
         "cores": 4,
         "places": "pack",
-        "time": 3569.95149,
-        "speedup": 1.0156374643062727,
-        "efficiency": 0.25390936607656817
+        "time": 1444.583995,
+        "speedup": 2.509910459723735,
+        "efficiency": 0.6274776149309338
     },
-    "7714940": {
+    "7053296": {
         "total_fishes": 128000,
         "dimensions": 1000,
         "iterations": 200,
@@ -2191,11 +2191,11 @@
         "nodes": 1,
         "cores": 8,
         "places": "pack",
-        "time": 3221.71757,
-        "speedup": 1.125417234819873,
-        "efficiency": 0.14067715435248412
+        "time": 1475.795698,
+        "speedup": 2.4568281937084224,
+        "efficiency": 0.3071035242135528
     },
-    "7969706": {
+    "7841627": {
         "total_fishes": 128000,
         "dimensions": 1000,
         "iterations": 200,
@@ -2207,7 +2207,7 @@
         "speedup": 3.4134518287367186,
         "efficiency": 0.2133407392960449
     },
-    "7295875": {
+    "7953285": {
         "total_fishes": 128000,
         "dimensions": 1000,
         "iterations": 200,
@@ -2219,7 +2219,7 @@
         "speedup": 2.487257962267185,
         "efficiency": 0.07772681132084953
     },
-    "7390431": {
+    "7941826": {
         "total_fishes": 128000,
         "dimensions": 1000,
         "iterations": 200,
@@ -2231,7 +2231,7 @@
         "speedup": 3.0739461456690305,
         "efficiency": 0.0480304085260786
     },
-    "7277972": {
+    "7412079": {
         "total_fishes": 16000,
         "dimensions": 1000,
         "iterations": 200,
@@ -2243,7 +2243,7 @@
         "speedup": 4.502969148475574,
         "efficiency": 0.2814355717797234
     },
-    "7954368": {
+    "7328342": {
         "total_fishes": 16000,
         "dimensions": 1000,
         "iterations": 200,
@@ -2255,7 +2255,7 @@
         "speedup": 2.940726009330563,
         "efficiency": 0.3675907511663204
     },
-    "7635960": {
+    "7340853": {
         "total_fishes": 16000,
         "dimensions": 1000,
         "iterations": 200,
@@ -2267,7 +2267,7 @@
         "speedup": 1.8684860077937318,
         "efficiency": 0.46712150194843294
     },
-    "7754170": {
+    "7368902": {
         "total_fishes": 16000,
         "dimensions": 1000,
         "iterations": 200,
@@ -2279,7 +2279,7 @@
         "speedup": 4.781509757231447,
         "efficiency": 0.07471108995674136
     },
-    "7983280": {
+    "7087919": {
         "total_fishes": 16000,
         "dimensions": 1000,
         "iterations": 200,
@@ -2291,7 +2291,7 @@
         "speedup": 4.5381806202255905,
         "efficiency": 0.1418181443820497
     },
-    "7921995": {
+    "7439922": {
         "total_fishes": 16000,
         "dimensions": 1000,
         "iterations": 200,
@@ -2303,7 +2303,7 @@
         "speedup": 1.215131923972725,
         "efficiency": 0.6075659619863625
     },
-    "7479111": {
+    "7133940": {
         "total_fishes": 32000,
         "dimensions": 1000,
         "iterations": 200,
@@ -2315,7 +2315,7 @@
         "speedup": 2.8337479768656357,
         "efficiency": 0.35421849710820447
     },
-    "7884391": {
+    "7385381": {
         "total_fishes": 32000,
         "dimensions": 1000,
         "iterations": 200,
@@ -2327,7 +2327,7 @@
         "speedup": 1.7571255512909392,
         "efficiency": 0.4392813878227348
     },
-    "7015318": {
+    "7065845": {
         "total_fishes": 32000,
         "dimensions": 1000,
         "iterations": 200,
@@ -2339,7 +2339,7 @@
         "speedup": 1.3279148882540581,
         "efficiency": 0.6639574441270291
     },
-    "7622069": {
+    "7822848": {
         "total_fishes": 32000,
         "dimensions": 1000,
         "iterations": 200,
@@ -2351,7 +2351,7 @@
         "speedup": 4.499043761601519,
         "efficiency": 0.07029755877502374
     },
-    "7443985": {
+    "7690795": {
         "total_fishes": 32000,
         "dimensions": 1000,
         "iterations": 200,
@@ -2363,7 +2363,7 @@
         "speedup": 3.1774138365287254,
         "efficiency": 0.19858836478304534
     },
-    "7218378": {
+    "7909396": {
         "total_fishes": 32000,
         "dimensions": 1000,
         "iterations": 200,
