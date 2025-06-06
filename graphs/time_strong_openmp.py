@@ -16,11 +16,11 @@ place_filter = 'pack' if choice == '0' else 'scatter'
 grouped_data = defaultdict(list)
 
 for run_id, values in data.items():
-    if values["cores"] == 1 and values["places"] == place_filter:
+    if values["nodes"] == 1 and values["places"] == place_filter:
         total_fishes = values["total_fishes"]
-        nodes = values["nodes"]
+        cores = values["cores"]
         time = values["time"]
-        grouped_data[total_fishes].append((nodes, time))
+        grouped_data[total_fishes].append((cores, time))
 
 # Plotting
 plt.figure(figsize=(8, 8))
@@ -36,11 +36,11 @@ for total_fishes in sorted(grouped_data.keys(), reverse=True):
 # plt.ylim(0, 1.3)
 plt.xticks([1, 2, 4, 8, 16, 32, 64])
 plt.grid(True, which='both', axis='x')
-plt.xlabel('Number of Processes (single core)')
+plt.xlabel('Number of Cores (single process)')
 plt.ylabel('Time (s)')
-plt.title(f"Time vs. Processes (single core) (places: {place_filter})")
+plt.title(f"Time vs. Cores (single process) (places: {place_filter})")
 plt.legend(title='Total Fishes')
 plt.grid(True)
 plt.tight_layout()
-# plt.show()
-plt.savefig(f"images/time_vs_nodes_mpi_strong_{place_filter}.png", dpi=100)
+plt.show()
+# plt.savefig(f"images/time_vs_nodes_mpi_strong_{place_filter}.png", dpi=100)
