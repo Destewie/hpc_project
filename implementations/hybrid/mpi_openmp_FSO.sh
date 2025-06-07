@@ -19,8 +19,8 @@
 #PBS -l place=pack
 
 export OMP_NUM_THREADS=4
-export OMP_PROC_BIND=close
-export OMP_PLACES=cores
+# export OMP_PROC_BIND=close
+# export OMP_PLACES=cores
 export OMP_SCHEDULE="static, 1"
 
 
