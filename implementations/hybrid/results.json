@@ -907,7 +907,7 @@
         "nodes": 2,
         "cores": 2,
         "places": "pack",
-        "time": 4149.862788
+        "time": 1065.470095
     },
     "3188360": {
         "total_fishes": 64000,
