@@ -909,6 +909,16 @@
         "places": "pack",
         "time": 1065.470095
     },
+    "3215605": {
+        "total_fishes": 128000,
+        "dimensions": 1000,
+        "iterations": 200,
+        "update_frequency": 1,
+        "nodes": 1,
+        "cores": 32,
+        "places": "scatter",
+        "time": 1022.243685
+    },
     "3215755": {
         "total_fishes": 4000,
         "dimensions": 1000,
