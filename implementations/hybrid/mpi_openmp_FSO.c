@@ -357,7 +357,7 @@ void individualMovementArray(Fish* fishArray,
     // Periodic global update broadcasting complete totals
     if (current_iter % UPDATE_FREQUENCY == 0) {
 
-        // Append tot_delta_fitness to weighted_tot_delta_fitness creating a new array
+        // Append weighted_tot_delta_fitness to tot_delta_fitness creating a new array
         float *temp_array = (float *)malloc((DIMENSIONS + 1) * sizeof(float));
         temp_array[0] = *tot_delta_fitness;
         for (int d = 0; d < DIMENSIONS; d++) {
