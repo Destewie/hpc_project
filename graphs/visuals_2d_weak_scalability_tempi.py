@@ -6,7 +6,7 @@ from collections import defaultdict
 import sys
 
 # === Carica il file JSON ===
-with open('../implementations/openmp_only/results_openmp_weak_modified.json', 'r') as f:
+with open('../implementations/hybrid/results_modified.json', 'r') as f:
     data = json.load(f)
 
 # === Raggruppa per fishes_per_core e config costante ===

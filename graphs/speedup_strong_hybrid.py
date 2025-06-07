@@ -44,20 +44,27 @@ filtered = [entry for entry in data.values()
 grouped_by_threads = defaultdict(list)
 for entry in filtered:
     threads = entry["cores"]
-    grouped_by_threads[threads].append((entry["nodes"], entry["efficiency"]))
+    grouped_by_threads[threads].append((entry["nodes"], entry["speedup"]))
 
 # === Crea grafico ===
 plt.figure()
 for threads, values in sorted(grouped_by_threads.items()):
-    values.sort()
-    x = [nodes for nodes, _ in values]
-    y = [eff for _, eff in values]
-    plt.plot(x, y, marker='o', label=f"{threads} thread")
+    if threads in [1,2,4,8,16,32,64]:
+        values.sort()
+        x = [nodes for nodes, _ in values]
+        y = [eff for _, eff in values]
+        plt.plot(x, y, marker='o', label=f"{threads} thread")
 
+max_val = 75
+plt.plot([0, max_val], [0, max_val], 'k--', label="linear speedup")
+plt.xticks([1, 2, 4, 8, 16, 32, 64])
+plt.xlim(0, 67)
+plt.ylim(0, 185)  # Imposta un limite superiore per l'efficienza
 plt.xlabel("Numero di processi (nodes)")
-plt.ylabel("Efficiency")
-plt.title(f"Efficiency vs processes - fishes={selected_fishes}, places={selected_places}")
+plt.ylabel("Speedup")
+plt.title(f"Speedup vs processes - fishes={selected_fishes}, places={selected_places}")
 plt.legend(title="Numero di threads")
 plt.grid(True)
 plt.tight_layout()
-plt.show()
+# plt.show()
+plt.savefig(f"images/speedup_vs_processes_hybrid_strong_{selected_fishes}_{selected_places}.png", dpi=200)
