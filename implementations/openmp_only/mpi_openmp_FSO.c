@@ -635,14 +635,14 @@ int main(int argc, char *argv[]) {
     double start = MPI_Wtime(); 
     double end = 0.0;
 
-    FILE *file;
-    char filename[50];
-    sprintf(filename, "/home/%s/hpc_project/our_versions/evolution_logs/%s_%dd_log.json", user, FUNCTION, DIMENSIONS);
-    file = fopen(filename, "w");
-    if (file == NULL) {
-        perror("Error opening file");
-        return 1;
-    }
+    // FILE *file;
+    // char filename[50];
+    // sprintf(filename, "/home/%s/hpc_project/our_versions/evolution_logs/%s_%dd_log.json", user, FUNCTION, DIMENSIONS);
+    // file = fopen(filename, "w");
+    // if (file == NULL) {
+    //     perror("Error opening file");
+    //     return 1;
+    // }
     
 
     // float best_fitness[N_SCHOOLS];
@@ -659,9 +659,9 @@ int main(int argc, char *argv[]) {
     Fish *fishes = malloc(N_FISHES_PER_PROCESS*sizeof(Fish));//creiamo un vettore per ogni processo diverso
     
     initFishArray(fishes, DIMENSIONS, N_FISHES_PER_PROCESS, size, rank);
-    if (DIMENSIONS <= 2 && LOG) {
-        WriteFishesToJson(fishes, file, 1, 0, N_FISHES_PER_PROCESS, size, DIMENSIONS);
-    }
+    // if (DIMENSIONS <= 2 && LOG) {
+    //     WriteFishesToJson(fishes, file, 1, 0, N_FISHES_PER_PROCESS, size, DIMENSIONS);
+    // }
 
     // MAIN LOOP
     double a, b, c, d, e, f, g, h, i, l, m, n;
@@ -698,17 +698,17 @@ int main(int argc, char *argv[]) {
         n = MPI_Wtime();
 
        
-        // SAVE ON FILE
-        if (DIMENSIONS <= 2 && LOG) {
-            WriteFishesToJson(fishes, file, 0, iter==MAX_ITER-1?1:0,  N_FISHES_PER_PROCESS, size, DIMENSIONS);
-        }
+        // // SAVE ON FILE
+        // if (DIMENSIONS <= 2 && LOG) {
+        //     WriteFishesToJson(fishes, file, 0, iter==MAX_ITER-1?1:0,  N_FISHES_PER_PROCESS, size, DIMENSIONS);
+        // }
     }
 
     //timer stop
     end = MPI_Wtime();
 
 
-    fclose(file);
+    // fclose(file);
 
     MPI_Finalize();
 
