@@ -607,7 +607,7 @@ int main(int argc, char *argv[]) {
     double end = 0.0;
 
     FILE *file;
-    if (rank==0) {
+    if (rank==0 && LOG) {
         char filename[50];
         sprintf(filename, "/home/%s/hpc_project/our_versions/evolution_logs/%s_%dd_log.json", user, FUNCTION, DIMENSIONS);
         file = fopen(filename, "w");
@@ -684,7 +684,7 @@ int main(int argc, char *argv[]) {
     //timer stop
     end = MPI_Wtime();
 
-    if (rank==0) {
+    if (rank==0 && LOG) {
         fclose(file);
     }
 

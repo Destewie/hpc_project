@@ -2248,5 +2248,15 @@
         "cores": 32,
         "places": "pack",
         "time": 3115.363118
+    },
+    "3223960": {
+        "total_fishes": 8192000,
+        "dimensions": 1000,
+        "iterations": 200,
+        "update_frequency": 1,
+        "nodes": 64,
+        "cores": 32,
+        "places": "scatter",
+        "time": 2561.82136
     }
 }
