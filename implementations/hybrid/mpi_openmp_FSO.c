@@ -240,7 +240,6 @@ void initFishArray(Fish* fishArray, const int DIMENSIONS, const int N_FISHES_PER
     }
 }
 
-// Assumes Fish and padded_seed_t defined elsewhere (DES?)
 void individualMovement(Fish *fish,
                         float *delta_fitness_out,
                         float *weighted_move_out,
@@ -305,7 +304,6 @@ void individualMovementArray(Fish* fishArray,
         // Work distribution: each fish
         #pragma omp for schedule(dynamic)
         for (int idx = 0; idx < N_FISHES_PER_PROCESS; ++idx) {
-            // int s = idx / N_FISHES_PER_PROCESS;
             Fish *fish = &fishArray[idx];
             float dfit;
             float *wmove = (float *)malloc(DIMENSIONS * sizeof(float));
@@ -494,10 +492,6 @@ void calculateBarycentersAndSumWeights(Fish *fishArray, float* barycenter, float
 
     }
 }
-
-
-// Assumes Fish, calculateBarycenters, calculateSumWeights defined elsewhere
-// Uses rand_r for thread-safe RNG
 
 void volitivePositionUpdateArray(Fish *fishArray,
                                  int shrink,
