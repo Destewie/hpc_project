@@ -1,6 +1,7 @@
 # All json OUT
 # Messo perché - quando abilito il logging dei risultati per vederli con la visualizzazione pythoni - produce i log in json
 *json
+mpi_openmp_FSO
 
 #Però per collezionare i dati sui tempi devo fare un'eccezione per results.json
 !results*
