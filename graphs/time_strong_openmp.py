@@ -23,18 +23,19 @@ plt.figure(figsize=(8, 8))
 
 # Ordina per numero di pesci decrescente
 for total_fishes in sorted(grouped_data.keys(), reverse=True):
-    points = grouped_data[total_fishes]
-    points.sort(key=lambda x: x[0])
-    cores, times = zip(*points)
-    plt.plot(cores, times, marker='o', label=f'{total_fishes} fishes')
+    if total_fishes in [128000, 64000, 32000, 16000]:
+        points = grouped_data[total_fishes]
+        points.sort(key=lambda x: x[0])
+        cores, times = zip(*points)
+        plt.plot(cores, times, marker='o', label=f'{total_fishes} fishes')
 
 
 # plt.ylim(0, 1.3)
 plt.xticks([1, 2, 4, 8, 16, 32, 64])
 plt.grid(True, which='both', axis='x')
-plt.xlabel('Number of Processes (single process)')
+plt.xlabel('Number of Threads (single process)')
 plt.ylabel('Time (s)')
-plt.title("Time vs. Cores (single process)")
+plt.title("Time vs. Threads (single process)")
 plt.legend(title='Total Fishes')
 plt.grid(True)
 plt.tight_layout()

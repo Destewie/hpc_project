@@ -47,15 +47,18 @@ for nodes, values in sorted(grouped_by_nodes.items()):
         values.sort()
         x = [cores for cores, _ in values]
         y = [time for _, time in values]
-        plt.plot(x, y, marker='o', label=f"{nodes} nodo{'i' if nodes > 1 else ''}")
+        if nodes == 1:
+            plt.plot(x, y, marker='o', label=f"{nodes} process")
+        else:
+            plt.plot(x, y, marker='o', label=f"{nodes} processes")
 
 plt.xticks([1, 2, 4, 8, 16, 32, 64])
 plt.xlim(0, 67)
 plt.ylim(0, 3700)  # Imposta un limite superiore per il tempo
-plt.xlabel("Numero di core")
-plt.ylabel("Tempo (s)")
-plt.title(f"Tempo vs Core (fishes={selected_fishes}, places={selected_place})")
-plt.legend(title="Numero di nodi")
+plt.xlabel("Number of Threads")
+plt.ylabel("Time (s)")
+plt.title(f"Time vs Threads (fishes={selected_fishes}, places={selected_place})")
+plt.legend(title="Numero of Processes")
 plt.grid(True)
 plt.tight_layout()
 # plt.show()

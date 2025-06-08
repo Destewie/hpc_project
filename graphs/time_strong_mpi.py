@@ -18,6 +18,8 @@ grouped_data = defaultdict(list)
 for run_id, values in data.items():
     if values["cores"] == 1 and values["places"] == place_filter:
         total_fishes = values["total_fishes"]
+        if total_fishes not in [128000, 64000, 32000, 16000]:
+            continue
         nodes = values["nodes"]
         time = values["time"]
         grouped_data[total_fishes].append((nodes, time))
@@ -36,9 +38,9 @@ for total_fishes in sorted(grouped_data.keys(), reverse=True):
 # plt.ylim(0, 1.3)
 plt.xticks([1, 2, 4, 8, 16, 32, 64])
 plt.grid(True, which='both', axis='x')
-plt.xlabel('Number of Processes (single core)')
+plt.xlabel('Number of Processess')
 plt.ylabel('Time (s)')
-plt.title(f"Time vs. Processes (single core) (places: {place_filter})")
+plt.title(f"Time vs. Processes (places: {place_filter})")
 plt.legend(title='Total Fishes')
 plt.grid(True)
 plt.tight_layout()

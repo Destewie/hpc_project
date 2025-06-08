@@ -7,7 +7,7 @@ import numpy as np
 import argparse
 
 # Costante modificabile
-TARGET_TOTAL_CORES = 32
+TARGET_TOTAL_CORES = 16
 
 # CLI args
 parser = argparse.ArgumentParser(description="Plot execution time for different (nodes, cores) combinations.")
@@ -27,6 +27,7 @@ valid_combinations = [
 
 # Filtro delle entry
 combo_to_time = {}
+combo_to_eff = {}
 for (n, c) in valid_combinations:
     matching_entries = []
     for entry in data.values():
@@ -45,11 +46,18 @@ for (n, c) in valid_combinations:
 
     if matching_entries:
         best_time = min(e["time"] for e in matching_entries)
+        best_eff = max(e["efficiency"] for e in matching_entries)
         combo_to_time[(n, c)] = best_time
+        combo_to_eff[(n, c)] = best_eff
 
 # Prepara i dati per il grafico
 labels = [f"({n},{c})" for (n, c) in valid_combinations if (n, c) in combo_to_time]
 times = [combo_to_time[(n, c)] for (n, c) in valid_combinations if (n, c) in combo_to_time]
+efficiencies = [combo_to_eff[(n, c)] for (n, c) in valid_combinations if (n, c) in combo_to_eff]
+for i in range(len(times)):
+    #limit times to 2 digits
+
+    print (labels[i], "& ", round(times[i],3), " & ", round(efficiencies[i],3), "\\\\")
 
 # Color mapping (senza colorbar)
 norm = plt.Normalize(min(times), max(times))
@@ -66,5 +74,5 @@ ax.set_xticklabels(labels, rotation=45)
 
 plt.ylim(0, 1400)
 plt.tight_layout()
-# plt.show()
-plt.savefig(f"images/compared_times_{selected_places}_{TARGET_TOTAL_CORES}.png", dpi=100)
+plt.show()
+# plt.savefig(f"images/compared_times_{selected_places}_{TARGET_TOTAL_CORES}.png", dpi=100)

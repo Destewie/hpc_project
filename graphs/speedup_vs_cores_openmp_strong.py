@@ -25,9 +25,10 @@ plt.figure(figsize=(8, 8))
 
 for total_fishes, points in grouped_data.items():
     # Sort by number of cores for consistent lines
-    points.sort(key=lambda x: x[0])
-    cores, speedups = zip(*points)
-    plt.plot(cores, speedups, marker='o', label=f'{total_fishes} fishes')
+    if total_fishes in [128000, 64000, 32000, 16000]:
+        points.sort(key=lambda x: x[0])
+        cores, speedups = zip(*points)
+        plt.plot(cores, speedups, marker='o', label=f'{total_fishes} fishes')
 
 
 max_val = 75
@@ -35,9 +36,9 @@ plt.plot([0, max_val], [0, max_val], 'k--', label="linear speedup")
 
 plt.xticks([1, 2, 4, 8, 16, 32, 64])
 plt.grid(True, which='both', axis='x')
-plt.xlabel('Number of Nodes')
+plt.xlabel('Number of Threads')
 plt.ylabel('Speedup')
-plt.title("Speedup vs. Cores")
+plt.title("Speedup vs. Threads")
 plt.legend(title='Total Fishes')
 plt.grid(True)
 plt.tight_layout()

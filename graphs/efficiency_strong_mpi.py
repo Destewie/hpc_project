@@ -26,6 +26,8 @@ for run_id, values in data.items():
 plt.figure(figsize=(8, 8))
 
 for total_fishes, points in grouped_data.items():
+    if total_fishes not in [128000, 64000, 32000, 16000]:
+        continue
     # Sort by number of cores for consistent lines
     points.sort(key=lambda x: x[0])
     cores, efficiencies = zip(*points)
@@ -36,9 +38,9 @@ plt.axhline(y=1.0, color='gray', linestyle='--', linewidth=1, label='Ideal Effic
 plt.ylim(0, 1.3)
 plt.xticks([1, 2, 4, 8, 16, 32, 64])
 plt.grid(True, which='both', axis='x')
-plt.xlabel('Number of Nodes')
+plt.xlabel('Number of Processes')
 plt.ylabel('Efficiency')
-plt.title(f"Efficiency vs. Nodes (places: {place_filter})")
+plt.title(f"Efficiency vs. Processes (places: {place_filter})")
 plt.legend(title='Total Fishes')
 plt.grid(True)
 plt.tight_layout()

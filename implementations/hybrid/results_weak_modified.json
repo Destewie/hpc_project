@@ -7,7 +7,8 @@
         "nodes": 1,
         "cores": 1,
         "places": "scatter",
-        "time": 498.18462
+        "time": 498.18462,
+        "efficiency_weak": 1.0
     },
     "3126980": {
         "total_fishes": 64000,
@@ -17,7 +18,8 @@
         "nodes": 1,
         "cores": 1,
         "places": "scatter",
-        "time": 2203.311187
+        "time": 2203.311187,
+        "efficiency_weak": 1.0
     },
     "3127132": {
         "total_fishes": 64000,
@@ -27,7 +29,8 @@
         "nodes": 1,
         "cores": 2,
         "places": "scatter",
-        "time": 1454.000388
+        "time": 1454.000388,
+        "efficiency_weak": 0.6764966392842532
     },
     "3127352": {
         "total_fishes": 64000,
@@ -47,7 +50,8 @@
         "nodes": 1,
         "cores": 4,
         "places": "scatter",
-        "time": 903.479177
+        "time": 903.479177,
+        "efficiency_weak": 0.5514068643554361
     },
     "3128026": {
         "total_fishes": 64000,
@@ -67,7 +71,8 @@
         "nodes": 1,
         "cores": 16,
         "places": "scatter",
-        "time": 486.744769
+        "time": 486.744769,
+        "efficiency_weak": 0.273687682917862
     },
     "3128095": {
         "total_fishes": 64000,
@@ -97,7 +102,8 @@
         "nodes": 2,
         "cores": 1,
         "places": "scatter",
-        "time": 893.818291
+        "time": 893.818291,
+        "efficiency_weak": 1.1004768932391427
     },
     "3128229": {
         "total_fishes": 64000,
@@ -107,7 +113,8 @@
         "nodes": 2,
         "cores": 2,
         "places": "scatter",
-        "time": 551.237169
+        "time": 551.237169,
+        "efficiency_weak": 0.903757308136092
     },
     "3128306": {
         "total_fishes": 64000,
@@ -127,7 +134,8 @@
         "nodes": 2,
         "cores": 8,
         "places": "scatter",
-        "time": 316.197809
+        "time": 316.197809,
+        "efficiency_weak": 0.42130604390114545
     },
     "3155833": {
         "total_fishes": 64000,
@@ -167,7 +175,8 @@
         "nodes": 4,
         "cores": 1,
         "places": "scatter",
-        "time": 614.574255
+        "time": 614.574255,
+        "efficiency_weak": 0.810617457446212
     },
     "3142988": {
         "total_fishes": 64000,
@@ -187,7 +196,8 @@
         "nodes": 4,
         "cores": 4,
         "places": "scatter",
-        "time": 364.546626
+        "time": 364.546626,
+        "efficiency_weak": 0.3654293813159582
     },
     "3142990": {
         "total_fishes": 64000,
@@ -247,7 +257,8 @@
         "nodes": 8,
         "cores": 2,
         "places": "scatter",
-        "time": 244.747644
+        "time": 244.747644,
+        "efficiency_weak": 0.5442996133601188
     },
     "3143070": {
         "total_fishes": 64000,
@@ -307,7 +318,8 @@
         "nodes": 16,
         "cores": 1,
         "places": "scatter",
-        "time": 170.835737
+        "time": 170.835737,
+        "efficiency_weak": 0.7797902847458668
     },
     "3145599": {
         "total_fishes": 64000,
@@ -447,7 +459,8 @@
         "nodes": 2,
         "cores": 1,
         "places": "pack",
-        "time": 114.977299
+        "time": 114.977299,
+        "efficiency_weak": 0.9303131481632735
     },
     "3222121": {
         "total_fishes": 256000,
@@ -457,7 +470,8 @@
         "nodes": 64,
         "cores": 1,
         "places": "pack",
-        "time": 131.942687
+        "time": 131.942687,
+        "efficiency_weak": 0.8106920923931161
     },
     "3217652": {
         "total_fishes": 8000,
@@ -467,7 +481,8 @@
         "nodes": 1,
         "cores": 2,
         "places": "pack",
-        "time": 176.415321
+        "time": 176.415321,
+        "efficiency_weak": 0.6063242829119133
     },
     "3222115": {
         "total_fishes": 4000,
@@ -477,7 +492,8 @@
         "nodes": 1,
         "cores": 1,
         "places": "pack",
-        "time": 106.964893
+        "time": 106.964893,
+        "efficiency_weak": 1.0
     },
     "3146059": {
         "total_fishes": 128000,
@@ -487,7 +503,8 @@
         "nodes": 1,
         "cores": 1,
         "places": "scatter",
-        "time": 3679.868905
+        "time": 3679.868905,
+        "efficiency_weak": 1.0
     },
     "3146066": {
         "total_fishes": 128000,
@@ -497,7 +514,8 @@
         "nodes": 1,
         "cores": 2,
         "places": "scatter",
-        "time": 2644.444173
+        "time": 2644.444173,
+        "efficiency_weak": 0.8331849881710472
     },
     "3147276": {
         "total_fishes": 128000,
@@ -507,7 +525,8 @@
         "nodes": 1,
         "cores": 4,
         "places": "scatter",
-        "time": 1444.583995
+        "time": 1444.583995,
+        "efficiency_weak": 0.6809063227922583
     },
     "3147277": {
         "total_fishes": 128000,
@@ -517,7 +536,8 @@
         "nodes": 1,
         "cores": 8,
         "places": "scatter",
-        "time": 1475.795698
+        "time": 1475.795698,
+        "efficiency_weak": 0.3375701803949831
     },
     "3147321": {
         "total_fishes": 128000,
@@ -537,7 +557,8 @@
         "nodes": 1,
         "cores": 32,
         "places": "pack",
-        "time": 815.343917
+        "time": 815.343917,
+        "efficiency_weak": 0.1311899074363242
     },
     "3147323": {
         "total_fishes": 128000,
@@ -547,7 +568,7 @@
         "nodes": 1,
         "cores": 64,
         "places": "scatter",
-        "time": 912.086390
+        "time": 938.304858
     },
     "3147415": {
         "total_fishes": 128000,
@@ -557,7 +578,8 @@
         "nodes": 2,
         "cores": 1,
         "places": "scatter",
-        "time": 2171.592553
+        "time": 2171.592553,
+        "efficiency_weak": 1.0146061626322034
     },
     "3147416": {
         "total_fishes": 128000,
@@ -567,7 +589,8 @@
         "nodes": 2,
         "cores": 2,
         "places": "scatter",
-        "time": 1409.284369
+        "time": 1409.284369,
+        "efficiency_weak": 0.6979616020987742
     },
     "3147417": {
         "total_fishes": 128000,
@@ -577,7 +600,8 @@
         "nodes": 2,
         "cores": 4,
         "places": "scatter",
-        "time": 2079.432094
+        "time": 2079.432094,
+        "efficiency_weak": 0.23957724872933506
     },
     "3147418": {
         "total_fishes": 128000,
@@ -597,7 +621,8 @@
         "nodes": 2,
         "cores": 16,
         "places": "scatter",
-        "time": 1712.290367
+        "time": 1712.290367,
+        "efficiency_weak": 0.0777999167474146
     },
     "3147420": {
         "total_fishes": 128000,
@@ -627,7 +652,8 @@
         "nodes": 4,
         "cores": 2,
         "places": "scatter",
-        "time": 803.351099
+        "time": 803.351099,
+        "efficiency_weak": 0.6201331156702631
     },
     "3149690": {
         "total_fishes": 128000,
@@ -647,7 +673,8 @@
         "nodes": 4,
         "cores": 8,
         "places": "scatter",
-        "time": 618.877469
+        "time": 618.877469,
+        "efficiency_weak": 0.21525431878341655
     },
     "3149699": {
         "total_fishes": 128000,
@@ -677,7 +704,8 @@
         "nodes": 8,
         "cores": 1,
         "places": "scatter",
-        "time": 620.885503
+        "time": 620.885503,
+        "efficiency_weak": 0.8023776003673257
     },
     "3149707": {
         "total_fishes": 128000,
@@ -697,7 +725,8 @@
         "nodes": 8,
         "cores": 4,
         "places": "scatter",
-        "time": 766.270256
+        "time": 766.270256,
+        "efficiency_weak": 0.17384995301187836
     },
     "3149722": {
         "total_fishes": 128000,
@@ -747,7 +776,8 @@
         "nodes": 16,
         "cores": 2,
         "places": "scatter",
-        "time": 152.247577
+        "time": 152.247577,
+        "efficiency_weak": 0.8749961781000954
     },
     "3154382": {
         "total_fishes": 128000,
@@ -897,7 +927,8 @@
         "nodes": 1,
         "cores": 4,
         "places": "pack",
-        "time": 1027.263456
+        "time": 1027.263456,
+        "efficiency_weak": 0.46079178543269433
     },
     "3188042": {
         "total_fishes": 64000,
@@ -907,7 +938,8 @@
         "nodes": 1,
         "cores": 2,
         "places": "pack",
-        "time": 1219.142761
+        "time": 1219.142761,
+        "efficiency_weak": 0.7040238956887839
     },
     "3188041": {
         "total_fishes": 64000,
@@ -917,7 +949,8 @@
         "nodes": 1,
         "cores": 1,
         "places": "pack",
-        "time": 1768.008944
+        "time": 1768.008944,
+        "efficiency_weak": 1.0
     },
     "3188368": {
         "total_fishes": 64000,
@@ -947,7 +980,8 @@
         "nodes": 2,
         "cores": 2,
         "places": "pack",
-        "time": 1065.470095
+        "time": 1065.470095,
+        "efficiency_weak": 0.44426827577924655
     },
     "3215605": {
         "total_fishes": 128000,
@@ -957,7 +991,8 @@
         "nodes": 1,
         "cores": 32,
         "places": "scatter",
-        "time": 1022.243685
+        "time": 1022.243685,
+        "efficiency_weak": 0.13031731078876754
     },
     "3215755": {
         "total_fishes": 4000,
@@ -967,7 +1002,8 @@
         "nodes": 1,
         "cores": 1,
         "places": "scatter",
-        "time": 133.216048
+        "time": 133.216048,
+        "efficiency_weak": 1.0
     },
     "3215982": {
         "total_fishes": 128000,
@@ -977,7 +1013,8 @@
         "nodes": 32,
         "cores": 1,
         "places": "scatter",
-        "time": 243.423745
+        "time": 243.423745,
+        "efficiency_weak": 0.5472598739288971
     },
     "3215989": {
         "total_fishes": 256000,
@@ -987,7 +1024,8 @@
         "nodes": 64,
         "cores": 1,
         "places": "scatter",
-        "time": 244.857208
+        "time": 244.857208,
+        "efficiency_weak": 0.5440560606245253
     },
     "3188360": {
         "total_fishes": 64000,
@@ -997,7 +1035,8 @@
         "nodes": 1,
         "cores": 16,
         "places": "pack",
-        "time": 3090.310448
+        "time": 3090.310448,
+        "efficiency_weak": 0.03461299270732686
     },
     "3188574": {
         "total_fishes": 64000,
@@ -1007,7 +1046,8 @@
         "nodes": 2,
         "cores": 1,
         "places": "pack",
-        "time": 893.123205
+        "time": 893.123205,
+        "efficiency_weak": 0.9610159395645756
     },
     "3188576": {
         "total_fishes": 64000,
@@ -1027,7 +1067,8 @@
         "nodes": 2,
         "cores": 8,
         "places": "pack",
-        "time": 583.364207
+        "time": 583.364207,
+        "efficiency_weak": 0.1833586835059286
     },
     "3196598": {
         "total_fishes": 64000,
@@ -1057,7 +1098,8 @@
         "nodes": 4,
         "cores": 1,
         "places": "pack",
-        "time": 503.99474
+        "time": 503.99474,
+        "efficiency_weak": 0.9392053615480194
     },
     "3196602": {
         "total_fishes": 64000,
@@ -1087,7 +1129,8 @@
         "nodes": 4,
         "cores": 4,
         "places": "pack",
-        "time": 846.280141
+        "time": 846.280141,
+        "efficiency_weak": 0.12639419007706576
     },
     "3196669": {
         "total_fishes": 64000,
@@ -1117,7 +1160,8 @@
         "nodes": 8,
         "cores": 2,
         "places": "pack",
-        "time": 1371.380117
+        "time": 1371.380117,
+        "efficiency_weak": 0.07799799025378462
     },
     "3197771": {
         "total_fishes": 64000,
@@ -1147,7 +1191,8 @@
         "nodes": 16,
         "cores": 1,
         "places": "pack",
-        "time": 131.941564
+        "time": 131.941564,
+        "efficiency_weak": 0.8106989924721523
     },
     "3199134": {
         "total_fishes": 64000,
@@ -1227,7 +1272,8 @@
         "nodes": 1,
         "cores": 4,
         "places": "scatter",
-        "time": 253.335888
+        "time": 253.335888,
+        "efficiency_weak": 0.5258475182955523
     },
     "3212392": {
         "total_fishes": 16000,
@@ -1267,7 +1313,8 @@
         "nodes": 2,
         "cores": 2,
         "places": "scatter",
-        "time": 142.597858
+        "time": 142.597858,
+        "efficiency_weak": 0.9342079177654968
     },
     "3212395": {
         "total_fishes": 16000,
@@ -1297,7 +1344,8 @@
         "nodes": 1,
         "cores": 8,
         "places": "scatter",
-        "time": 302.887075
+        "time": 302.887075,
+        "efficiency_weak": 0.4398208408199657
     },
     "3215133": {
         "total_fishes": 32000,
@@ -1317,7 +1365,8 @@
         "nodes": 1,
         "cores": 2,
         "places": "scatter",
-        "time": 646.35591
+        "time": 646.35591,
+        "efficiency_weak": 0.7707589770471813
     },
     "3215131": {
         "total_fishes": 32000,
@@ -1327,7 +1376,8 @@
         "nodes": 1,
         "cores": 1,
         "places": "scatter",
-        "time": 983.626376
+        "time": 983.626376,
+        "efficiency_weak": 1.0
     },
     "3215199": {
         "total_fishes": 32000,
@@ -1427,7 +1477,8 @@
         "nodes": 4,
         "cores": 1,
         "places": "scatter",
-        "time": 124.836457
+        "time": 124.836457,
+        "efficiency_weak": 1.0671245500022482
     },
     "3215341": {
         "total_fishes": 16000,
@@ -1587,7 +1638,8 @@
         "nodes": 8,
         "cores": 1,
         "places": "scatter",
-        "time": 132.546881
+        "time": 132.546881,
+        "efficiency_weak": 1.0050485307157095
     },
     "3221726": {
         "total_fishes": 32000,
@@ -1627,7 +1679,8 @@
         "nodes": 2,
         "cores": 1,
         "places": "scatter",
-        "time": 459.299015
+        "time": 459.299015,
+        "efficiency_weak": 1.08466294011103
     },
     "3221716": {
         "total_fishes": 128000,
@@ -1637,7 +1690,8 @@
         "nodes": 4,
         "cores": 1,
         "places": "scatter",
-        "time": 884.893503
+        "time": 884.893503,
+        "efficiency_weak": 1.1115759949251205
     },
     "3221736": {
         "total_fishes": 16000,
@@ -1667,7 +1721,8 @@
         "nodes": 4,
         "cores": 1,
         "places": "pack",
-        "time": 114.557991
+        "time": 114.557991,
+        "efficiency_weak": 0.9337183034224125
     },
     "3221737": {
         "total_fishes": 16000,
@@ -1717,7 +1772,8 @@
         "nodes": 1,
         "cores": 1,
         "places": "pack",
-        "time": 473.354562
+        "time": 473.354562,
+        "efficiency_weak": 1.0
     },
     "3221744": {
         "total_fishes": 32000,
@@ -1757,7 +1813,8 @@
         "nodes": 8,
         "cores": 1,
         "places": "pack",
-        "time": 111.825518
+        "time": 111.825518,
+        "efficiency_weak": 0.9565338476679357
     },
     "3221750": {
         "total_fishes": 128000,
@@ -1767,7 +1824,8 @@
         "nodes": 1,
         "cores": 1,
         "places": "pack",
-        "time": 3625.776479
+        "time": 3625.776479,
+        "efficiency_weak": 1.0
     },
     "3221978": {
         "total_fishes": 64000,
@@ -1797,7 +1855,8 @@
         "nodes": 2,
         "cores": 1,
         "places": "pack",
-        "time": 476.28335
+        "time": 476.28335,
+        "efficiency_weak": 0.9938507445200425
     },
     "3221757": {
         "total_fishes": 128000,
@@ -1817,7 +1876,8 @@
         "nodes": 32,
         "cores": 1,
         "places": "pack",
-        "time": 135.825221
+        "time": 135.825221,
+        "efficiency_weak": 0.7875186376468329
     },
     "3221739": {
         "total_fishes": 32000,
@@ -1827,7 +1887,8 @@
         "nodes": 1,
         "cores": 1,
         "places": "pack",
-        "time": 858.305636
+        "time": 858.305636,
+        "efficiency_weak": 1.0
     },
     "3221755": {
         "total_fishes": 128000,
@@ -1847,7 +1908,8 @@
         "nodes": 8,
         "cores": 1,
         "places": "pack",
-        "time": 498.699528
+        "time": 498.699528,
+        "efficiency_weak": 0.9491778825184691
     },
     "3221753": {
         "total_fishes": 128000,
@@ -1857,7 +1919,8 @@
         "nodes": 4,
         "cores": 1,
         "places": "pack",
-        "time": 885.875806
+        "time": 885.875806,
+        "efficiency_weak": 0.9688780641560947
     },
     "3221751": {
         "total_fishes": 128000,
@@ -1867,7 +1930,8 @@
         "nodes": 2,
         "cores": 1,
         "places": "pack",
-        "time": 1787.276847
+        "time": 1787.276847,
+        "efficiency_weak": 0.9892194077082451
     },
     "3222548": {
         "total_fishes": 64000,
@@ -1897,7 +1961,8 @@
         "nodes": 2,
         "cores": 2,
         "places": "scatter",
-        "time": 202.536837
+        "time": 202.536837,
+        "efficiency_weak": 0.6577373774233475
     },
     "3222777": {
         "total_fishes": 32000,
@@ -1907,7 +1972,8 @@
         "nodes": 4,
         "cores": 2,
         "places": "scatter",
-        "time": 361.921704
+        "time": 361.921704,
+        "efficiency_weak": 0.36807974356796247
     },
     "3222778": {
         "total_fishes": 256000,
@@ -1917,7 +1983,8 @@
         "nodes": 32,
         "cores": 2,
         "places": "scatter",
-        "time": 395.636508
+        "time": 395.636508,
+        "efficiency_weak": 0.3367132337544542
     },
     "3222779": {
         "total_fishes": 512000,
@@ -1927,7 +1994,8 @@
         "nodes": 64,
         "cores": 2,
         "places": "scatter",
-        "time": 364.889374
+        "time": 364.889374,
+        "efficiency_weak": 0.3650861260761186
     },
     "3222827": {
         "total_fishes": 1024000,
@@ -1937,7 +2005,8 @@
         "nodes": 64,
         "cores": 4,
         "places": "scatter",
-        "time": 865.998224
+        "time": 865.998224,
+        "efficiency_weak": 0.15382947020916754
     },
     "3222828": {
         "total_fishes": 512000,
@@ -1947,7 +2016,8 @@
         "nodes": 32,
         "cores": 4,
         "places": "scatter",
-        "time": 879.118333
+        "time": 879.118333,
+        "efficiency_weak": 0.1515336934737772
     },
     "3222829": {
         "total_fishes": 256000,
@@ -1957,7 +2027,8 @@
         "nodes": 16,
         "cores": 4,
         "places": "scatter",
-        "time": 876.161147
+        "time": 876.161147,
+        "efficiency_weak": 0.15204514427070343
     },
     "3222831": {
         "total_fishes": 32000,
@@ -1967,7 +2038,8 @@
         "nodes": 2,
         "cores": 4,
         "places": "scatter",
-        "time": 631.214183
+        "time": 631.214183,
+        "efficiency_weak": 0.21104729834627303
     },
     "3222552": {
         "total_fishes": 64000,
@@ -1987,7 +2059,8 @@
         "nodes": 32,
         "cores": 8,
         "places": "scatter",
-        "time": 1043.098031
+        "time": 1043.098031,
+        "efficiency_weak": 0.12771191588990738
     },
     "3222849": {
         "total_fishes": 256000,
@@ -1997,7 +2070,8 @@
         "nodes": 8,
         "cores": 8,
         "places": "scatter",
-        "time": 844.99
+        "time": 844.99,
+        "efficiency_weak": 0.15765399353838508
     },
     "3222850": {
         "total_fishes": 512000,
@@ -2007,7 +2081,8 @@
         "nodes": 16,
         "cores": 8,
         "places": "scatter",
-        "time": 1051.81767
+        "time": 1051.81767,
+        "efficiency_weak": 0.1266531755451494
     },
     "3222905": {
         "total_fishes": 2048000,
@@ -2017,7 +2092,8 @@
         "nodes": 64,
         "cores": 8,
         "places": "scatter",
-        "time": 778.626539
+        "time": 778.626539,
+        "efficiency_weak": 0.17109107040082538
     },
     "3222907": {
         "total_fishes": 512000,
@@ -2037,7 +2113,8 @@
         "nodes": 4,
         "cores": 16,
         "places": "scatter",
-        "time": 2831.662661
+        "time": 2831.662661,
+        "efficiency_weak": 0.04704516884541425
     },
     "3222916": {
         "total_fishes": 512000,
@@ -2047,7 +2124,8 @@
         "nodes": 4,
         "cores": 32,
         "places": "scatter",
-        "time": 1933.003848
+        "time": 1933.003848,
+        "efficiency_weak": 0.06891659741796852
     },
     "3222915": {
         "total_fishes": 256000,
@@ -2057,7 +2135,8 @@
         "nodes": 2,
         "cores": 32,
         "places": "scatter",
-        "time": 3993.087019
+        "time": 3993.087019,
+        "efficiency_weak": 0.03336166914623405
     },
     "3223015": {
         "total_fishes": 2048000,
@@ -2067,7 +2146,8 @@
         "nodes": 16,
         "cores": 32,
         "places": "scatter",
-        "time": 4375.085258
+        "time": 4375.085258,
+        "efficiency_weak": 0.03044878902791887
     },
     "3222839": {
         "total_fishes": 256000,
@@ -2077,7 +2157,8 @@
         "nodes": 1,
         "cores": 1,
         "places": "scatter",
-        "time": 8290.343767
+        "time": 8290.343767,
+        "efficiency_weak": 1.0
     },
     "3223002": {
         "total_fishes": 1024000,
@@ -2087,7 +2168,8 @@
         "nodes": 8,
         "cores": 32,
         "places": "scatter",
-        "time": 6174.202913
+        "time": 6174.202913,
+        "efficiency_weak": 0.021576234192029704
     },
     "3223022": {
         "total_fishes": 1024000,
@@ -2097,7 +2179,8 @@
         "nodes": 16,
         "cores": 16,
         "places": "scatter",
-        "time": 6036.714447
+        "time": 6036.714447,
+        "efficiency_weak": 0.022067641126573896
     },
     "3223051": {
         "total_fishes": 2048000,
@@ -2107,7 +2190,8 @@
         "nodes": 32,
         "cores": 16,
         "places": "scatter",
-        "time": 8770.626897
+        "time": 8770.626897,
+        "efficiency_weak": 0.015188885534005176
     },
     "3223251": {
         "total_fishes": 4096000,
@@ -2117,7 +2201,8 @@
         "nodes": 32,
         "cores": 32,
         "places": "scatter",
-        "time": 4925.103264
+        "time": 4925.103264,
+        "efficiency_weak": 0.027048376624657103
     },
     "3223967": {
         "total_fishes": 4096000,
@@ -2127,7 +2212,8 @@
         "nodes": 64,
         "cores": 16,
         "places": "scatter",
-        "time": 1092.193368
+        "time": 1092.193368,
+        "efficiency_weak": 0.1219711196781411
     },
     "3224126": {
         "total_fishes": 16000,
@@ -2137,7 +2223,8 @@
         "nodes": 2,
         "cores": 2,
         "places": "pack",
-        "time": 268.147018
+        "time": 268.147018,
+        "efficiency_weak": 0.39890390651295626
     },
     "3224127": {
         "total_fishes": 32000,
@@ -2147,7 +2234,8 @@
         "nodes": 4,
         "cores": 2,
         "places": "pack",
-        "time": 592.994279
+        "time": 592.994279,
+        "efficiency_weak": 0.18038098644118622
     },
     "3224171": {
         "total_fishes": 32000,
@@ -2157,7 +2245,8 @@
         "nodes": 2,
         "cores": 4,
         "places": "pack",
-        "time": 356.060204
+        "time": 356.060204,
+        "efficiency_weak": 0.30041237913799546
     },
     "3224172": {
         "total_fishes": 128000,
@@ -2167,7 +2256,8 @@
         "nodes": 8,
         "cores": 4,
         "places": "pack",
-        "time": 1530.859367
+        "time": 1530.859367,
+        "efficiency_weak": 0.06987244896937682
     },
     "3222840": {
         "total_fishes": 512000,
@@ -2177,7 +2267,8 @@
         "nodes": 1,
         "cores": 1,
         "places": "scatter",
-        "time": 17386.868518
+        "time": 17386.868518,
+        "efficiency_weak": 1.0
     },
     "3224261": {
         "total_fishes": 128000,
@@ -2187,7 +2278,8 @@
         "nodes": 16,
         "cores": 2,
         "places": "pack",
-        "time": 2319.633248
+        "time": 2319.633248,
+        "efficiency_weak": 0.04611284697364365
     },
     "3224485": {
         "total_fishes": 128000,
@@ -2197,7 +2289,8 @@
         "nodes": 4,
         "cores": 8,
         "places": "pack",
-        "time": 1153.110273
+        "time": 1153.110273,
+        "efficiency_weak": 0.09276206751823814
     },
     "3224184": {
         "total_fishes": 256000,
@@ -2207,7 +2300,8 @@
         "nodes": 16,
         "cores": 4,
         "places": "pack",
-        "time": 4135.196862
+        "time": 4135.196862,
+        "efficiency_weak": 0.025866940938880992
     },
     "3224278": {
         "total_fishes": 256000,
@@ -2217,7 +2311,8 @@
         "nodes": 32,
         "cores": 2,
         "places": "pack",
-        "time": 4695.179958
+        "time": 4695.179958,
+        "efficiency_weak": 0.022781851591810703
     },
     "3224949": {
         "total_fishes": 128000,
@@ -2227,7 +2322,8 @@
         "nodes": 2,
         "cores": 16,
         "places": "pack",
-        "time": 914.077621
+        "time": 914.077621,
+        "efficiency_weak": 0.11701948559136642
     },
     "3224703": {
         "total_fishes": 256000,
@@ -2237,7 +2333,8 @@
         "nodes": 8,
         "cores": 8,
         "places": "pack",
-        "time": 3628.681111
+        "time": 3628.681111,
+        "efficiency_weak": 0.029477622785795687
     },
     "3224971": {
         "total_fishes": 256000,
@@ -2247,7 +2344,8 @@
         "nodes": 4,
         "cores": 16,
         "places": "pack",
-        "time": 3906.980927
+        "time": 3906.980927,
+        "efficiency_weak": 0.02737788973086533
     },
     "3225287": {
         "total_fishes": 256000,
@@ -2257,7 +2355,8 @@
         "nodes": 2,
         "cores": 32,
         "places": "pack",
-        "time": 3115.363118
+        "time": 3115.363118,
+        "efficiency_weak": 0.03433464702139418
     },
     "3223960": {
         "total_fishes": 8192000,
@@ -2267,7 +2366,8 @@
         "nodes": 64,
         "cores": 32,
         "places": "scatter",
-        "time": 2561.82136
+        "time": 2561.82136,
+        "efficiency_weak": 0.052000522003610744
     },
     "3238083": {
         "total_fishes": 64000,

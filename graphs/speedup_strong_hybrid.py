@@ -53,17 +53,20 @@ for threads, values in sorted(grouped_by_threads.items()):
         values.sort()
         x = [nodes for nodes, _ in values]
         y = [eff for _, eff in values]
-        plt.plot(x, y, marker='o', label=f"{threads} thread")
+        if threads == 1: 
+            plt.plot(x, y, marker='o', label=f"{threads} thread")
+        else:
+            plt.plot(x, y, marker='o', label=f"{threads} threads")
 
 max_val = 75
 plt.plot([0, max_val], [0, max_val], 'k--', label="linear speedup")
 plt.xticks([1, 2, 4, 8, 16, 32, 64])
 plt.xlim(0, 67)
 plt.ylim(0, 185)  # Imposta un limite superiore per l'efficienza
-plt.xlabel("Numero di processi (nodes)")
+plt.xlabel("Number of processes")
 plt.ylabel("Speedup")
 plt.title(f"Speedup vs processes - fishes={selected_fishes}, places={selected_places}")
-plt.legend(title="Numero di threads")
+plt.legend(title="Number of threads")
 plt.grid(True)
 plt.tight_layout()
 # plt.show()
